@@ -1,0 +1,12 @@
+#!/bin/bash
+#$ -V
+#$ -pe smp 16
+#$ -N zapdos
+#$ -M jhaase1@nd.edu
+#$ -m e
+#$ -r y
+
+gmsh -1 -v 0 TE_diode.geo
+zapdos-opt --no-color -i Field.i > log.txt
+
+####$ -q *@@dgo
