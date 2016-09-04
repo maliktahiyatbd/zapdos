@@ -27,9 +27,9 @@ protected:
 	const VariableGradient & _grad_potential;
 	unsigned int _potential_id;
 
-	const MaterialProperty<Real> & _e;
-	const MaterialProperty<Real> & _work_function;
-	const MaterialProperty<Real> & _field_enhancement;
+	Real _e;
+	Real _work_function;
+	Real _field_enhancement;
 };
 
 #endif //FIELDEMISSIONBC_H
