@@ -1,8 +1,8 @@
 #!/bin/bash
 
 git clean -fxd
-cd moose
+cd ../moose
 git clean -fxd
 ./scripts/update_and_rebuild_libmesh.sh
-cd ..
+cd ../zapdos
 make -j4
