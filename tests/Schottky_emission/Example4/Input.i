@@ -55,7 +55,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 	petsc_options_value = 'lu NONZERO 1.e-10 preonly 1e-3'
 
 	nl_rel_tol = 1e-8
-	nl_abs_tol = 2e-6
+	nl_abs_tol = 1e-8
 
 	dtmin = 1e-15
 	# dtmax = 1E-6
@@ -528,21 +528,23 @@ area = 5.02e-7 # Formerly 3.14e-6
  	# [../]
 
 	[./potential_left]
-	  boundary = left
-	  type = PenaltyCircuitPotential
-	  variable = potential
-	  current = current_density_user_object
-	  surface_potential = -${vhigh}
-	  surface = 'cathode'
-	  penalty = 1
-	  data_provider = data_provider
-	  em = em
-	  ip = Arp
-	  mean_en = mean_en
-	  area = ${area}
-	  potential_units = 'kV'
-	  position_units = ${dom0Scale}
-	  resistance = ${resistance}
+		boundary = left
+#		type = PenaltyCircuitPotential
+		type = NeumannCircuitVoltageNew
+		variable = potential
+		current = current_density_user_object
+#		surface_potential = -${vhigh}
+		source_voltage = potential_bc_func
+		surface = 'cathode'
+		penalty = 1
+		data_provider = data_provider
+		em = em
+		ip = Arp
+		mean_en = mean_en
+		area = ${area}
+
+		position_units = ${dom0Scale}
+		resistance = ${resistance}
 	[../]
 
 	[./potential_dirichlet_right]
@@ -654,14 +656,14 @@ area = 5.02e-7 # Formerly 3.14e-6
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -30
+		value = -25
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -30
+		value = -25
 		block = 0
 	[../]
 
@@ -678,7 +680,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 		type = ParsedFunction
 		vars = 'VHigh'
 		vals = '${vhigh}')
-		value = 'VHigh'
+		value = '-VHigh'
 	[../]
 	[./potential_ic_func]
 		type = ParsedFunction
