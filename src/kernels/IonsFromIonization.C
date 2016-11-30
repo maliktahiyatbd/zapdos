@@ -5,7 +5,7 @@ template<>
 InputParameters validParams<IonsFromIonization>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addRequiredCoupledVar("mean_en","The electron mean energy.");
+  params.addCoupledVar("mean_en","The electron mean energy.");
   params.addRequiredCoupledVar("potential","The potential.");
   params.addRequiredCoupledVar("em", "The electron density.");
   params.addRequiredParam<Real>("position_units", "Units of position.");

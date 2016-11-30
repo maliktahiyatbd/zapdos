@@ -6,7 +6,7 @@ InputParameters validParams<SecondaryElectronBC>()
   InputParameters params = validParams<IntegratedBC>();
   params.addRequiredParam<Real>("r", "The reflection coefficient");
   params.addRequiredCoupledVar("potential","The electric potential");
-  params.addRequiredCoupledVar("mean_en", "The mean energy.");
+  params.addCoupledVar("mean_en", "The mean energy.");
   params.addRequiredCoupledVar("ip", "The ion density.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
   return params;

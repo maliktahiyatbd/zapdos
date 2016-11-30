@@ -6,7 +6,7 @@ InputParameters validParams<ElectronTemperature>()
   InputParameters params = validParams<AuxKernel>();
   
   params.addRequiredCoupledVar("electron_density","The electron density");
-  params.addRequiredCoupledVar("mean_en", "The logarathmic representation of the mean energy.");
+  params.addCoupledVar("mean_en", "The logarathmic representation of the mean energy.");
   
   return params;
 }

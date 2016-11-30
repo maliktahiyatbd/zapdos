@@ -23,7 +23,7 @@ InputParameters validParams<NeumannCircuitVoltageMoles_KV>()
   params.addRequiredParam<UserObjectName>("data_provider","The name of the UserObject that can provide some data to materials, bcs, etc.");
   params.addRequiredCoupledVar("ip","The ion density.");
   params.addRequiredCoupledVar("em","The log of the electron density.");
-  params.addRequiredCoupledVar("mean_en","The log of the product of the mean energy and the electron density.");
+  params.addCoupledVar("mean_en","The log of the product of the mean energy and the electron density.");
   params.addRequiredParam<std::string>("potential_units", "The potential units.");
   params.addRequiredParam<Real>("r", "The reflection coefficient applied to both electrons and ions");
   params.addRequiredParam<Real>("position_units", "Units of position.");

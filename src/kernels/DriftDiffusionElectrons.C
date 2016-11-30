@@ -5,7 +5,7 @@ InputParameters validParams<DriftDiffusionElectrons>()
 {
 	InputParameters params = validParams<Kernel>();
 	params.addRequiredCoupledVar("potential", "The gradient of the potential will be used to compute the advection velocity.");
-	params.addRequiredCoupledVar("mean_en", "The log of the product of mean energy times electron density.");
+	params.addCoupledVar("mean_en", "The log of the product of mean energy times electron density.");
 	params.addRequiredParam<Real>("position_units", "Units of position");
 	return params;
 }

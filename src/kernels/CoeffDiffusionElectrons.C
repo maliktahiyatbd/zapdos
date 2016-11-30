@@ -5,7 +5,7 @@ template<>
 InputParameters validParams<CoeffDiffusionElectrons>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addRequiredCoupledVar("mean_en", "The log of the product of mean energy times electron density.");
+  params.addCoupledVar("mean_en", "The log of the product of mean energy times electron density.");
   params.addRequiredParam<Real>("position_units", "Units of position");
   return params;
 }

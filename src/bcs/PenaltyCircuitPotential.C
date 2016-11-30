@@ -12,7 +12,7 @@ InputParameters validParams<PenaltyCircuitPotential>()
   p.addRequiredParam<UserObjectName>("data_provider", "The name of the UserObject that can provide some data to materials, bcs, etc.");
   p.addRequiredCoupledVar("em", "The electron variable.");
   p.addRequiredCoupledVar("ip", "The ion variable.");
-  p.addRequiredCoupledVar("mean_en", "The ion variable.");
+  p.addCoupledVar("mean_en", "The ion variable.");
   p.addParam<Real>("area", "Must be provided when the number of dimensions equals 1.");
   p.addRequiredParam<std::string>("potential_units", "The potential units.");
   p.addRequiredParam<Real>("position_units", "Units of position.");

@@ -5,7 +5,7 @@ InputParameters validParams<ElectronAdvectionDoNothingBC>()
 {
   InputParameters params = validParams<IntegratedBC>();
   params.addRequiredCoupledVar("potential", "The gradient of the potential will be used to compute the advection velocity.");
-  params.addRequiredCoupledVar("mean_en", "The log of the mean energy.");
+  params.addCoupledVar("mean_en", "The log of the mean energy.");
   params.addRequiredParam<Real>("position_units", "The units of position.");
   return params;
 }
