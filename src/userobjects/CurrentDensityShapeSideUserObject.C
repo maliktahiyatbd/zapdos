@@ -8,7 +8,7 @@ InputParameters validParams<CurrentDensityShapeSideUserObject>()
   params.addRequiredCoupledVar("em", "The electron  density.");
   params.addRequiredCoupledVar("ip", "The ion density density.");
   params.addRequiredCoupledVar("potential", "The electrical potential.");
-  params.addRequiredCoupledVar("mean_en", "The mean energy variable.");
+  params.addCoupledVar("mean_en", 3, "The mean energy variable.");
   params.addRequiredParam<bool>("use_moles", "Whether the densities are in molar units.");
   return params;
 }
