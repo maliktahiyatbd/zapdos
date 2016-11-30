@@ -474,57 +474,30 @@ area = 5.02e-7 # Formerly 3.14e-6
 		relax = true
 	[../]
 
-	# [./em_physical_left]
-	# 	type = HagelaarElectronBC
-	# 	variable = em
-	# 	boundary = 'left'
-	# 	potential = potential
-	# 	r = 0
-	# 	position_units = ${dom0Scale}
-	# [../]
-
-	[./em_physical_right]
-		type = HagelaarElectronAdvectionBC
+	[./em_physical_right_do_nothing_advection]
+		type = ElectronAdvectionDoNothingBC
 		variable = em
 		boundary = right
 		potential = potential
-		r = 0
+		mean_en = mean_en
+		position_units = ${dom0Scale}
+	[../]
+	[./em_physical_right_do_nothing_diffusion]
+		type = ElectronDiffusionDoNothingBC
+		variable = em
+		boundary = right
+		mean_en = mean_en
 		position_units = ${dom0Scale}
 	[../]
 
 ## Argon boundary conditions ##
-	[./Arp_physical_left_diffusion]
-		type = HagelaarIonDiffusionBC
-		variable = Arp
-		boundary = 'left'
-		r = 0
-		position_units = ${dom0Scale}
+	[./Arp_left]
+	  type = DriftDiffusionDoNothingBC
+	  variable = Arp
+	  boundary = 'left'
+	  potential = potential
+	  position_units = ${dom0Scale}
 	[../]
-	[./Arp_physical_left_advection]
-		type = HagelaarIonAdvectionBC
-		variable = Arp
-		boundary = 'left'
-		potential = potential
-		r = 0
-		position_units = ${dom0Scale}
-	[../]
-
-	[./Arp_physical_right_diffusion]
-		type = HagelaarIonDiffusionBC
-		variable = Arp
-		boundary = right
-		r = 0
-		position_units = ${dom0Scale}
-	[../]
-	[./Arp_physical_right_advection]
-		type = HagelaarIonAdvectionBC
-		variable = Arp
-		boundary = right
-		potential = potential
-		r = 0
-		position_units = ${dom0Scale}
-	[../]
-
 []
 
 [ICs]

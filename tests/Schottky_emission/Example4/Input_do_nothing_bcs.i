@@ -2,7 +2,7 @@ dom0Scale = 1
 dom0Size = 2E-6 #m
 vhigh = 230E-3 #kV
 relaxTime = 1e-9 #s
-resistance = 1
+resistance = 1e-3
 area = 5.02e-7 # Formerly 3.14e-6
 
 [GlobalParams]
