@@ -231,6 +231,7 @@ ZapdosApp::registerObjects(Factory & factory)
   registerBoundaryCondition(HagelaarEnergyBC);
   registerBoundaryCondition(HagelaarEnergyAdvectionBC);
   registerBoundaryCondition(NeumannCircuitVoltageMoles_KV);
+  registerBoundaryCondition(NeumannCircuitVoltageNew);
   registerBoundaryCondition(DCIonBC);
   registerInterfaceKernel(InterfaceAdvection);
   registerInterfaceKernel(HphiRadialInterface);

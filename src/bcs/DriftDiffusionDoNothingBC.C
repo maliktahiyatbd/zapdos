@@ -32,9 +32,13 @@ DriftDiffusionDoNothingBC::DriftDiffusionDoNothingBC(const InputParameters & par
 
   if (!(isCoupled("potential")))
     _minus_e_field.resize(_fe_problem.getMaxQps(), RealGradient(-getParam<Real>("EField")));
-  _user_diff.set().resize(_fe_problem.getMaxQps(), Real(getParam<Real>("diff")));
-  _user_mu.set().resize(_fe_problem.getMaxQps(), Real(getParam<Real>("mu")));
-  _user_sign.set().resize(_fe_problem.getMaxQps(), Real(getParam<Real>("sign")));
+
+  if (!getParam<bool>("use_material_props"))
+  {
+    _user_diff.set().resize(_fe_problem.getMaxQps(), Real(getParam<Real>("diff")));
+    _user_mu.set().resize(_fe_problem.getMaxQps(), Real(getParam<Real>("mu")));
+    _user_sign.set().resize(_fe_problem.getMaxQps(), Real(getParam<Real>("sign")));
+  }
 }
 
 DriftDiffusionDoNothingBC::~DriftDiffusionDoNothingBC()
