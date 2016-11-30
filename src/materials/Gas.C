@@ -94,6 +94,7 @@ Gas::Gas(const InputParameters & parameters) :
 	_Tem_lfa(declareProperty<Real>("Tem_lfa")),
 	_Tip_lfa(declareProperty<Real>("Tip_lfa")),
 	_k_boltz(declareProperty<Real>("k_boltz")),
+	_Avogadro(declareProperty<Real>("Avogadro")),
 	_vthermal_em(declareProperty<Real>("vthermal_em")),
 	_vthermal_ip(declareProperty<Real>("vthermal_ip")),
 	_iz_coeff_efield_a(declareProperty<Real>("iz_coeff_efield_a")),
@@ -196,6 +197,7 @@ Gas::computeQpProperties()
 	_T_gas[_qp] = _user_T_gas;
 	_p_gas[_qp] = _user_p_gas;
 	_k_boltz[_qp] = 1.38e-23;
+	_Avogadro[_qp] = 6.0221409E23;
 	if (_use_moles)
 	_n_gas[_qp] = _p_gas[_qp] / (8.3145 * _T_gas[_qp]);
 	else
@@ -250,7 +252,7 @@ Gas::computeQpProperties()
 
 	// From Richards and Sawin, muArp*pressure = 1444 cm^2*Torr/(V*s) and diffArp*pressure = 40 cm^2*Torr/s. Use pressure = 760 torr.
 	_muArp[_qp] = 1444. * _voltage_scaling / (10000. * 760. * _p_gas[_qp] / 1.01E5); // units of m^2/(kV*s) if _voltage_scaling = 1000
-	_diffArp[_qp] = .004 / (760. * _p_gas[_qp] / 1.01E5); //covert to m^2 and include press
+	_diffArp[_qp] = 0.004 / (760. * _p_gas[_qp] / 1.01E5); //covert to m^2 and include press
 
 	// 100 times less than electrons
 	// _muArp[_qp] = 3.52e-4;

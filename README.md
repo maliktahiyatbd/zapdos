@@ -9,14 +9,16 @@ The best documentation so far for this project is in [this thesis chapter.](http
 **Instructions for installing Zapdos:**
 
 <ol>
-  <li>Follow the <a href="http://mooseframework.org/getting-started/">getting started instructions</a> for setting up the MOOSE environment. <b>Important: do not clone MOOSE.</b></li>
-  <li>After installing the MOOSE environment execute the following commands</li>
+  <li>Follow the <a href="http://mooseframework.org/getting-started/">getting started instructions</a> for setting up the MOOSE environment.</li>
+  <li>After installing the MOOSE environment execute the following commands in
+  the directory above your MOOSE directory. E.g. if MOOSE is in
+  <code>~/projects/moose</code>, then these commands should be executed from the
+  <code>~/projects</code> directory</li>
   <ul>
     <li><code>git clone https://github.com/shannon-lab/zapdos</code></li>
     <li><code>cd zapdos</code></li>
-    <li><code>git submodule init</code></li>
-    <li><code>git submodule update</code></li>
-    <li><code>./build_libmesh_and_zapdos.sh</code></li>
+    <li><code>make -jn</code> where "n" is the number of logical processors on
+  your computer</li>
   </ul>
   <li>To make sure the installation is working correctly, execute <code>run_tests -jn</code>, substituting 'n' with your number of processors. All tests should pass with 'OK'
   <li>If everything checks out, you should now be able to run input files using the <code>zapdos-opt</code> executable in the <code>~/projects/zapdos</code> directory. Input files demonstrating the capabilities of zapdos can be found in the sub-directories of <code>~/projects/zapdos/tests</code>. If you want to start modifying an input file, a good one to choose is <code>mean_en.i</code> in <code>~/projects/zapdos/problems</code>. I typically run an input file like <code>mean_en.i</code> using the following command:</li>
