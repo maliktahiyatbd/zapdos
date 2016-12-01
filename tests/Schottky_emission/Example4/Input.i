@@ -67,6 +67,9 @@ area = 5.02e-7 # Formerly 3.14e-6
 		growth_factor = 1.2
 		optimal_iterations = 20
 	[../]
+	[./TimeIntegrator]
+	  type = ImplicitEuler
+	[../]
 []
 
 [Outputs]
@@ -86,7 +89,6 @@ area = 5.02e-7 # Formerly 3.14e-6
  	[./current_density_user_object]
 		type = CurrentDensityShapeSideUserObject
 		boundary = left
-		data_provider = data_provider
 		potential = potential
 		em = em
  		ip = Arp
@@ -536,7 +538,6 @@ area = 5.02e-7 # Formerly 3.14e-6
 #		surface_potential = -${vhigh}
 		source_voltage = potential_bc_func
 		surface = 'cathode'
-		penalty = 1
 		data_provider = data_provider
 		em = em
 		ip = Arp

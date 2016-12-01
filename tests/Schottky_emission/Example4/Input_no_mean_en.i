@@ -8,7 +8,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 [GlobalParams]
 	potential_units = kV
 	use_moles = true
-	mean_en = 3
+	mean_en = -24
 []
 
 [Mesh]
@@ -42,13 +42,14 @@ area = 5.02e-7 # Formerly 3.14e-6
 []
 
 [Executioner]
-	type = Transient
+	# type = Transient
+	type = Steady
 #	line_search = none
-	end_time = 10E-6
+	# end_time = 10E-6
 
-	trans_ss_check = 1
-	ss_check_tol = 1E-15
-	ss_tmin = 3*${relaxTime}
+	# trans_ss_check = 1
+	# ss_check_tol = 1E-15
+	# ss_tmin = 3*${relaxTime}
 
 	petsc_options = '-snes_converged_reason -snes_linesearch_monitor'
 	solve_type = NEWTON
@@ -58,16 +59,16 @@ area = 5.02e-7 # Formerly 3.14e-6
 	nl_rel_tol = 1e-8
 	nl_abs_tol = 1e-8
 
-	dtmin = 1e-15
+	# dtmin = 1e-15
 	# dtmax = 1E-6
 	nl_max_its = 50
-	[./TimeStepper]
-		type = IterationAdaptiveDT
-		cutback_factor = 0.4
-		dt = 1e-13
-		growth_factor = 1.2
-		optimal_iterations = 20
-	[../]
+	# [./TimeStepper]
+	# 	type = IterationAdaptiveDT
+	# 	cutback_factor = 0.4
+	# 	dt = 1e-13
+	# 	growth_factor = 1.2
+	# 	optimal_iterations = 20
+	# [../]
 []
 
 [Outputs]
@@ -84,15 +85,15 @@ area = 5.02e-7 # Formerly 3.14e-6
 []
 
 [UserObjects]
- 	[./current_density_user_object]
-		type = CurrentDensityShapeSideUserObject
-		boundary = left
-		data_provider = data_provider
-		potential = potential
-		em = em
- 		ip = Arp
-		execute_on = 'linear nonlinear'
- 	[../]
+ 	# [./current_density_user_object]
+	# 	type = CurrentDensityShapeSideUserObject
+	# 	boundary = left
+	# 	data_provider = data_provider
+	# 	potential = potential
+	# 	em = em
+ 	# 	ip = Arp
+	# 	execute_on = 'linear nonlinear'
+ 	# [../]
 	[./data_provider]
 		type = ProvideMobility
 		electrode_area = ${area}
@@ -116,11 +117,11 @@ area = 5.02e-7 # Formerly 3.14e-6
 		block = 0
 	[../]
 
-	[./em_time_deriv]
-		type = ElectronTimeDerivative
-		variable = em
-		block = 0
-	[../]
+	# [./em_time_deriv]
+	# 	type = ElectronTimeDerivative
+	# 	variable = em
+	# 	block = 0
+	# [../]
 	[./em_advection]
 		type = EFieldAdvectionElectrons
 		variable = em
@@ -164,11 +165,11 @@ area = 5.02e-7 # Formerly 3.14e-6
 		block = 0
 	[../]
 
-	[./Arp_time_deriv]
-		type = ElectronTimeDerivative
-		variable = Arp
-		block = 0
-	[../]
+	# [./Arp_time_deriv]
+	# 	type = ElectronTimeDerivative
+	# 	variable = Arp
+	# 	block = 0
+	# [../]
 	[./Arp_advection]
 		type = EFieldAdvection
 		variable = Arp
@@ -427,31 +428,31 @@ area = 5.02e-7 # Formerly 3.14e-6
 []
 
 [BCs]
-	[./potential_left]
-		boundary = left
-#		type = PenaltyCircuitPotential
-		type = NeumannCircuitVoltageNew
-		variable = potential
-		current = current_density_user_object
-#		surface_potential = -${vhigh}
-		source_voltage = potential_bc_func
-		surface = 'cathode'
-		penalty = 1000
-		data_provider = data_provider
-		em = em
-		ip = Arp
-		area = ${area}
+# 	[./potential_left]
+# 		boundary = left
+# #		type = PenaltyCircuitPotential
+# 		type = NeumannCircuitVoltageNew
+# 		variable = potential
+# 		current = current_density_user_object
+# #		surface_potential = -${vhigh}
+# 		source_voltage = potential_bc_func
+# 		surface = 'cathode'
+# 		penalty = 1000
+# 		data_provider = data_provider
+# 		em = em
+# 		ip = Arp
+# 		area = ${area}
 
-		position_units = ${dom0Scale}
-		resistance = ${resistance}
-	[../]
+# 		position_units = ${dom0Scale}
+# 		resistance = ${resistance}
+# 	[../]
 
-  # [./potential_dirichlet_left]
-  #   type = DirichletBC
-  #   variable = potential
-  #   boundary = left
-  #   value = -${vhigh}
-  # [../]
+  [./potential_dirichlet_left]
+    type = DirichletBC
+    variable = potential
+    boundary = left
+    value = -${vhigh}
+  [../]
 
 	[./potential_dirichlet_right]
 		type = DirichletBC
@@ -479,14 +480,12 @@ area = 5.02e-7 # Formerly 3.14e-6
 		variable = em
 		boundary = right
 		potential = potential
-		mean_en = mean_en
 		position_units = ${dom0Scale}
 	[../]
 	[./em_physical_right_do_nothing_diffusion]
 		type = ElectronDiffusionDoNothingBC
 		variable = em
 		boundary = right
-		mean_en = mean_en
 		position_units = ${dom0Scale}
 	[../]
 
@@ -510,14 +509,14 @@ area = 5.02e-7 # Formerly 3.14e-6
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -25
+		value = -18
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -25
+		value = -18
 		block = 0
 	[../]
 
