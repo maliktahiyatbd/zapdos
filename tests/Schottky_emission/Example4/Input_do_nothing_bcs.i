@@ -2,7 +2,7 @@ dom0Scale = 1
 dom0Size = 2E-6 #m
 vhigh = 230E-3 #kV
 relaxTime = 1e-9 #s
-resistance = 1e-3
+resistance = 1
 area = 5.02e-7 # Formerly 3.14e-6
 
 [GlobalParams]
@@ -45,9 +45,9 @@ area = 5.02e-7 # Formerly 3.14e-6
 #	line_search = none
 	end_time = 10E-6
 
-	trans_ss_check = 1
-	ss_check_tol = 1E-15
-	ss_tmin = 3*${relaxTime}
+	# trans_ss_check = 1
+	# ss_check_tol = 1E-15
+	# ss_tmin = 3*${relaxTime}
 
 	petsc_options = '-snes_converged_reason -snes_linesearch_monitor'
 	solve_type = NEWTON
@@ -66,6 +66,9 @@ area = 5.02e-7 # Formerly 3.14e-6
 		dt = 1e-13
 		growth_factor = 1.2
 		optimal_iterations = 20
+	[../]
+	[./TimeIntegrator]
+	  type = CrankNicolson
 	[../]
 []
 
@@ -86,7 +89,6 @@ area = 5.02e-7 # Formerly 3.14e-6
  	[./current_density_user_object]
 		type = CurrentDensityShapeSideUserObject
 		boundary = left
-		data_provider = data_provider
 		potential = potential
 		em = em
  		ip = Arp
@@ -510,7 +512,6 @@ area = 5.02e-7 # Formerly 3.14e-6
 #		surface_potential = -${vhigh}
 		source_voltage = potential_bc_func
 		surface = 'cathode'
-		penalty = 1
 		data_provider = data_provider
 		em = em
 		ip = Arp
@@ -558,32 +559,8 @@ area = 5.02e-7 # Formerly 3.14e-6
 		mean_en = mean_en
 		position_units = ${dom0Scale}
 	[../]
-	# [./em_physical_right]
-	# 	type = HagelaarElectronAdvectionBC
-	# 	variable = em
-	# 	boundary = right
-	# 	potential = potential
-	# 	mean_en = mean_en
-	# 	r = 0
-	# 	position_units = ${dom0Scale}
-	# [../]
 
 ## Argon boundary conditions ##
-	# [./Arp_physical_left_diffusion]
-	# 	type = HagelaarIonDiffusionBC
-	# 	variable = Arp
-	# 	boundary = 'left'
-	# 	r = 0
-	# 	position_units = ${dom0Scale}
-	# [../]
-	# [./Arp_physical_left_advection]
-	# 	type = HagelaarIonAdvectionBC
-	# 	variable = Arp
-	# 	boundary = 'left'
-	# 	potential = potential
-	# 	r = 0
-	# 	position_units = ${dom0Scale}
-	# [../]
 	[./Arp_left]
 	  type = DriftDiffusionDoNothingBC
 	  variable = Arp
@@ -591,22 +568,6 @@ area = 5.02e-7 # Formerly 3.14e-6
 	  potential = potential
 	  position_units = ${dom0Scale}
 	[../]
-
-	# [./Arp_physical_right_diffusion]
-	# 	type = HagelaarIonDiffusionBC
-	# 	variable = Arp
-	# 	boundary = right
-	# 	r = 0
-	# 	position_units = ${dom0Scale}
-	# [../]
-	# [./Arp_physical_right_advection]
-	# 	type = HagelaarIonAdvectionBC
-	# 	variable = Arp
-	# 	boundary = right
-	# 	potential = potential
-	# 	r = 0
-	# 	position_units = ${dom0Scale}
-	# [../]
 
 ## Mean energy boundary conditions ##
 	[./mean_en_physical_left]

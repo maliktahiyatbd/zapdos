@@ -68,7 +68,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 		optimal_iterations = 20
 	[../]
 	[./TimeIntegrator]
-	  type = ImplicitEuler
+	  type = CrankNicolson
 	[../]
 []
 

@@ -2,7 +2,7 @@ dom0Scale = 1
 dom0Size = 2E-6 #m
 vhigh = 230E-3 #kV
 relaxTime = 1e-9 #s
-resistance = 1e-1
+resistance = 1
 area = 5.02e-7 # Formerly 3.14e-6
 
 [GlobalParams]
@@ -42,10 +42,10 @@ area = 5.02e-7 # Formerly 3.14e-6
 []
 
 [Executioner]
-	# type = Transient
-	type = Steady
+	type = Transient
+	# type = Steady
 #	line_search = none
-	# end_time = 10E-6
+	end_time = 10E-6
 
 	# trans_ss_check = 1
 	# ss_check_tol = 1E-15
@@ -55,6 +55,9 @@ area = 5.02e-7 # Formerly 3.14e-6
 	solve_type = NEWTON
 	petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
 	petsc_options_value = 'lu NONZERO 1.e-10 preonly 1e-3'
+	# solve_type = PJFNK
+        # petsc_options_iname = '-pc_type -sub_pc_type -snes_linesearch_minlambda'
+	# petsc_options_value = 'asm	lu	     1e-3'
 
 	nl_rel_tol = 1e-8
 	nl_abs_tol = 1e-8
@@ -62,13 +65,16 @@ area = 5.02e-7 # Formerly 3.14e-6
 	# dtmin = 1e-15
 	# dtmax = 1E-6
 	nl_max_its = 50
-	# [./TimeStepper]
-	# 	type = IterationAdaptiveDT
-	# 	cutback_factor = 0.4
-	# 	dt = 1e-13
-	# 	growth_factor = 1.2
-	# 	optimal_iterations = 20
-	# [../]
+	[./TimeStepper]
+		type = IterationAdaptiveDT
+		cutback_factor = 0.4
+		dt = 1e-13
+		growth_factor = 1.2
+		optimal_iterations = 20
+	[../]
+	[./TimeIntegrator]
+	  type = CrankNicolson
+	[../]
 []
 
 [Outputs]
@@ -85,15 +91,14 @@ area = 5.02e-7 # Formerly 3.14e-6
 []
 
 [UserObjects]
- 	# [./current_density_user_object]
-	# 	type = CurrentDensityShapeSideUserObject
-	# 	boundary = left
-	# 	data_provider = data_provider
-	# 	potential = potential
-	# 	em = em
- 	# 	ip = Arp
-	# 	execute_on = 'linear nonlinear'
- 	# [../]
+ 	[./current_density_user_object]
+		type = CurrentDensityShapeSideUserObject
+		boundary = left
+		potential = potential
+		em = em
+ 		ip = Arp
+		execute_on = 'linear nonlinear'
+ 	[../]
 	[./data_provider]
 		type = ProvideMobility
 		electrode_area = ${area}
@@ -447,12 +452,29 @@ area = 5.02e-7 # Formerly 3.14e-6
 # 		resistance = ${resistance}
 # 	[../]
 
-  [./potential_dirichlet_left]
-    type = DirichletBC
-    variable = potential
-    boundary = left
-    value = -${vhigh}
-  [../]
+	[./potential_left]
+		boundary = left
+		type = NeumannCircuitNoMeanEn
+		variable = potential
+		current = current_density_user_object
+#		surface_potential = -${vhigh}
+		source_voltage = potential_bc_func
+		surface = 'cathode'
+		data_provider = data_provider
+		em = em
+		ip = Arp
+		area = ${area}
+
+		position_units = ${dom0Scale}
+		resistance = ${resistance}
+	[../]
+
+  # [./potential_dirichlet_left]
+  #   type = DirichletBC
+  #   variable = potential
+  #   boundary = left
+  #   value = -${vhigh}
+  # [../]
 
 	[./potential_dirichlet_right]
 		type = DirichletBC

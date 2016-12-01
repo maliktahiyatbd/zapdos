@@ -69,6 +69,7 @@
 #include "CurrentDensityShapeSideUserObject.h"
 
 // Boundary Conditions
+#include "NeumannCircuitNoMeanEn.h"
 #include "DriftDiffusionDoNothingBC.h"
 #include "DriftDiffusionUserDoNothingBC.h"
 #include "ElectronAdvectionDoNothingBC.h"
@@ -232,6 +233,7 @@ ZapdosApp::registerObjects(Factory & factory)
   registerBoundaryCondition(HagelaarEnergyAdvectionBC);
   registerBoundaryCondition(NeumannCircuitVoltageMoles_KV);
   registerBoundaryCondition(NeumannCircuitVoltageNew);
+  registerBoundaryCondition(NeumannCircuitNoMeanEn);
   registerBoundaryCondition(DCIonBC);
   registerInterfaceKernel(InterfaceAdvection);
   registerInterfaceKernel(HphiRadialInterface);
