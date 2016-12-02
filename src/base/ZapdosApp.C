@@ -100,16 +100,16 @@
 #include "InterfaceLogDiffusionElectrons.h"
 
 // Constraints
-
 #include "ArbitrarilyTiedValueConstraint.h"
 
 // Mesh modifiers
-
 #include "NodeAndSidesetBetweenSubdomains.h"
 
 // Postprocessors
-
 #include "SideTotFluxIntegral.h"
+
+// Functions
+#include "SmoothedStepFunction.h"
 
 template<>
 InputParameters validParams<ZapdosApp>()
@@ -214,13 +214,18 @@ ZapdosApp::registerObjects(Factory & factory)
 	registerBoundaryCondition(NeumannCircuitVoltageMoles_KV);
 	registerBoundaryCondition(NeumannCircuitVoltageNew);
 	registerBoundaryCondition(DCIonBC);
+
 	registerInterfaceKernel(InterfaceAdvection);
 	registerInterfaceKernel(HphiRadialInterface);
 	registerInterfaceKernel(InterfaceLogDiffusionElectrons);
+
 	registerDGKernel(DGCoeffDiffusion);
 	registerDGKernel(DGEFieldAdvection);
 	registerConstraint(ArbitrarilyTiedValueConstraint);
+
 	registerPostprocessor(SideTotFluxIntegral);
+
+	registerFunction(SmoothedStepFunction);
 }
 
 void

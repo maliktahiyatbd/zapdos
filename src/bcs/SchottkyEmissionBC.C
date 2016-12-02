@@ -111,7 +111,7 @@ SchottkyEmissionBC::computeQpResidual()
 		}
 
 		return _relaxation_Expr * _test[_i][_qp] * _r_units * 2. / (1. + _r) * (1 - _a) *
-				( - jRD - jSE )/ (_e[_qp] * 6.02E23);
+				 ( - jRD - jSE ) / (_e[_qp] * 6.02E23);
 	}
 
 }
