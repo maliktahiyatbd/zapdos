@@ -1,14 +1,15 @@
-#include "PenaltyCircuitPotential.h"
+#include "NeumannCircuitVoltageNew.h"
 #include "MooseMesh.h"
+#include "Function.h"
 
 template<>
-InputParameters validParams<PenaltyCircuitPotential>()
+InputParameters validParams<NeumannCircuitVoltageNew>()
 {
   InputParameters p = validParams<NonlocalIntegratedBC>();
   p.addRequiredParam<UserObjectName>("current", "The postprocessor response for calculating the current passing through the needle surface.");
-  p.addRequiredParam<Real>("surface_potential", "The electrical potential applied to the surface if no current was flowing in the circuit.");
+  p.addRequiredParam<FunctionName>("source_voltage", "The electrical potential applied to the surface if no current was flowing in the circuit.");
   p.addRequiredParam<std::string>("surface", "Whether you are specifying the potential on the anode or the cathode with the requirement that the other metal surface be grounded.");
-  p.addRequiredParam<Real>("penalty", "The constant multiplying the penalty term.");
+  
   p.addRequiredParam<UserObjectName>("data_provider", "The name of the UserObject that can provide some data to materials, bcs, etc.");
   p.addRequiredCoupledVar("em", "The electron variable.");
   p.addRequiredCoupledVar("ip", "The ion variable.");
@@ -21,14 +22,14 @@ InputParameters validParams<PenaltyCircuitPotential>()
 }
 
 
-PenaltyCircuitPotential::PenaltyCircuitPotential(const InputParameters & parameters) :
+NeumannCircuitVoltageNew::NeumannCircuitVoltageNew(const InputParameters & parameters) :
   NonlocalIntegratedBC(parameters),
   _current_uo(getUserObject<CurrentDensityShapeSideUserObject>("current")),
   _current(_current_uo.getIntegral()),
   _current_jac(_current_uo.getJacobian()),
-  _surface_potential(getParam<Real>("surface_potential")),
+  _source_voltage(getFunction("source_voltage")),
   _surface(getParam<std::string>("surface")),
-  _p(getParam<Real>("penalty")),
+  
   _data(getUserObject<ProvideMobility>("data_provider")),
   _var_dofs(_var.dofIndices()),
   _em_id(coupled("em")),
@@ -64,27 +65,27 @@ PenaltyCircuitPotential::PenaltyCircuitPotential(const InputParameters & paramet
 }
 
 Real
-PenaltyCircuitPotential::computeQpResidual()
+NeumannCircuitVoltageNew::computeQpResidual()
 {
   Real curr_times_resist = _current_sign * _current * _resistance / _voltage_scaling;
   if (_use_area)
     curr_times_resist *= _area;
 
-  return _test[_i][_qp] * _r_units * _p * (_surface_potential - _u[_qp] + curr_times_resist);
+  return _test[_i][_qp] * _r_units * (_source_voltage.value(_t, _q_point[_qp]) - _u[_qp] + curr_times_resist);
 }
 
 Real
-PenaltyCircuitPotential::computeQpJacobian()
+NeumannCircuitVoltageNew::computeQpJacobian()
 {
   Real d_curr_times_resist_d_potential = _current_sign * _current_jac[_var_dofs[_j]] * _resistance / _voltage_scaling;
   if (_use_area)
     d_curr_times_resist_d_potential *= _area;
 
-  return _test[_i][_qp] * _r_units * _p * (-_phi[_j][_qp] + d_curr_times_resist_d_potential);
+  return _test[_i][_qp] * _r_units * (-_phi[_j][_qp] + d_curr_times_resist_d_potential);
 }
 
 Real
-PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
+NeumannCircuitVoltageNew::computeQpOffDiagJacobian(unsigned int jvar)
 {
   if (jvar == _em_id)
   {
@@ -92,7 +93,7 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
     if (_use_area)
       d_curr_times_resist_d_em *= _area;
 
-    return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_em;
+    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_em;
   }
 
   else if (jvar == _ip_id)
@@ -101,7 +102,7 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
     if (_use_area)
       d_curr_times_resist_d_ip *= _area;
 
-    return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_ip;
+    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_ip;
   }
 
   else if (jvar == _mean_en_id)
@@ -110,7 +111,7 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
     if (_use_area)
       d_curr_times_resist_d_mean_en *= _area;
 
-    return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_mean_en;
+    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_mean_en;
   }
 
   else
@@ -118,17 +119,17 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
 }
 
 Real
-PenaltyCircuitPotential::computeQpNonlocalJacobian(dof_id_type dof_index)
+NeumannCircuitVoltageNew::computeQpNonlocalJacobian(dof_id_type dof_index)
 {
   Real d_curr_times_resist_d_potential = _current_sign * _current_jac[dof_index] * _resistance / _voltage_scaling;
   if (_use_area)
     d_curr_times_resist_d_potential *= _area;
 
-  return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_potential;
+  return _test[_i][_qp] * _r_units * d_curr_times_resist_d_potential;
 }
 
 Real
-PenaltyCircuitPotential::computeQpNonlocalOffDiagJacobian(unsigned int jvar, dof_id_type dof_index)
+NeumannCircuitVoltageNew::computeQpNonlocalOffDiagJacobian(unsigned int jvar, dof_id_type dof_index)
 {
   if (jvar == _em_id || jvar == _ip_id || jvar == _mean_en_id)
   {
@@ -136,7 +137,7 @@ PenaltyCircuitPotential::computeQpNonlocalOffDiagJacobian(unsigned int jvar, dof
     if (_use_area)
       d_curr_times_resist_d_coupled_var *= _area;
 
-    return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_coupled_var;
+    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_coupled_var;
   }
 
   return 0;

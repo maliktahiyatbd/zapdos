@@ -1,12 +1,9 @@
 dom0Scale = 1
 dom0Size = 2E-6 #m
-
 vhigh = 230E-3 #kV
-resistance = 0 #Ohms
+relaxTime = 1e-9 #s
+resistance = 1
 area = 5.02e-7 # Formerly 3.14e-6
-
-relaxTime = 2e-9 #s
-nCycles = 1
 
 [GlobalParams]
 	potential_units = kV
@@ -45,27 +42,22 @@ nCycles = 1
 
 [Executioner]
 	type = Transient
-	
-	[./TimeIntegrator]
-		type = CrankNicolson
-	[../]
-
 #	line_search = none
-	end_time = 10E6
+	end_time = 10E-6
 
 	trans_ss_check = 1
 	ss_check_tol = 1E-15
-	ss_tmin = 10E-9 #${* ${nCycles} ${relaxTime}}
+	ss_tmin = 3*${relaxTime}
 
-	petsc_options = '-snes_converged_reason -snes_linesearch_monitor '
+	petsc_options = '-snes_converged_reason -snes_linesearch_monitor'
 	solve_type = NEWTON
-	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
-	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3'
+	petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -pc_factor_mat_solver_package'
+	petsc_options_value = 'lu NONZERO 1.e-10 preonly 1e-3 superlu_dist'
 
 	nl_rel_tol = 1e-8
-	nl_abs_tol = 1e-8
+	nl_abs_tol = 2e-6
 
-	dtmin = 1e-25
+	dtmin = 1e-15
 	# dtmax = 1E-6
 	nl_max_its = 50
 	[./TimeStepper]
@@ -82,7 +74,7 @@ nCycles = 1
 	print_linear_residuals = false
 	[./out]
 		type = Exodus
-#		execute_on = 'final'
+		execute_on = 'final'
 	[../]
 []
 
@@ -94,7 +86,6 @@ nCycles = 1
  	[./current_density_user_object]
 		type = CurrentDensityShapeSideUserObject
 		boundary = left
-#		data_provider = data_provider
 		potential = potential
 		em = em
  		ip = Arp
@@ -114,20 +105,20 @@ nCycles = 1
 	[./Arp_log_stabilization]
 		type = LogStabilizationMoles
 		variable = Arp
-		offset = 40
+		offset = 20
 		block = 0
 	[../]
 	[./em_log_stabilization]
 		type = LogStabilizationMoles
 		variable = em
-		offset = 40
+		offset = 20
 		block = 0
 	[../]
 	[./mean_en_log_stabilization]
 		type = LogStabilizationMoles
 		variable = mean_en
 		block = 0
-		offset = 45
+		offset = 35
 	[../]
 #	[./mean_en_advection_stabilization]
 #		type = EFieldArtDiff
@@ -158,7 +149,6 @@ nCycles = 1
 	[../]
 	[./em_ionization]
 		type = ElectronsFromIonization
-		em = em
 		variable = em
 		potential = potential
 		mean_en = mean_en
@@ -508,26 +498,53 @@ nCycles = 1
 []
 
 [BCs]
+## Potential boundary conditions ##
+#	[./potential_left]
+#		type = NeumannCircuitVoltageMoles_KV
+#		variable = potential
+#		boundary = left
+#		function = potential_bc_func
+#		ip = Arp
+#		data_provider = data_provider
+#		em = em
+#		mean_en = mean_en
+#		r = 0
+#		position_units = ${dom0Scale}
+#	[../]
+
+	# [./potential_left]
+	# 	boundary = left
+	# 	type = NeumannCircuitVoltageNew
+ 	# 	variable = potential
+
+ 	# 	function = potential_bc_func
+	# 	current_density = current_density_user_object
+
+ 	# 	ip = Arp
+ 	# 	em = em
+ 	# 	mean_en = mean_en
+
+ 	# 	data_provider = data_provider
+
+ 	# 	position_units = ${dom0Scale}
+ 	# [../]
+
 	[./potential_left]
-		boundary = left
-		type = NeumannCircuitVoltageNew
-		source_voltage = potential_bc_func
-
-#		type = PenaltyCircuitPotential
-#		surface_potential = -${vhigh}
-#		penalty = 1
-
-		variable = potential
-		current = current_density_user_object
-		surface = 'cathode'
-		data_provider = data_provider
-		em = em
-		ip = Arp
-		mean_en = mean_en
-		area = ${area}
-
-		position_units = ${dom0Scale}
-		resistance = ${resistance}
+	  boundary = left
+	  type = PenaltyCircuitPotential
+	  variable = potential
+	  current = current_density_user_object
+	  surface_potential = -${vhigh}
+	  surface = 'cathode'
+	  penalty = 1000
+	  data_provider = data_provider
+	  em = em
+	  ip = Arp
+	  mean_en = mean_en
+	  area = ${area}
+	  potential_units = 'kV'
+	  position_units = ${dom0Scale}
+	  resistance = ${resistance}
 	[../]
 
 	[./potential_dirichlet_right]
@@ -552,6 +569,16 @@ nCycles = 1
 		relax = true
 	[../]
 
+	# [./em_physical_left]
+	# 	type = HagelaarElectronBC
+	# 	variable = em
+	# 	boundary = 'left'
+	# 	potential = potential
+	# 	mean_en = mean_en
+	# 	r = 0
+	# 	position_units = ${dom0Scale}
+	# [../]
+
 	[./em_physical_right]
 		type = HagelaarElectronAdvectionBC
 		variable = em
@@ -563,13 +590,13 @@ nCycles = 1
 	[../]
 
 ## Argon boundary conditions ##
-#	[./Arp_physical_left_diffusion]
-#		type = HagelaarIonDiffusionBC
-#		variable = Arp
-#		boundary = 'left'
-#		r = 0
-#		position_units = ${dom0Scale}
-#	[../]
+	[./Arp_physical_left_diffusion]
+		type = HagelaarIonDiffusionBC
+		variable = Arp
+		boundary = 'left'
+		r = 0
+		position_units = ${dom0Scale}
+	[../]
 	[./Arp_physical_left_advection]
 		type = HagelaarIonAdvectionBC
 		variable = Arp
@@ -579,13 +606,13 @@ nCycles = 1
 		position_units = ${dom0Scale}
 	[../]
 
-#	[./Arp_physical_right_diffusion]
-#		type = HagelaarIonDiffusionBC
-#		variable = Arp
-#		boundary = right
-#		r = 0
-#		position_units = ${dom0Scale}
-#	[../]
+	[./Arp_physical_right_diffusion]
+		type = HagelaarIonDiffusionBC
+		variable = Arp
+		boundary = right
+		r = 0
+		position_units = ${dom0Scale}
+	[../]
 	[./Arp_physical_right_advection]
 		type = HagelaarIonAdvectionBC
 		variable = Arp
@@ -629,14 +656,14 @@ nCycles = 1
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -25
+		value = -30
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -25
+		value = -30
 		block = 0
 	[../]
 
@@ -653,7 +680,7 @@ nCycles = 1
 		type = ParsedFunction
 		vars = 'VHigh'
 		vals = '${vhigh}')
-		value = '-VHigh'
+		value = 'VHigh'
 	[../]
 	[./potential_ic_func]
 		type = ParsedFunction

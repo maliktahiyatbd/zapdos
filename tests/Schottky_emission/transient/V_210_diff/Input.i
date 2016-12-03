@@ -1,12 +1,18 @@
 dom0Scale = 1
-dom0Size = 2E-6 #m
+dom0Size = 4E-6 #m
+vhigh = 210E-3 #kV
 
-vhigh = 230E-3 #kV
-resistance = 0 #Ohms
+offTime  = 1.5E-9 #s
+onTime = 750E-9 # 84.2E-9 #s
+
+nCycles = 5
+
+cyclePeriod = ${+ ${onTime} ${offTime}}
+dutyCycle = ${/ ${offTime} ${cyclePeriod}}
+EndTime = ${* ${nCycles} ${cyclePeriod}}
+
+resistance = 10E6
 area = 5.02e-7 # Formerly 3.14e-6
-
-relaxTime = 2e-9 #s
-nCycles = 1
 
 [GlobalParams]
 	potential_units = kV
@@ -45,29 +51,25 @@ nCycles = 1
 
 [Executioner]
 	type = Transient
-	
+
 	[./TimeIntegrator]
 		type = CrankNicolson
 	[../]
 
 #	line_search = none
-	end_time = 10E6
+	end_time = 3E-6 # ${EndTime}
 
-	trans_ss_check = 1
-	ss_check_tol = 1E-15
-	ss_tmin = 10E-9 #${* ${nCycles} ${relaxTime}}
-
-	petsc_options = '-snes_converged_reason -snes_linesearch_monitor '
+	petsc_options = '-snes_converged_reason -snes_linesearch_monitor'
 	solve_type = NEWTON
-	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
-	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3'
+	petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
+	petsc_options_value = 'lu NONZERO 1.e-10 preonly 1e-3'
 
 	nl_rel_tol = 1e-8
-	nl_abs_tol = 1e-8
+	nl_abs_tol = 1e-12
 
 	dtmin = 1e-25
-	# dtmax = 1E-6
-	nl_max_its = 50
+	dtmax = 0.025E-9
+	nl_max_its = 20
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
@@ -94,7 +96,7 @@ nCycles = 1
  	[./current_density_user_object]
 		type = CurrentDensityShapeSideUserObject
 		boundary = left
-#		data_provider = data_provider
+		data_provider = data_provider
 		potential = potential
 		em = em
  		ip = Arp
@@ -114,20 +116,20 @@ nCycles = 1
 	[./Arp_log_stabilization]
 		type = LogStabilizationMoles
 		variable = Arp
-		offset = 40
+		offset = 20
 		block = 0
 	[../]
 	[./em_log_stabilization]
 		type = LogStabilizationMoles
 		variable = em
-		offset = 40
+		offset = 20
 		block = 0
 	[../]
 	[./mean_en_log_stabilization]
 		type = LogStabilizationMoles
 		variable = mean_en
 		block = 0
-		offset = 45
+		offset = 20
 	[../]
 #	[./mean_en_advection_stabilization]
 #		type = EFieldArtDiff
@@ -508,18 +510,17 @@ nCycles = 1
 []
 
 [BCs]
+
 	[./potential_left]
 		boundary = left
-		type = NeumannCircuitVoltageNew
-		source_voltage = potential_bc_func
-
 #		type = PenaltyCircuitPotential
-#		surface_potential = -${vhigh}
-#		penalty = 1
-
+		type = NeumannCircuitVoltageNew
 		variable = potential
 		current = current_density_user_object
+#		surface_potential = -${vhigh}
+		source_voltage = potential_bc_func
 		surface = 'cathode'
+		penalty = 1
 		data_provider = data_provider
 		em = em
 		ip = Arp
@@ -548,9 +549,17 @@ nCycles = 1
 		mean_en = mean_en
 		r = 1
 		position_units = ${dom0Scale}
-		tau = ${relaxTime}
-		relax = true
 	[../]
+
+	# [./em_physical_left]
+	# 	type = HagelaarElectronBC
+	# 	variable = em
+	# 	boundary = 'left'
+	# 	potential = potential
+	# 	mean_en = mean_en
+	# 	r = 0
+	# 	position_units = ${dom0Scale}
+	# [../]
 
 	[./em_physical_right]
 		type = HagelaarElectronAdvectionBC
@@ -650,14 +659,17 @@ nCycles = 1
 
 [Functions]
 	[./potential_bc_func]
-		type = ParsedFunction
-		vars = 'VHigh'
-		vals = '${vhigh}')
-		value = '-VHigh'
+		type = SmoothedStepFunction		
+		vLow = -0.001
+		vHigh = -${vhigh}
+		period = ${cyclePeriod}
+		duty = ${dutyCycle}
+		rise = 20E3
 	[../]
+
 	[./potential_ic_func]
 		type = ParsedFunction
-		value = '-${vhigh} * (${dom0Size} - x) / ${dom0Size}'
+		value = '-${vhigh}/2 * (${dom0Size} - x) / ${dom0Size}'
 	[../]
 []
 
