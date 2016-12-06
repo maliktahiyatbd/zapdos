@@ -1,9 +1,0 @@
-#!/bin/bash
-#$ -pe smp 8
-#$ -N V_210_drift
-#$ -M jhaase1@nd.edu
-#$ -m a
-#$ -r y
-#$ -q *@@dgo
-
-zapdos-opt -i Input.i --no-color > Log.txt

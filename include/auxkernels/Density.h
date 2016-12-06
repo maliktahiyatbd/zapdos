@@ -20,6 +20,8 @@ protected:
   virtual Real computeValue();
 
   const VariableValue & _density_log;
+	bool _convert_moles;
+	const MaterialProperty<Real> & _N_A;
 };
 
 #endif //DENSITY_H

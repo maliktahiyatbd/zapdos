@@ -1,21 +1,24 @@
 dom0Scale = 1
-dom0Size = 4E-6 #m
-vhigh = 210E-3 #kV
+dom0Size = 2E-6		#m
 
-offTime  = 1.5E-9 #s
-onTime = 84.2E-9 #s
+vhigh = 160E-3		#kV
+offTime  = 21.05E-9 #s
+onTime = 0.3051E-9 #s
 
 nCycles = 5
 
 cyclePeriod = ${+ ${onTime} ${offTime}}
-dutyCycle = ${/ ${offTime} ${cyclePeriod}}
+dutyCycle = ${/ ${onTime} ${cyclePeriod}}
 EndTime = ${* ${nCycles} ${cyclePeriod}}
+dtMax = ${/ ${min ${onTime} ${offTime} } 100 }
 
 resistance = 10E6
 area = 5.02e-7 # Formerly 3.14e-6
 
 [GlobalParams]
+#	offset = 25
 	potential_units = kV
+#	 potential_units = V
 	use_moles = true
 []
 
@@ -51,31 +54,37 @@ area = 5.02e-7 # Formerly 3.14e-6
 
 [Executioner]
 	type = Transient
-
-	[./TimeIntegrator]
-		type = CrankNicolson
-	[../]
-
 #	line_search = none
 	end_time = ${EndTime}
 
-	petsc_options = '-snes_converged_reason -snes_linesearch_monitor'
+#	[./TimeIntegrator]
+#		type = CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
+#	[../]
+
+#	trans_ss_check = 1
+#	ss_check_tol = 1E-15
+#	ss_tmin = ${steadyStateTime}
+
+	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -snes_ksp_ew'
 	solve_type = NEWTON
-	petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
-	petsc_options_value = 'lu NONZERO 1.e-10 preonly 1e-3'
+#	petsc_options_iname = '-pc_type -sub_pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
+#	petsc_options_value = 'asm ilu NONZERO 1.e-10 preonly 1e-3 100'
+
+	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
+	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
 	nl_rel_tol = 1e-8
-	nl_abs_tol = 1e-12
+	nl_abs_tol = 1e-8
 
-	dtmin = 1e-25
-	dtmax = 0.025E-9
-	nl_max_its = 20
+	dtmin = 1e-15
+	dtmax = 1.5E-11
+	nl_max_its = 200
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
 		dt = 1e-13
 		growth_factor = 1.2
-		optimal_iterations = 20
+		optimal_iterations = 100
 	[../]
 []
 
@@ -129,7 +138,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 		type = LogStabilizationMoles
 		variable = mean_en
 		block = 0
-		offset = 20
+		offset = 35
 	[../]
 #	[./mean_en_advection_stabilization]
 #		type = EFieldArtDiff
@@ -453,14 +462,14 @@ area = 5.02e-7 # Formerly 3.14e-6
 		block = 0
 	[../]
 	[./em_lin]
-		type = DensityMoles
+		type = Density
 #		convert_moles = true
 		variable = em_lin
 		density_log = em
 		block = 0
 	[../]
 	[./Arp_lin]
-		type = DensityMoles
+		type = Density
 #		convert_moles = true
 		variable = Arp_lin
 		density_log = Arp
@@ -510,17 +519,19 @@ area = 5.02e-7 # Formerly 3.14e-6
 []
 
 [BCs]
-
+## Potential boundary conditions ##
 	[./potential_left]
 		boundary = left
-#		type = PenaltyCircuitPotential
 		type = NeumannCircuitVoltageNew
+		source_voltage = potential_bc_func
+
+#		type = PenaltyCircuitPotential
+#		surface_potential = -${vhigh}
+#		penalty = 1
+
 		variable = potential
 		current = current_density_user_object
-#		surface_potential = -${vhigh}
-		source_voltage = potential_bc_func
 		surface = 'cathode'
-		penalty = 1
 		data_provider = data_provider
 		em = em
 		ip = Arp
@@ -549,17 +560,9 @@ area = 5.02e-7 # Formerly 3.14e-6
 		mean_en = mean_en
 		r = 1
 		position_units = ${dom0Scale}
+		tau = ${onTime}
+		relax = false
 	[../]
-
-	# [./em_physical_left]
-	# 	type = HagelaarElectronBC
-	# 	variable = em
-	# 	boundary = 'left'
-	# 	potential = potential
-	# 	mean_en = mean_en
-	# 	r = 0
-	# 	position_units = ${dom0Scale}
-	# [../]
 
 	[./em_physical_right]
 		type = HagelaarElectronAdvectionBC
@@ -572,13 +575,13 @@ area = 5.02e-7 # Formerly 3.14e-6
 	[../]
 
 ## Argon boundary conditions ##
-#	[./Arp_physical_left_diffusion]
-#		type = HagelaarIonDiffusionBC
-#		variable = Arp
-#		boundary = 'left'
-#		r = 0
-#		position_units = ${dom0Scale}
-#	[../]
+	[./Arp_physical_left_diffusion]
+		type = HagelaarIonDiffusionBC
+		variable = Arp
+		boundary = 'left'
+		r = 0
+		position_units = ${dom0Scale}
+	[../]
 	[./Arp_physical_left_advection]
 		type = HagelaarIonAdvectionBC
 		variable = Arp
@@ -588,13 +591,13 @@ area = 5.02e-7 # Formerly 3.14e-6
 		position_units = ${dom0Scale}
 	[../]
 
-#	[./Arp_physical_right_diffusion]
-#		type = HagelaarIonDiffusionBC
-#		variable = Arp
-#		boundary = right
-#		r = 0
-#		position_units = ${dom0Scale}
-#	[../]
+	[./Arp_physical_right_diffusion]
+		type = HagelaarIonDiffusionBC
+		variable = Arp
+		boundary = right
+		r = 0
+		position_units = ${dom0Scale}
+	[../]
 	[./Arp_physical_right_advection]
 		type = HagelaarIonAdvectionBC
 		variable = Arp
@@ -638,14 +641,14 @@ area = 5.02e-7 # Formerly 3.14e-6
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -25
+		value = -30
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -25
+		value = -30
 		block = 0
 	[../]
 
@@ -664,7 +667,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 		vHigh = -${vhigh}
 		period = ${cyclePeriod}
 		duty = ${dutyCycle}
-		rise = 20E3
+		rise = 1E3
 	[../]
 
 	[./potential_ic_func]
