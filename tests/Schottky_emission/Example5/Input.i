@@ -1,7 +1,7 @@
 dom0Scale = 1
 dom0Size = 2E-6 #m
 
-vhigh = 230E-3 #kV
+vhigh = 210E-3 #kV
 resistance = 1 #Ohms
 area = 5.02e-7 # Formerly 3.14e-6
 
@@ -51,9 +51,9 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #	line_search = none
 	end_time = 10E6
 
-#	[./TimeIntegrator]
-#		type = CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
-#	[../]
+	[./TimeIntegrator]
+		type = AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
+	[../]
 
 	trans_ss_check = 1
 	ss_check_tol = 1E-15
@@ -67,8 +67,8 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
 	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
-	nl_rel_tol = 1e-10
-	nl_abs_tol = 1e-10
+	nl_rel_tol = 1e-14
+	nl_abs_tol = 1e-6
 
 	dtmin = 1e-25
 	# dtmax = 1E-6

@@ -1,6 +1,6 @@
 #!/bin/bash
-#$ -pe mpi-* 16
-#$ -N steady_state
+#$ -pe mpi-* 32
+#$ -N Transient-Test1
 #$ -M jhaase1@nd.edu
 #$ -m a
 #$ -r y
@@ -9,4 +9,4 @@
 module load ompi/1.10.2-gcc-4.9.2
 fsync -d 30 Log.txt &
 
-mpirun -np 16 ~/zapdos/zapdos-opt -i Input.i > Log.txt
+mpirun -np 32 ~/zapdos/zapdos-opt -i Input.i > Log.txt

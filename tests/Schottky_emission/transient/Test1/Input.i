@@ -1,13 +1,18 @@
 dom0Scale = 1
-dom0Size = 2E-6 #m
+dom0Size = 2E-6		#m
 
-vhigh = 200E-3 #kV
-resistance = 1 #Ohms
+vhigh = 205E-3		#kV
+offTime  = 21.05E-9 #s
+onTime = 0.3051E-9 #s
+
+nCycles = 5
+
+cyclePeriod = ${+ ${onTime} ${offTime}}
+dutyCycle = ${/ ${onTime} ${cyclePeriod}}
+EndTime = ${* ${nCycles} ${cyclePeriod}}
+
+resistance = 1
 area = 5.02e-7 # Formerly 3.14e-6
-
-relaxTime = 50e-9 #s
-nCycles = 1
-steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [GlobalParams]
 #	offset = 25
@@ -51,27 +56,27 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #	line_search = none
 	end_time = 10E6
 
-#	[./TimeIntegrator]
-#		type = CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
-#	[../]
+	[./TimeIntegrator]
+		type = CrankNicolson # AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
+	[../]
 
-	trans_ss_check = 1
-	ss_check_tol = 1E-15
-	ss_tmin = ${steadyStateTime}
+#	trans_ss_check = 1
+#	ss_check_tol = 1E-15
+#	ss_tmin = ${steadyStateTime}
 
 	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -snes_ksp_ew'
 	solve_type = NEWTON
-	petsc_options_iname = '-pc_type -sub_pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-	petsc_options_value = 'asm ilu NONZERO 1.e-10 preonly 1e-3 100'
+#	petsc_options_iname = '-pc_type -sub_pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
+#	petsc_options_value = 'asm ilu NONZERO 1.e-10 preonly 1e-3 100'
 
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-#	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
+	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
+	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
-	nl_rel_tol = 1e-8
-	nl_abs_tol = 1e-8
+	nl_rel_tol = 1e-14
+	nl_abs_tol = 1e-6
 
 	dtmin = 1e-25
-	# dtmax = 1E-6
+	dtmax = 1E-10
 	nl_max_its = 200
 	[./TimeStepper]
 		type = IterationAdaptiveDT
@@ -457,14 +462,14 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	[../]
 	[./em_lin]
 		type = Density
-#		convert_moles = true
+		convert_moles = true
 		variable = em_lin
 		density_log = em
 		block = 0
 	[../]
 	[./Arp_lin]
 		type = Density
-#		convert_moles = true
+		convert_moles = true
 		variable = Arp_lin
 		density_log = Arp
 		block = 0
@@ -554,8 +559,8 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		mean_en = mean_en
 		r = 1
 		position_units = ${dom0Scale}
-		tau = ${relaxTime}
-		relax = true
+#		tau = ${relaxTime}
+#		relax = true
 	[../]
 
 	[./em_physical_right]
@@ -656,14 +661,17 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [Functions]
 	[./potential_bc_func]
-		type = ParsedFunction
-		vars = 'VHigh'
-		vals = '${vhigh}')
-		value = '-VHigh'
+		type = SmoothedStepFunction		
+		vLow = -0.001
+		vHigh = -${vhigh}
+		period = ${cyclePeriod}
+		duty = ${dutyCycle}
+		rise = 500
 	[../]
+
 	[./potential_ic_func]
 		type = ParsedFunction
-		value = '-${vhigh} * (${dom0Size} - x) / ${dom0Size}'
+		value = '-${vhigh}/2 * (${dom0Size} - x) / ${dom0Size}'
 	[../]
 []
 
