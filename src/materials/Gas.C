@@ -11,8 +11,11 @@ InputParameters validParams<Gas>()
 	params.addRequiredParam<bool>("interp_trans_coeffs", "Whether to interpolate transport coefficients as a function of the mean energy. If false, coeffs are constant.");
 	params.addRequiredParam<bool>("interp_elastic_coeff", "Whether to interpolate the elastic collision townsend coefficient as a function of the mean energy. If false, coeffs are constant.");
 	params.addRequiredParam<bool>("ramp_trans_coeffs", "Whether to ramp the non-linearity of coming from the electron energy dependence of the transport coefficients.");
+
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
+  params.addRequiredParam<Real>("position_units", "The units of position.");
+
 	params.addRequiredParam<FileName>("property_tables_file", "The file containing interpolation tables for material properties.");
 
 	params.addParam<Real>("user_se_coeff", 0.15, "The secondary electron emission coefficient.");
@@ -39,7 +42,10 @@ Gas::Gas(const InputParameters & parameters) :
 	_interp_trans_coeffs(getParam<bool>("interp_trans_coeffs")),
 	_interp_elastic_coeff(getParam<bool>("interp_elastic_coeff")),
 	_ramp_trans_coeffs(getParam<bool>("ramp_trans_coeffs")),
+
 	_potential_units(getParam<std::string>("potential_units")),
+  _r_units(1./getParam<Real>("position_units")),
+
 	_user_se_coeff(getParam<Real>("user_se_coeff")),
 	_user_work_function(getParam<Real>("user_work_function")),
 	_user_field_enhancement(getParam<Real>("user_field_enhancement")),
@@ -205,7 +211,7 @@ Gas::computeQpProperties()
 	_work_function[_qp] = _user_work_function;
 	_field_enhancement[_qp] = _user_field_enhancement;
 
-	_Richardson_coefficient[_qp] = _user_Richardson_coefficient;
+	_Richardson_coefficient[_qp] = _user_Richardson_coefficient / ( _r_units * _r_units );
 	_cathode_temperature[_qp] = _user_cathode_temperature;
 
 	_se_energy[_qp] = 2. * 3. / 2.; // Emi uses 2 Volts coming off the wall (presumably for Te). Multiply by 3/2 to get mean_en
@@ -226,36 +232,37 @@ Gas::computeQpProperties()
 	{
 	if (_ramp_trans_coeffs)
 	{
-	_muem[_qp] = (std::tanh(_t / 1e-6) * _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / 1e-6)) * .0352) * _voltage_scaling;
-	_d_muem_d_actual_mean_en[_qp] = std::tanh(_t / 1e-6) * _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling;
-	_diffem[_qp] = std::tanh(_t / 1e-6) * _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / 1e-6)) * .30;
-	_d_diffem_d_actual_mean_en[_qp] = std::tanh(_t / 1e-6) * _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp]));
+	_muem[_qp] = (std::tanh(_t / 1e-6) * _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / 1e-6)) * .0352) * _voltage_scaling * ( _r_units * _r_units );
+	_d_muem_d_actual_mean_en[_qp] = std::tanh(_t / 1e-6) * _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( _r_units * _r_units );
+	_diffem[_qp] = std::tanh(_t / 1e-6) * _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / 1e-6)) * .30 * ( _r_units * _r_units );
+	_d_diffem_d_actual_mean_en[_qp] = std::tanh(_t / 1e-6) * _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( _r_units * _r_units );
 	}
 	else
 	{
-	_muem[_qp] = _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling;
-	_d_muem_d_actual_mean_en[_qp] = _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling;
-	_diffem[_qp] = _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp]));
-	_d_diffem_d_actual_mean_en[_qp] = _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp]));
+	_muem[_qp] = _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( _r_units * _r_units );
+	_d_muem_d_actual_mean_en[_qp] = _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( _r_units * _r_units );
+	_diffem[_qp] = _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * ( _r_units * _r_units );
+	_d_diffem_d_actual_mean_en[_qp] = _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( _r_units * _r_units );
 	}
 	}
 	else
 	{
 	// From bolos at atmospheric pressure and an EField of 2e5 V/m
-	_muem[_qp] = 0.0352103411399 * _voltage_scaling; // units of m^2/(kV*s) if _voltage_scaling = 1000
+	_muem[_qp] = 0.0352103411399 * _voltage_scaling * ( _r_units * _r_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
 	_d_muem_d_actual_mean_en[_qp] = 0.0;
-	_diffem[_qp] = 0.297951680159;
+	_diffem[_qp] = 0.297951680159 * ( _r_units * _r_units );
 	_d_diffem_d_actual_mean_en[_qp] = 0.0;
 	}
 
 	// From Richards and Sawin, muArp*pressure = 1444 cm^2*Torr/(V*s) and diffArp*pressure = 40 cm^2*Torr/s. Use pressure = 760 torr.
-	_muArp[_qp] = 1444. * _voltage_scaling / (10000. * 760. * _p_gas[_qp] / 1.01E5); // units of m^2/(kV*s) if _voltage_scaling = 1000
-	_diffArp[_qp] = .004 / (760. * _p_gas[_qp] / 1.01E5); //covert to m^2 and include press
+	_muArp[_qp] = 1444. * _voltage_scaling / (10000. * 760. * _p_gas[_qp] / 1.01E5) * ( _r_units * _r_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
+	_diffArp[_qp] = .004 / (760. * _p_gas[_qp] / 1.01E5) * ( _r_units * _r_units ); //covert to m^2 and include press
 
 	// 100 times less than electrons
 	// _muArp[_qp] = 3.52e-4;
 	// _diffArp[_qp] = 2.98e-3;
 
+/* Not sure if these are necessary anymore John Haase 12/18/2016
 	// From curve fitting with bolos
 	_iz_coeff_efield_a[_qp] = 1.43171672e-1;
 	_iz_coeff_efield_b[_qp] = 9.05925536e-1;
@@ -271,25 +278,28 @@ Gas::computeQpProperties()
 	//	 _iz_coeff_energy_b[_qp] = -2.70610234e-1;
 	//	 _iz_coeff_energy_c[_qp] = 7.64727794e+1;
 	// }
+*/
 
 	_actual_mean_energy[_qp] = std::exp(_mean_en[_qp] - _em[_qp]);
-	_alpha_iz[_qp] = _alpha_interpolation.sample(_actual_mean_energy[_qp]);
-	_d_iz_d_actual_mean_en[_qp] = _alpha_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp]));
+	_alpha_iz[_qp] = _alpha_interpolation.sample(_actual_mean_energy[_qp]) / _r_units ;
+	_d_iz_d_actual_mean_en[_qp] = _alpha_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
 	// _d_iz_d_actual_mean_en[_qp] = _d_alpha_d_actual_mean_energy_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp]));
-	_alpha_ex[_qp] = _alphaEx_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp]));
-	_d_ex_d_actual_mean_en[_qp] = _alphaEx_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp]));
+	_alpha_ex[_qp] = _alphaEx_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
+	_d_ex_d_actual_mean_en[_qp] = _alphaEx_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
 	if (_interp_elastic_coeff) {
-	_alpha_el[_qp] = _alphaEl_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp]));
-	_d_el_d_actual_mean_en[_qp] = _alphaEl_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp]));
+	_alpha_el[_qp] = _alphaEl_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
+	_d_el_d_actual_mean_en[_qp] = _alphaEl_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
 	}
 	else {
-	_alpha_el[_qp] = 5e8;
-	_d_el_d_actual_mean_en[_qp] = 0.0;
+	_alpha_el[_qp] = 5e8 / _r_units ;
+	_d_el_d_actual_mean_en[_qp] = 0.0 / _r_units ;
 	}
 
+/* Not sure if these are necessary anymore John Haase 12/18/2016
 	_el_coeff_energy_a[_qp] = 1.60638169e-13;
 	_el_coeff_energy_b[_qp] = 3.17917979e-1;
 	_el_coeff_energy_c[_qp] = 4.66301096;
+*/
 
 	_N_A[_qp] = 6.02e23;
 	_Ar[_qp] = 1.01e5/(300*1.38e-23);
@@ -308,6 +318,8 @@ Gas::computeQpProperties()
 	_d_diffmean_en_d_actual_mean_en[_qp] = 0.0;
 	}
 
+
+/* Not sure if these are necessary anymore John Haase 12/18/2016
 	_rate_coeff_elastic[_qp] = 1e-13;
 
 	_TemVolts[_qp] = 2. / 3. * std::exp(_mean_en[_qp] - _em[_qp]);
@@ -330,6 +342,8 @@ Gas::computeQpProperties()
 	_kel[_qp] = _kel[_qp] * _N_A[_qp];
 	_d_kel_d_actual_mean_en[_qp] = _d_kel_d_actual_mean_en[_qp] * _N_A[_qp];
 	}
+
+*/
 	// }
 
 	// // This block is for Jacobian testing

@@ -31,6 +31,7 @@
 #include "EFieldAdvection.h"
 #include "JouleHeating.h"
 #include "ElectronTimeDerivative.h"
+#include "SetValue.h"
 
 // AuxKernels
 
@@ -181,6 +182,8 @@ ZapdosApp::registerObjects(Factory & factory)
 	registerKernel(LogStabilizationMoles);
 	registerKernel(ProductFirstOrderRxn);
 	registerKernel(ProductAABBRxn);
+	registerKernel(SetValue);
+
 	registerAux(AbsValueAux);
 	registerAux(DensityMoles);
 	registerAux(TM0CylindricalEzAux);

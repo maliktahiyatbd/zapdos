@@ -57,7 +57,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 	end_time = 10E6
 
 	[./TimeIntegrator]
-		type = CrankNicolson # AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
+		type = ImplicitEuler # AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
 	[../]
 
 #	trans_ss_check = 1

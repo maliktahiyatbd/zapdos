@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -pe mpi-* 32
-#$ -N Transient-Test1
+#$ -N Transient-Drift-205V-Test1
 #$ -M jhaase1@nd.edu
 #$ -m a
 #$ -r y

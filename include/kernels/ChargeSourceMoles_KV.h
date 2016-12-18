@@ -33,6 +33,7 @@ class ChargeSourceMoles_KV : public Kernel
   const MaterialProperty<Real> &  _N_A;
   std::string _potential_units;
 
+	bool _use_moles;
   Real _voltage_scaling;
 };
 
