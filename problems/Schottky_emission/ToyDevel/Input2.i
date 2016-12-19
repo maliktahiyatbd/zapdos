@@ -1,5 +1,5 @@
-dom0Scale = 1E-6
-dom0Size = 2 #m
+dom0Scale = 1
+dom0Size = 2E-6 #m
 
 vhigh = 210E-3 #kV
 resistance = 1 #Ohms
@@ -11,10 +11,12 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [GlobalParams]
 #	offset = 25
+	time_units = 1
+	position_units = ${dom0Scale}
 	potential_units = kV
 #	 potential_units = V
 	use_moles = true
-	position_units = ${dom0Scale}
+#	use_moles = false
 []
 
 [Mesh]
@@ -66,8 +68,8 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
 	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
-	nl_rel_tol = 1e-14
-	nl_abs_tol = 1e-12
+	nl_rel_tol = 1E-14
+	nl_abs_tol = 4E-8
 
 	dtmin = 1e-25
 	# dtmax = 1E-6
@@ -75,14 +77,14 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
-		dt = 1e-13
+		dt = 1e-11
 		growth_factor = 1.2
 		optimal_iterations = 100
 	[../]
 []
 
 [Outputs]
-	print_perf_log = true
+	print_perf_log = false
 	print_linear_residuals = false
 	[./out]
 		type = Exodus
@@ -120,12 +122,12 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		variable = potential
 		block = 0
 	[../]
-	[./Arp_charge_source]
-		type = ChargeSourceMoles_KV
-		variable = potential
-		charged = Arp
-		block = 0
-	[../]
+#	[./Arp_charge_source]
+#		type = ChargeSourceMoles_KV
+#		variable = potential
+#		charged = Arp
+#		block = 0
+#	[../]
 	[./em_charge_source]
 		type = ChargeSourceMoles_KV
 		variable = potential
@@ -136,21 +138,21 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #	[./em]
 #		type = SetValue
 #		variable = em
-#		value = -15
+#		value = 92
 #		block = 0
 #	[../]
 
 	[./mean_en]
 		type = SetValue
 		variable = mean_en
-		value = -15
+		value = -30
 		block = 0
 	[../]
 
 	[./Arp]
 		type = SetValue
 		variable = Arp
-		value = -15
+		value = -30
 		block = 0
 	[../]
 
@@ -298,15 +300,24 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 []
 
 [AuxVariables]
+	[./x]
+		order = CONSTANT
+		family = MONOMIAL
+	[../]
+	[./Voltage]
+		order = CONSTANT
+		family = MONOMIAL
+	[../]
+	[./em_lin]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
 #	[./e_temp]
 #		block = 0
 #		order = CONSTANT
 #		family = MONOMIAL
 #	[../]
-	[./x]
-		order = CONSTANT
-		family = MONOMIAL
-	[../]
 #	[./x_node]
 #	[../]
 #	[./rho]
@@ -314,11 +325,6 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		family = MONOMIAL
 #		block = 0
 #	[../]
-	[./em_lin]
-		order = CONSTANT
-		family = MONOMIAL
-		block = 0
-	[../]
 #	[./Arp_lin]
 #		order = CONSTANT
 #		family = MONOMIAL
@@ -381,6 +387,26 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 []
 
 [AuxKernels]
+## Cell AuxKernels
+	[./x_g]
+		type = Position
+		variable = x
+		block = 0
+	[../]
+	[./Voltage]
+		type = Potential
+		variable = Voltage
+		potential = potential
+		block = 0
+	[../]
+	[./em_lin]
+		type = Density
+		convert_moles = true
+		variable = em_lin
+		density_log = em
+		block = 0
+	[../]
+
 #	[./PowerDep_em]
 #		type = PowerDep
 #		density_log = em
@@ -428,11 +454,6 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		mean_en = mean_en
 #		block = 0
 #	[../]
-	[./x_g]
-		type = Position
-		variable = x
-		block = 0
-	[../]
 #	[./x_ng]
 #		type = Position
 #		variable = x_node
@@ -454,13 +475,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		execute_on = 'timestep_end'
 #		block = 0
 #	[../]
-	[./em_lin]
-		type = Density
-		convert_moles = true
-		variable = em_lin
-		density_log = em
-		block = 0
-	[../]
+
 #	[./Arp_lin]
 #		type = Density
 #		convert_moles = true
@@ -508,32 +523,32 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [BCs]
 ## Potential boundary conditions ##
-	[./potential_left]
-		boundary = left
-#		type = NeumannCircuitVoltageNew
-#		source_voltage = potential_bc_func
-
-		type = PenaltyCircuitPotential
-		surface_potential = -${vhigh}
-		penalty = 1
-
-		variable = potential
-		current = current_density_user_object
-		surface = 'cathode'
-		data_provider = data_provider
-		em = em
-		ip = Arp
-		mean_en = mean_en
-		area = ${area}
-		resistance = ${resistance}
-	[../]
-
-#	[./potential_dirichlet_left]
-#		type = DirichletBC
-#		variable = potential
+#	[./potential_left]
 #		boundary = left
-#		value = -${vhigh}
+##		type = NeumannCircuitVoltageNew
+##		source_voltage = potential_bc_func
+#
+#		type = PenaltyCircuitPotential
+#		surface_potential = -${vhigh}
+#		penalty = 1
+#
+#		variable = potential
+#		current = current_density_user_object
+#		surface = 'cathode'
+#		data_provider = data_provider
+#		em = em
+#		ip = Arp
+#		mean_en = mean_en
+#		area = ${area}
+#		resistance = ${resistance}
 #	[../]
+
+	[./potential_dirichlet_left]
+		type = DirichletBC
+		variable = potential
+		boundary = left
+		value = -${vhigh}
+	[../]
 
 	[./potential_dirichlet_right]
 		type = DirichletBC
@@ -560,14 +575,14 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		type = DirichletBC
 		variable = em
 		boundary = left
-		value = -15
+		value = 0
 	[../]
 
 	[./em_dirichlet_right]
 		type = DirichletBC
 		variable = em
-		boundary = left
-		value = -30
+		boundary = right
+		value = -15
 	[../]
 
 #	[./em_physical_right]
@@ -640,7 +655,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -20
+		value = -13
 		block = 0
 	[../]
 

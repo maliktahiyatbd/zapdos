@@ -49,6 +49,7 @@
 #include "DiffusiveFlux.h"
 #include "Density.h"
 #include "Efield.h"
+#include "Potential.h"
 
 // Materials
 #include "JacMat.h"
@@ -194,6 +195,7 @@ ZapdosApp::registerObjects(Factory & factory)
 	registerAux(TotalFlux);
 	registerAux(Position);
 	registerAux(Efield);
+	registerAux(Potential);
 	registerAux(ElectronTemperature);
 	registerAux(Density);
 	registerAux(DiffusiveFlux);

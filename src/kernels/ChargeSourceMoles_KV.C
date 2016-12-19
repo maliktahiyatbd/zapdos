@@ -5,8 +5,12 @@ InputParameters validParams<ChargeSourceMoles_KV>()
 {
 	InputParameters params = validParams<Kernel>();
 	params.addRequiredCoupledVar("charged", "The charged species");
+
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
-	params.addRequiredParam<bool>("use_moles", "Whether the densities are in molar units.");
+	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
+  params.addRequiredParam<Real>("position_units", "The units of position.");
+  params.addRequiredParam<Real>("time_units", "The units of time.");
+
 	return params;
 }
 
@@ -20,8 +24,11 @@ ChargeSourceMoles_KV::ChargeSourceMoles_KV(const InputParameters & parameters) :
 	_e(getMaterialProperty<Real>("e")),
 	_sgn(getMaterialProperty<Real>("sgn"+_charged_var.name())),
 	_N_A(getMaterialProperty<Real>("N_A")),
+
 	_potential_units(getParam<std::string>("potential_units")),
-	_use_moles(getParam<bool>("use_moles"))
+	_use_moles(getParam<bool>("use_moles")),
+  _r_units(1./getParam<Real>("position_units")),
+  _t_units(1./getParam<Real>("time_units"))
 
 {
 	if (_potential_units.compare("V") == 0)
@@ -38,9 +45,9 @@ Real
 ChargeSourceMoles_KV::computeQpResidual()
 {
 	if (_use_moles)
-		return -_test[_i][_qp] *_e[_qp] *_sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) / _voltage_scaling;
+		return -_test[_i][_qp] *_e[_qp] *_sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
 	else
-		return -_test[_i][_qp] *_e[_qp] *_sgn[_qp] * std::exp(_charged[_qp]) / _voltage_scaling;
+		return -_test[_i][_qp] *_e[_qp] *_sgn[_qp] * std::exp(_charged[_qp]) / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
 }
 
 Real
@@ -54,9 +61,9 @@ ChargeSourceMoles_KV::computeQpOffDiagJacobian(unsigned int jvar)
 {
 	if (jvar == _charged_id)
 		if (_use_moles) {
-			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / _voltage_scaling;
+			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
 		} else {
-			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / _voltage_scaling;
+			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
 		}
 	else
 		return 0.0;
