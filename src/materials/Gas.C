@@ -213,7 +213,7 @@ Gas::computeQpProperties()
 	_work_function[_qp] = _user_work_function;
 	_field_enhancement[_qp] = _user_field_enhancement;
 
-	_Richardson_coefficient[_qp] = _user_Richardson_coefficient / ( _t_units / ( _r_units * _r_units ));
+	_Richardson_coefficient[_qp] = _user_Richardson_coefficient / ( _t_units * _r_units * _r_units );
 	_cathode_temperature[_qp] = _user_cathode_temperature;
 
 	_se_energy[_qp] = 2. * 3. / 2.; // Emi uses 2 Volts coming off the wall (presumably for Te). Multiply by 3/2 to get mean_en
@@ -234,31 +234,31 @@ Gas::computeQpProperties()
 	{
 	if (_ramp_trans_coeffs)
 	{
-	_muem[_qp] = (std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .0352) * _voltage_scaling * ( _t_units / ( _r_units * _r_units ));
-	_d_muem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( _t_units / ( _r_units * _r_units ));
-	_diffem[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .30 * ( _t_units / ( _r_units * _r_units ));
-	_d_diffem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( _t_units / ( _r_units * _r_units ));
+	_muem[_qp] = (std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .0352) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+	_d_muem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+	_diffem[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .30 * ( ( _r_units * _r_units ) / _t_units );
+	_d_diffem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
 	}
 	else
 	{
-	_muem[_qp] = _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( _t_units / ( _r_units * _r_units ));
-	_d_muem_d_actual_mean_en[_qp] = _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( _t_units / ( _r_units * _r_units ));
-	_diffem[_qp] = _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * ( _t_units / ( _r_units * _r_units ));
-	_d_diffem_d_actual_mean_en[_qp] = _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( _t_units / ( _r_units * _r_units ));
+	_muem[_qp] = _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+	_d_muem_d_actual_mean_en[_qp] = _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+	_diffem[_qp] = _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
+	_d_diffem_d_actual_mean_en[_qp] = _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
 	}
 	}
 	else
 	{
 	// From bolos at atmospheric pressure and an EField of 2e5 V/m
-	_muem[_qp] = 0.0352103411399 * _voltage_scaling * ( _t_units / ( _r_units * _r_units )); // units of m^2/(kV*s) if _voltage_scaling = 1000
+	_muem[_qp] = 0.0352103411399 * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
 	_d_muem_d_actual_mean_en[_qp] = 0.0;
-	_diffem[_qp] = 0.297951680159 * ( _t_units / ( _r_units * _r_units ));
+	_diffem[_qp] = 0.297951680159 * ( ( _r_units * _r_units ) / _t_units );
 	_d_diffem_d_actual_mean_en[_qp] = 0.0;
 	}
 
 	// From Richards and Sawin, muArp*pressure = 1444 cm^2*Torr/(V*s) and diffArp*pressure = 40 cm^2*Torr/s. Use pressure = 760 torr.
-	_muArp[_qp] = 1444. * _voltage_scaling / (10000. * 760. * _p_gas[_qp] / 1.01E5) * ( _t_units / ( _r_units * _r_units )); // units of m^2/(kV*s) if _voltage_scaling = 1000
-	_diffArp[_qp] = .004 / (760. * _p_gas[_qp] / 1.01E5) * ( _t_units / ( _r_units * _r_units )); //covert to m^2 and include press
+	_muArp[_qp] = 1444. * _voltage_scaling / (10000. * 760. * _p_gas[_qp] / 1.01E5) * ( ( _r_units * _r_units ) / _t_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
+	_diffArp[_qp] = .004 / (760. * _p_gas[_qp] / 1.01E5) * ( ( _r_units * _r_units ) / _t_units ); //covert to m^2 and include press
 
 	// 100 times less than electrons
 	// _muArp[_qp] = 3.52e-4;

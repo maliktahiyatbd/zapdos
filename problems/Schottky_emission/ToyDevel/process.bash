@@ -1,7 +1,7 @@
 #!/bin/bash -i
 
 
-OutputFile="Input2_out"
+OutputFile="UnScaled_Input_out"
 
 module load paraview
 
