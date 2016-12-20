@@ -72,6 +72,7 @@ traceout*.txt
 *.vtu
 .depend
 *.mp4
+.__*
 
 # Allow .e files in gold directories (7 levels)
 !/gold/*.e

@@ -1,5 +1,5 @@
-dom0Scale = 1E-6
-time_units = 1E-12 #s
+position_units = 1E-6
+time_units = 1E-6 #s
 
 dom0Size = 2 #m
 
@@ -14,7 +14,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 [GlobalParams]
 #	offset = 25
 	time_units = ${time_units}
-	position_units = ${dom0Scale}
+	position_units = ${position_units}
 	potential_units = kV
 #	 potential_units = V
 	use_moles = true
@@ -71,7 +71,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
 	nl_rel_tol = 1E-14
-	nl_abs_tol = 4E-11
+	nl_abs_tol = 4E-8
 
 	dtmin = ${/ 1e-25 ${time_units}}
 	# dtmax = ${/ 1e-6 ${time_units}}
@@ -584,7 +584,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		type = DirichletBC
 		variable = em
 		boundary = right
-		value = 26.44
+		value = 0
 	[../]
 
 #	[./em_physical_right]
@@ -657,7 +657,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -13
+		value = 5
 		block = 0
 	[../]
 
