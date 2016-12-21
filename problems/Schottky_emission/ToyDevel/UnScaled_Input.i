@@ -124,25 +124,25 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		variable = potential
 		block = 0
 	[../]
-#	[./Arp_charge_source]
-#		type = ChargeSourceMoles_KV
-#		variable = potential
-#		charged = Arp
-#		block = 0
-#	[../]
-	[./em_charge_source]
+	[./Arp_charge_source]
 		type = ChargeSourceMoles_KV
 		variable = potential
-		charged = em
+		charged = Arp
 		block = 0
 	[../]
-
-#	[./em]
-#		type = SetValue
-#		variable = em
-#		value = 92
+#	[./em_charge_source]
+#		type = ChargeSourceMoles_KV
+#		variable = potential
+#		charged = em
 #		block = 0
 #	[../]
+
+	[./em]
+		type = SetValue
+		variable = em
+		value = -30
+		block = 0
+	[../]
 
 	[./mean_en]
 		type = SetValue
@@ -151,19 +151,19 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		block = 0
 	[../]
 
-	[./Arp]
-		type = SetValue
-		variable = Arp
-		value = -30
-		block = 0
-	[../]
+#	[./Arp]
+#		type = SetValue
+#		variable = Arp
+#		value = -30
+#		block = 0
+#	[../]
 
 ## Electron
-	[./em_time_deriv]
-		type = ElectronTimeDerivative
-		variable = em
-		block = 0
-	[../]
+#	[./em_time_deriv]
+#		type = ElectronTimeDerivative
+#		variable = em
+#		block = 0
+#	[../]
 #	[./em_advection]
 #		type = EFieldAdvectionElectrons
 #		variable = em
@@ -171,12 +171,12 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		mean_en = mean_en
 #		block = 0
 #	[../]
-	[./em_diffusion]
-		type = CoeffDiffusionElectrons
-		variable = em
-		mean_en = mean_en
-		block = 0
-	[../]
+#	[./em_diffusion]
+#		type = CoeffDiffusionElectrons
+#		variable = em
+#		mean_en = mean_en
+#		block = 0
+#	[../]
 #	[./em_ionization]
 #		type = ElectronsFromIonization
 #		em = em
@@ -187,22 +187,22 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #	[../]
 
 ## Ion
-#	[./Arp_time_deriv]
-#		type = ElectronTimeDerivative
-#		variable = Arp
-#		block = 0
-#	[../]
+	[./Arp_time_deriv]
+		type = ElectronTimeDerivative
+		variable = Arp
+		block = 0
+	[../]
 #	[./Arp_advection]
 #		type = EFieldAdvection
 #		variable = Arp
 #		potential = potential
 #		block = 0
 #	[../]
-#	[./Arp_diffusion]
-#		type = CoeffDiffusion
-#		variable = Arp
-#		block = 0
-#	[../]
+	[./Arp_diffusion]
+		type = CoeffDiffusion
+		variable = Arp
+		block = 0
+	[../]
 #	[./Arp_ionization]
 #		type = IonsFromIonization
 #		variable = Arp
@@ -573,33 +573,33 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		relax = true
 #	[../]
 
-	[./em_dirichlet_left]
-		type = DirichletBC
-		variable = em
-		boundary = left
-		value = -15
-	[../]
-
-	[./em_dirichlet_right]
-		type = DirichletBC
-		variable = em
-		boundary = right
-		value = 0
-	[../]
-
-#	[./Arp_dirichlet_left]
+#	[./em_dirichlet_left]
 #		type = DirichletBC
-#		variable = Arp
+#		variable = em
 #		boundary = left
+#		value = -15
+#	[../]
+
+#	[./em_dirichlet_right]
+#		type = DirichletBC
+#		variable = em
+#		boundary = right
 #		value = 0
 #	[../]
 
-#	[./Arp_dirichlet_right]
-#		type = DirichletBC
-#		variable = Arp
-#		boundary = right
-#		value = -15
-#	[../]
+	[./Arp_dirichlet_left]
+		type = DirichletBC
+		variable = Arp
+		boundary = left
+		value = 0
+	[../]
+
+	[./Arp_dirichlet_right]
+		type = DirichletBC
+		variable = Arp
+		boundary = right
+		value = -15
+	[../]
 
 #	[./em_physical_right]
 #		type = HagelaarElectronAdvectionBC
