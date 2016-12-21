@@ -35,7 +35,7 @@ EFieldAdvectionElectrons::EFieldAdvectionElectrons(const InputParameters & param
 
 Real EFieldAdvectionElectrons::computeQpResidual()
 {
-  return _muem[_qp] * _sign[_qp] * std::exp(_u[_qp]) * -_grad_potential[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+  return _muem[_qp] * _sign[_qp] * std::exp(_u[_qp]) * -_grad_potential[_qp] * -_grad_test[_i][_qp];
 }
 
 Real EFieldAdvectionElectrons::computeQpJacobian()
@@ -43,14 +43,14 @@ Real EFieldAdvectionElectrons::computeQpJacobian()
   _d_actual_mean_en_d_u = std::exp(_mean_en[_qp] - _u[_qp]) * -_phi[_j][_qp];
   _d_muem_d_u = _d_muem_d_actual_mean_en[_qp] * _d_actual_mean_en_d_u;
 
-  return (_d_muem_d_u * _sign[_qp] * std::exp(_u[_qp]) * -_grad_potential[_qp] * _r_units + _muem[_qp] * _sign[_qp] * std::exp(_u[_qp]) * _phi[_j][_qp] * -_grad_potential[_qp] * _r_units) * -_grad_test[_i][_qp] * _r_units;
+  return (_d_muem_d_u * _sign[_qp] * std::exp(_u[_qp]) * -_grad_potential[_qp] + _muem[_qp] * _sign[_qp] * std::exp(_u[_qp]) * _phi[_j][_qp] * -_grad_potential[_qp]) * -_grad_test[_i][_qp];
 }
 
 Real EFieldAdvectionElectrons::computeQpOffDiagJacobian(unsigned int jvar)
 {
   if (jvar == _potential_id)
   {
-    return _muem[_qp] * _sign[_qp] * std::exp(_u[_qp]) * -_grad_phi[_j][_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+    return _muem[_qp] * _sign[_qp] * std::exp(_u[_qp]) * -_grad_phi[_j][_qp] * -_grad_test[_i][_qp];
   }
 
   if (jvar == _mean_en_id)
@@ -58,7 +58,7 @@ Real EFieldAdvectionElectrons::computeQpOffDiagJacobian(unsigned int jvar)
     _d_actual_mean_en_d_mean_en = std::exp(_mean_en[_qp] - _u[_qp]) * _phi[_j][_qp];
     _d_muem_d_mean_en = _d_muem_d_actual_mean_en[_qp] * _d_actual_mean_en_d_mean_en;
 
-  return _d_muem_d_mean_en * _sign[_qp] * std::exp(_u[_qp]) * -_grad_potential[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+  return _d_muem_d_mean_en * _sign[_qp] * std::exp(_u[_qp]) * -_grad_potential[_qp] * -_grad_test[_i][_qp];
   }
 
   else

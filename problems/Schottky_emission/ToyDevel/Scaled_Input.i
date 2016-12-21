@@ -1,7 +1,7 @@
 position_units = 1E-6
 time_units = 1E-6 #s
 
-dom0Size = 2 #m
+dom0Size = ${/ 2E-6 ${position_units}} #m
 
 vhigh = 210E-3 #kV
 resistance = 1 #Ohms
@@ -71,7 +71,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
 	nl_rel_tol = 1E-14
-	nl_abs_tol = 4E-8
+	nl_abs_tol = 5E-12
 
 	dtmin = ${/ 1e-25 ${time_units}}
 	# dtmax = ${/ 1e-6 ${time_units}}
@@ -327,11 +327,11 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		family = MONOMIAL
 #		block = 0
 #	[../]
-#	[./Arp_lin]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
+	[./Arp_lin]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
 #	[./Efield]
 #		order = CONSTANT
 #		family = MONOMIAL
@@ -408,6 +408,13 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		density_log = em
 		block = 0
 	[../]
+	[./Arp_lin]
+		type = Density
+		convert_moles = true
+		variable = Arp_lin
+		density_log = Arp
+		block = 0
+	[../]
 
 #	[./PowerDep_em]
 #		type = PowerDep
@@ -478,13 +485,6 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		block = 0
 #	[../]
 
-#	[./Arp_lin]
-#		type = Density
-#		convert_moles = true
-#		variable = Arp_lin
-#		density_log = Arp
-#		block = 0
-#	[../]
 #	[./Efield_g]
 #		type = Efield
 #		component = 0
@@ -577,7 +577,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		type = DirichletBC
 		variable = em
 		boundary = left
-		value = 41.44
+		value = -15
 	[../]
 
 	[./em_dirichlet_right]
@@ -586,6 +586,20 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		boundary = right
 		value = 0
 	[../]
+
+#	[./Arp_dirichlet_left]
+#		type = DirichletBC
+#		variable = Arp
+#		boundary = left
+#		value = 0
+#	[../]
+
+#	[./Arp_dirichlet_right]
+#		type = DirichletBC
+#		variable = Arp
+#		boundary = right
+#		value = -15
+#	[../]
 
 #	[./em_physical_right]
 #		type = HagelaarElectronAdvectionBC
@@ -657,14 +671,14 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = 5
+		value = -13
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -30
+		value = -13
 		block = 0
 	[../]
 

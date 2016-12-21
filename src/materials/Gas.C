@@ -148,10 +148,11 @@ Gas::Gas(const InputParameters & parameters) :
 	_grad_ip(isCoupled("ip") ? coupledGradient("ip") : _grad_zero),
 	_mean_en(isCoupled("mean_en") ? coupledValue("mean_en") : _zero)
 {
-	if (_potential_units.compare("V") == 0)
-	_voltage_scaling = 1.;
-	else if (_potential_units.compare("kV") == 0)
-	_voltage_scaling = 1000;
+	if (_potential_units.compare("V") == 0) {
+		_voltage_scaling = 1.;
+	} else if (_potential_units.compare("kV") == 0) {
+		_voltage_scaling = 1000;
+	}
 
 	std::vector<Real> actual_mean_energy;
 	std::vector<Real> alpha;
@@ -169,24 +170,23 @@ Gas::Gas(const InputParameters & parameters) :
 
 	if (myfile.is_open())
 	{
-	while ( myfile >> value )
-	{
-	actual_mean_energy.push_back(value);
-	myfile >> value;
-	alpha.push_back(value);
-	myfile >> value;
-	alphaEx.push_back(value);
-	myfile >> value;
-	alphaEl.push_back(value);
-	myfile >> value;
-	mu.push_back(value);
-	myfile >> value;
-	diff.push_back(value);
+		while ( myfile >> value ) {
+			actual_mean_energy.push_back(value);
+			myfile >> value;
+			alpha.push_back(value);
+			myfile >> value;
+			alphaEx.push_back(value);
+			myfile >> value;
+			alphaEl.push_back(value);
+			myfile >> value;
+			mu.push_back(value);
+			myfile >> value;
+			diff.push_back(value);
+		}
+		myfile.close();
+	} else {
+		std::cerr << "Unable to open file" << std::endl;
 	}
-	myfile.close();
-	}
-
-	else std::cerr << "Unable to open file" << std::endl;
 
 	_alpha_interpolation.setData(actual_mean_energy, alpha);
 	_alphaEx_interpolation.setData(actual_mean_energy, alphaEx);
@@ -204,10 +204,12 @@ Gas::computeQpProperties()
 	_T_gas[_qp] = _user_T_gas;
 	_p_gas[_qp] = _user_p_gas;
 	_k_boltz[_qp] = 1.38e-23;
-	if (_use_moles)
-	_n_gas[_qp] = _p_gas[_qp] / (8.3145 * _T_gas[_qp]);
-	else
-	_n_gas[_qp] = _p_gas[_qp] / (_k_boltz[_qp] * _T_gas[_qp]);
+
+	if (_use_moles) {
+		_n_gas[_qp] = _p_gas[_qp] / (8.3145 * _T_gas[_qp]);
+	} else {
+		_n_gas[_qp] = _p_gas[_qp] / (_k_boltz[_qp] * _T_gas[_qp]);
+	}
 
 	_se_coeff[_qp] = _user_se_coeff;
 	_work_function[_qp] = _user_work_function;
@@ -230,35 +232,29 @@ Gas::computeQpProperties()
 
 	// if (!_jac_test)
 	// {
-	if (_interp_trans_coeffs)
-	{
-	if (_ramp_trans_coeffs)
-	{
-	_muem[_qp] = (std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .0352) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
-	_d_muem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
-	_diffem[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .30 * ( ( _r_units * _r_units ) / _t_units );
-	_d_diffem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
-	}
-	else
-	{
-	_muem[_qp] = _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
-	_d_muem_d_actual_mean_en[_qp] = _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
-	_diffem[_qp] = _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
-	_d_diffem_d_actual_mean_en[_qp] = _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
-	}
-	}
-	else
-	{
+	if (_interp_trans_coeffs) {
+		if (_ramp_trans_coeffs) {
+			_muem[_qp] = (std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .0352) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+			_d_muem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+			_diffem[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) + (1. - std::tanh(_t / (_t_units * 1e-6))) * .30 * ( ( _r_units * _r_units ) / _t_units );
+			_d_diffem_d_actual_mean_en[_qp] = std::tanh(_t / (_t_units * 1e-6)) * _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
+		} else {
+		_muem[_qp] = _mu_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+		_d_muem_d_actual_mean_en[_qp] = _mu_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units );
+		_diffem[_qp] = _diff_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
+		_d_diffem_d_actual_mean_en[_qp] = _diff_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) * ( ( _r_units * _r_units ) / _t_units );
+		}
+	} else {
 	// From bolos at atmospheric pressure and an EField of 2e5 V/m
-	_muem[_qp] = 0.0352103411399 * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
-	_d_muem_d_actual_mean_en[_qp] = 0.0;
-	_diffem[_qp] = 0.297951680159 * ( ( _r_units * _r_units ) / _t_units );
-	_d_diffem_d_actual_mean_en[_qp] = 0.0;
+		_muem[_qp] = 0.0352103411399 * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
+		_d_muem_d_actual_mean_en[_qp] = 0.0;
+		_diffem[_qp] = 0.297951680159 * ( ( _r_units * _r_units ) / _t_units );
+		_d_diffem_d_actual_mean_en[_qp] = 0.0;
 	}
 
 	// From Richards and Sawin, muArp*pressure = 1444 cm^2*Torr/(V*s) and diffArp*pressure = 40 cm^2*Torr/s. Use pressure = 760 torr.
 	_muArp[_qp] = 1444. * _voltage_scaling / (10000. * 760. * _p_gas[_qp] / 1.01E5) * ( ( _r_units * _r_units ) / _t_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
-	_diffArp[_qp] = .004 / (760. * _p_gas[_qp] / 1.01E5) * ( ( _r_units * _r_units ) / _t_units ); //covert to m^2 and include press
+	_diffArp[_qp] = 0.004 / (760. * _p_gas[_qp] / 1.01E5) * ( ( _r_units * _r_units ) / _t_units ); //covert to m^2 and include press
 
 	// 100 times less than electrons
 	// _muArp[_qp] = 3.52e-4;
@@ -288,13 +284,13 @@ Gas::computeQpProperties()
 	// _d_iz_d_actual_mean_en[_qp] = _d_alpha_d_actual_mean_energy_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp]));
 	_alpha_ex[_qp] = _alphaEx_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
 	_d_ex_d_actual_mean_en[_qp] = _alphaEx_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
+
 	if (_interp_elastic_coeff) {
-	_alpha_el[_qp] = _alphaEl_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
-	_d_el_d_actual_mean_en[_qp] = _alphaEl_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
-	}
-	else {
-	_alpha_el[_qp] = 5e8 / _r_units ;
-	_d_el_d_actual_mean_en[_qp] = 0.0 / _r_units ;
+		_alpha_el[_qp] = _alphaEl_interpolation.sample(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
+		_d_el_d_actual_mean_en[_qp] = _alphaEl_interpolation.sampleDerivative(std::exp(_mean_en[_qp]-_em[_qp])) / _r_units ;
+	} else {
+		_alpha_el[_qp] = 5e8 / _r_units ;
+		_d_el_d_actual_mean_en[_qp] = 0.0 / _r_units ;
 	}
 
 /* Not sure if these are necessary anymore John Haase 12/18/2016
@@ -312,12 +308,11 @@ Gas::computeQpProperties()
 	_mumean_en[_qp] = 5.0/3.0*_muem[_qp];
 	_diffmean_en[_qp] = 5.0/3.0*_diffem[_qp];
 	if (_interp_trans_coeffs) {
-	_d_mumean_en_d_actual_mean_en[_qp] = 5.0/3.0*_d_muem_d_actual_mean_en[_qp];
-	_d_diffmean_en_d_actual_mean_en[_qp] = 5.0/3.0*_d_diffem_d_actual_mean_en[_qp];
-	}
-	else {
-	_d_mumean_en_d_actual_mean_en[_qp] = 0.0;
-	_d_diffmean_en_d_actual_mean_en[_qp] = 0.0;
+		_d_mumean_en_d_actual_mean_en[_qp] = 5.0/3.0*_d_muem_d_actual_mean_en[_qp];
+		_d_diffmean_en_d_actual_mean_en[_qp] = 5.0/3.0*_d_diffem_d_actual_mean_en[_qp];
+	} else {
+		_d_mumean_en_d_actual_mean_en[_qp] = 0.0;
+		_d_diffmean_en_d_actual_mean_en[_qp] = 0.0;
 	}
 
 
