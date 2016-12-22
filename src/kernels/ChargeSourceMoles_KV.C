@@ -45,9 +45,9 @@ Real
 ChargeSourceMoles_KV::computeQpResidual()
 {
 	if (_use_moles)
-		return -_test[_i][_qp] *_e[_qp] *_sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
+		return -_test[_i][_qp] * _e[_qp] *_sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) / _voltage_scaling ;
 	else
-		return -_test[_i][_qp] *_e[_qp] *_sgn[_qp] * std::exp(_charged[_qp]) / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
+		return -_test[_i][_qp] *_e[_qp] *_sgn[_qp] * std::exp(_charged[_qp]) / _voltage_scaling ;
 }
 
 Real
@@ -61,9 +61,9 @@ ChargeSourceMoles_KV::computeQpOffDiagJacobian(unsigned int jvar)
 {
 	if (jvar == _charged_id)
 		if (_use_moles) {
-			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
+			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * _N_A[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / _voltage_scaling ;
 		} else {
-			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / ( _voltage_scaling * pow( _r_units , 3 ) ) ;
+			return -_test[_i][_qp] * _e[_qp] * _sgn[_qp] * std::exp(_charged[_qp]) * _phi[_j][_qp] / _voltage_scaling ;
 		}
 	else
 		return 0.0;
