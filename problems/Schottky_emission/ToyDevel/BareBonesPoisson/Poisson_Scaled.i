@@ -22,21 +22,10 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 []
 
 [Mesh]
-	type = FileMesh
-	file = 'Scaled_Geometry.msh'
-[]
-
-[MeshModifiers]
-	[./left]
-		type = SideSetsFromNormals
-		normals = '-1 0 0'
-		new_boundary = 'left'
-	[../]
-	[./right]
-		type = SideSetsFromNormals
-		normals = '1 0 0'
-		new_boundary = 'right'
-	[../]
+	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
+	dim = 1								# Dimension of the mesh
+	nx = 1000							# Number of elements in the x direction
+	xmax = ${dom0Size}		# Length of test chamber
 []
 
 [Problem]
@@ -63,15 +52,15 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	ss_tmin = ${steadyStateTime}
 
 	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -snes_ksp_ew'
-	solve_type = NEWTON
+	solve_type = NEWTON	#PJFNK JFNK NEWTON
 #	petsc_options_iname = '-pc_type -sub_pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
 #	petsc_options_value = 'asm ilu NONZERO 1.e-10 preonly 1e-3 100'
 
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
 	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
-	nl_rel_tol = 1E-14
-	nl_abs_tol = 5E-12
+	nl_rel_tol = 1E-8
+	nl_abs_tol = 1E-12
 
 	dtmin = ${/ 1e-25 ${time_units}}
 	# dtmax = ${/ 1e-6 ${time_units}}
@@ -124,12 +113,20 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		variable = potential
 		block = 0
 	[../]
-	[./Arp_charge_source]
-		type = ChargeSourceMoles_KV
+
+	[./V]
+		type = SetValue
 		variable = potential
-		charged = Arp
+		value = 0
 		block = 0
 	[../]
+
+#	[./Arp_charge_source]
+#		type = ChargeSourceMoles_KV
+#		variable = potential
+#		charged = Arp
+#		block = 0
+#	[../]
 #	[./em_charge_source]
 #		type = ChargeSourceMoles_KV
 #		variable = potential
@@ -140,7 +137,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	[./em]
 		type = SetValue
 		variable = em
-		value = -30
+		value = -20
 		block = 0
 	[../]
 
@@ -151,12 +148,12 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		block = 0
 	[../]
 
-#	[./Arp]
-#		type = SetValue
-#		variable = Arp
-#		value = -30
-#		block = 0
-#	[../]
+	[./Arp]
+		type = SetValue
+		variable = Arp
+		value = -30
+		block = 0
+	[../]
 
 ## Electron
 #	[./em_time_deriv]
@@ -187,22 +184,22 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #	[../]
 
 ## Ion
-	[./Arp_time_deriv]
-		type = ElectronTimeDerivative
-		variable = Arp
-		block = 0
-	[../]
+#	[./Arp_time_deriv]
+#		type = ElectronTimeDerivative
+#		variable = Arp
+#		block = 0
+#	[../]
 #	[./Arp_advection]
 #		type = EFieldAdvection
 #		variable = Arp
 #		potential = potential
 #		block = 0
 #	[../]
-	[./Arp_diffusion]
-		type = CoeffDiffusion
-		variable = Arp
-		block = 0
-	[../]
+#	[./Arp_diffusion]
+#		type = CoeffDiffusion
+#		variable = Arp
+#		block = 0
+#	[../]
 #	[./Arp_ionization]
 #		type = IonsFromIonization
 #		variable = Arp
@@ -315,6 +312,11 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		family = MONOMIAL
 		block = 0
 	[../]
+	[./Arp_lin]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
 #	[./e_temp]
 #		block = 0
 #		order = CONSTANT
@@ -327,11 +329,6 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		family = MONOMIAL
 #		block = 0
 #	[../]
-	[./Arp_lin]
-		order = CONSTANT
-		family = MONOMIAL
-		block = 0
-	[../]
 #	[./Efield]
 #		order = CONSTANT
 #		family = MONOMIAL
@@ -587,19 +584,19 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		value = 0
 #	[../]
 
-	[./Arp_dirichlet_left]
-		type = DirichletBC
-		variable = Arp
-		boundary = left
-		value = 0
-	[../]
+#	[./Arp_dirichlet_left]
+#		type = DirichletBC
+#		variable = Arp
+#		boundary = left
+#		value = 0
+#	[../]
 
-	[./Arp_dirichlet_right]
-		type = DirichletBC
-		variable = Arp
-		boundary = right
-		value = -15
-	[../]
+#	[./Arp_dirichlet_right]
+#		type = DirichletBC
+#		variable = Arp
+#		boundary = right
+#		value = -15
+#	[../]
 
 #	[./em_physical_right]
 #		type = HagelaarElectronAdvectionBC

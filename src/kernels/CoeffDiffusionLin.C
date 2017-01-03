@@ -2,14 +2,14 @@
 /*							 DO NOT MODIFY THIS HEADER											*/
 /* MOOSE - Multiphysics Object Oriented Simulation Environment	*/
 /*																															*/
-/*					 (c) 2010 Battelle Energy Alliance, LLC						 */
+/*					 (c) 2010 Battelle Energy Alliance, LLC							*/
 /*									 ALL RIGHTS RESERVED												*/
 /*																															*/
-/*					Prepared by Battelle Energy Alliance, LLC					 */
+/*					Prepared by Battelle Energy Alliance, LLC						*/
 /*						Under Contract No. DE-AC07-05ID14517							*/
-/*						With the U. S. Department of Energy							 */
+/*						With the U. S. Department of Energy								*/
 /*																															*/
-/*						See COPYRIGHT for full restrictions							 */
+/*						See COPYRIGHT for full restrictions								*/
 /****************************************************************/
 
 #include "CoeffDiffusionLin.h"
@@ -38,11 +38,13 @@ CoeffDiffusionLin::~CoeffDiffusionLin()
 Real
 CoeffDiffusionLin::computeQpResidual()
 {
-	return -_diffusivity[_qp] * ( _grad_u[_qp] * _r_units ) * -( _grad_test[_i][_qp] * _r_units ) ;
+//	return -_diffusivity[_qp] * _grad_u[_qp] * -_grad_test[_i][_qp] ;
+	return _diffusivity[_qp] * Diffusion::computeQpResidual();
 }
 
 Real
 CoeffDiffusionLin::computeQpJacobian()
 {
-	return -_diffusivity[_qp] * ( _grad_phi[_j][_qp] * _r_units ) * -( _grad_test[_i][_qp] * _r_units ) ;
+//	return -_diffusivity[_qp] * _grad_phi[_j][_qp] * -_grad_test[_i][_qp] ;
+	return _diffusivity[_qp] * Diffusion::computeQpJacobian();
 }

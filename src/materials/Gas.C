@@ -14,8 +14,8 @@ InputParameters validParams<Gas>()
 
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
-  params.addRequiredParam<Real>("position_units", "The units of position.");
-  params.addRequiredParam<Real>("time_units", "The units of time.");
+	params.addRequiredParam<Real>("position_units", "The units of position.");
+	params.addRequiredParam<Real>("time_units", "The units of time.");
 
 	params.addRequiredParam<FileName>("property_tables_file", "The file containing interpolation tables for material properties.");
 
@@ -45,8 +45,8 @@ Gas::Gas(const InputParameters & parameters) :
 	_ramp_trans_coeffs(getParam<bool>("ramp_trans_coeffs")),
 
 	_potential_units(getParam<std::string>("potential_units")),
-  _r_units(1./getParam<Real>("position_units")),
-  _t_units(1./getParam<Real>("time_units")),
+	_r_units(1./getParam<Real>("position_units")),
+	_t_units(1./getParam<Real>("time_units")),
 
 	_user_se_coeff(getParam<Real>("user_se_coeff")),
 	_user_work_function(getParam<Real>("user_work_function")),
@@ -224,7 +224,7 @@ Gas::computeQpProperties()
 	_sgnem[_qp] = -1.;
 	_sgnmean_en[_qp] = -1.;
 	_sgnArp[_qp] = 1.;
-	_diffpotential[_qp] = _eps[_qp];
+	_diffpotential[_qp] = _eps[_qp] ;
 
 	_TArp[_qp] = 300;
 
@@ -260,7 +260,6 @@ Gas::computeQpProperties()
 	// _muArp[_qp] = 3.52e-4;
 	// _diffArp[_qp] = 2.98e-3;
 
-/* Not sure if these are necessary anymore John Haase 12/18/2016
 	// From curve fitting with bolos
 	_iz_coeff_efield_a[_qp] = 1.43171672e-1;
 	_iz_coeff_efield_b[_qp] = 9.05925536e-1;
@@ -276,7 +275,6 @@ Gas::computeQpProperties()
 	//	 _iz_coeff_energy_b[_qp] = -2.70610234e-1;
 	//	 _iz_coeff_energy_c[_qp] = 7.64727794e+1;
 	// }
-*/
 
 	_actual_mean_energy[_qp] = std::exp(_mean_en[_qp] - _em[_qp]);
 	_alpha_iz[_qp] = _alpha_interpolation.sample(_actual_mean_energy[_qp]) / _r_units ;
@@ -293,11 +291,9 @@ Gas::computeQpProperties()
 		_d_el_d_actual_mean_en[_qp] = 0.0 / _r_units ;
 	}
 
-/* Not sure if these are necessary anymore John Haase 12/18/2016
 	_el_coeff_energy_a[_qp] = 1.60638169e-13;
 	_el_coeff_energy_b[_qp] = 3.17917979e-1;
 	_el_coeff_energy_c[_qp] = 4.66301096;
-*/
 
 	_N_A[_qp] = 6.02e23;
 	_Ar[_qp] = 1.01e5/(300*1.38e-23);
@@ -316,7 +312,6 @@ Gas::computeQpProperties()
 	}
 
 
-/* Not sure if these are necessary anymore John Haase 12/18/2016
 	_rate_coeff_elastic[_qp] = 1e-13;
 
 	_TemVolts[_qp] = 2. / 3. * std::exp(_mean_en[_qp] - _em[_qp]);
@@ -340,7 +335,6 @@ Gas::computeQpProperties()
 	_d_kel_d_actual_mean_en[_qp] = _d_kel_d_actual_mean_en[_qp] * _N_A[_qp];
 	}
 
-*/
 	// }
 
 	// // This block is for Jacobian testing
