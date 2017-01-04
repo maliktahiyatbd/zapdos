@@ -55,10 +55,10 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	solve_type = NEWTON
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-#	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
+#	petsc_options_value = 'lu mumps NONZERO 1.e-10 preonly 1e-3 100'
 
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-	petsc_options_value = 'lu superlu_dist'
+	petsc_options_value = 'lu mumps'
 
 	nl_rel_tol = 1E-14
 	nl_abs_tol = 5E-12

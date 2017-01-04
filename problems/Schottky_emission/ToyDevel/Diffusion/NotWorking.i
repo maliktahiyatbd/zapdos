@@ -24,7 +24,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 1000							# Number of elements in the x direction
+	nx = 10000							# Number of elements in the x direction
 	xmax = ${dom0Size}		# Length of test chamber
 []
 
@@ -41,37 +41,37 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [Executioner]
 	type = Transient
-	end_time = ${/ 10E3 ${time_units}}
+	end_time = ${/ 1e-6 ${time_units}}
 
 #	[./TimeIntegrator]
 #		type = ImplicitEuler #AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
 #	[../]
 
-	trans_ss_check = 1
-	ss_check_tol = 1E-15
-	ss_tmin = ${steadyStateTime}
+	# trans_ss_check = 1
+	# ss_check_tol = 1E-15
+	# ss_tmin = ${steadyStateTime}
 
 #	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -snes_ksp_ew'
 	solve_type = NEWTON
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-#	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
+#	petsc_options_value = 'lu mumps NONZERO 1.e-10 preonly 1e-3 100'
 
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-	petsc_options_value = 'lu superlu_dist'
+	petsc_options_value = 'lu mumps'
 
-	nl_rel_tol = 1E-14
-	nl_abs_tol = 5E-12
+	nl_rel_tol = 1E-8
+	nl_abs_tol = 1e-9
 
-	dtmin = ${/ 1e-25 ${time_units}}
-	dtmax = ${/ 1e-7 ${time_units}}
-	nl_max_its = 250
+	dtmin = ${/ 1e-15 ${time_units}}
+	# dtmax = ${/ 1e-7 ${time_units}}
+	nl_max_its = 25
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
 		dt = ${/ 1e-12 ${time_units}}
 		growth_factor = 1.2
-		optimal_iterations = 100
+		optimal_iterations = 8
 	[../]
 []
 
