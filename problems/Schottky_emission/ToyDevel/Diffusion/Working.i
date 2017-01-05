@@ -1,4 +1,4 @@
-position_units = 1E-4
+position_units = 1E-6
 time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
@@ -9,7 +9,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 
 relaxTime = ${/ 50e-9 ${time_units}} #s if time_units = 1
 nCycles = 1000
-steadyStateTime = ${* ${nCycles} ${relaxTime}}
+steadyStateTime = ${/ 1E-6 ${time_units}}
 
 [GlobalParams]
 #	offset = 25
@@ -24,7 +24,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 1000							# Number of elements in the x direction
+	nx = 2500						# Number of elements in the x direction
 	xmax = ${dom0Size}		# Length of test chamber
 []
 
@@ -41,7 +41,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [Executioner]
 	type = Transient
-	end_time = ${/ 10E3 ${time_units}}
+	end_time = ${/ 1e-3 ${time_units}}
 
 #	[./TimeIntegrator]
 #		type = ImplicitEuler #AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
@@ -60,18 +60,18 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
 	petsc_options_value = 'lu mumps'
 
-	nl_rel_tol = 1E-14
-	nl_abs_tol = 5E-12
+	nl_rel_tol = 1E-8
+	nl_abs_tol = 5e-9
 
-	dtmin = ${/ 1e-25 ${time_units}}
-	dtmax = ${/ 1e-7 ${time_units}}
+	dtmin = ${/ 1e-15 ${time_units}}
+	# dtmax = ${/ 1e-7 ${time_units}}
 	nl_max_its = 250
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
 		dt = ${/ 1e-12 ${time_units}}
 		growth_factor = 1.2
-		optimal_iterations = 100
+		optimal_iterations = 8
 	[../]
 []
 
@@ -120,12 +120,12 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		charged = Arp
 		block = 0
 	[../]
-#	[./em_charge_source]
-#		type = ChargeSourceMoles_KV
-#		variable = potential
-#		charged = em
-#		block = 0
-#	[../]
+	[./em_charge_source]
+		type = ChargeSourceMoles_KV
+		variable = potential
+		charged = em
+		block = 0
+	[../]
 
 #	[./em]
 #		type = SetValue
@@ -515,32 +515,32 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [BCs]
 ## Potential boundary conditions ##
-#	[./potential_left]
-#		boundary = left
-##		type = NeumannCircuitVoltageNew
-##		source_voltage = potential_bc_func
-#
-#		type = PenaltyCircuitPotential
-#		surface_potential = -${vhigh}
-#		penalty = 1
-#
-#		variable = potential
-#		current = current_density_user_object
-#		surface = 'cathode'
-#		data_provider = data_provider
-#		em = em
-#		ip = Arp
-#		mean_en = mean_en
-#		area = ${area}
-#		resistance = ${resistance}
-#	[../]
-
-	[./potential_dirichlet_left]
-		type = DirichletBC
-		variable = potential
+	[./potential_left]
 		boundary = left
-		value = -${vhigh}
+#		type = NeumannCircuitVoltageNew
+#		source_voltage = potential_bc_func
+
+		type = PenaltyCircuitPotential
+		surface_potential = -${vhigh}
+		penalty = 1
+
+		variable = potential
+		current = current_density_user_object
+		surface = 'cathode'
+		data_provider = data_provider
+		em = em
+		ip = Arp
+		mean_en = mean_en
+		area = ${area}
+		resistance = ${resistance}
 	[../]
+
+#	[./potential_dirichlet_left]
+#		type = DirichletBC
+#		variable = potential
+#		boundary = left
+#		value = -${vhigh}
+#	[../]
 
 	[./potential_dirichlet_right]
 		type = DirichletBC
