@@ -253,7 +253,7 @@ Gas::computeQpProperties()
 	}
 
 	// From Richards and Sawin, muArp*pressure = 1444 cm^2*Torr/(V*s) and diffArp*pressure = 40 cm^2*Torr/s. Use pressure = 760 torr.
-	_muArp[_qp] = 0.1444 * _voltage_scaling / (760. * _p_gas[_qp] / 1.01E5) * ( ( _r_units * _r_units ) / _t_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
+	_muArp[_qp] = 0.1444 / (760. * _p_gas[_qp] / 1.01E5) * _voltage_scaling * ( ( _r_units * _r_units ) / _t_units ); // units of m^2/(kV*s) if _voltage_scaling = 1000
 	_diffArp[_qp] = 0.004 / (760. * _p_gas[_qp] / 1.01E5) * ( ( _r_units * _r_units ) / _t_units ); //convert to m^2 and include press
 
 	// 100 times less than electrons

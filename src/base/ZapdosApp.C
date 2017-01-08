@@ -32,6 +32,7 @@
 #include "JouleHeating.h"
 #include "ElectronTimeDerivative.h"
 #include "SetValue.h"
+#include "SetRHS.h"
 
 // AuxKernels
 
@@ -184,6 +185,7 @@ ZapdosApp::registerObjects(Factory & factory)
 	registerKernel(ProductFirstOrderRxn);
 	registerKernel(ProductAABBRxn);
 	registerKernel(SetValue);
+	registerKernel(SetRHS);
 
 	registerAux(AbsValueAux);
 	registerAux(DensityMoles);

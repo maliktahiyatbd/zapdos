@@ -12,21 +12,23 @@ class HagelaarIonDiffusionBC : public IntegratedBC
 {
 public:
 
-  HagelaarIonDiffusionBC(const InputParameters & parameters);
+	HagelaarIonDiffusionBC(const InputParameters & parameters);
 
 protected:
-  virtual Real computeQpResidual();
-  virtual Real computeQpJacobian();
+	virtual Real computeQpResidual();
+	virtual Real computeQpJacobian();
 
-  Real _r_units;
-  Real _r;
+	Real _r_units;
+	Real _t_units;
+	
+	Real _r;
 
-  const MaterialProperty<Real> & _kb;
-  const MaterialProperty<Real> & _T;
-  const MaterialProperty<Real> & _mass;
+	const MaterialProperty<Real> & _kb;
+	const MaterialProperty<Real> & _T;
+	const MaterialProperty<Real> & _mass;
 
-  Real _v_thermal;
-  Real _user_velocity;
+	Real _v_thermal;
+	Real _user_velocity;
 };
 
 #endif //HAGELAARIONDIFFUSIONBC_H

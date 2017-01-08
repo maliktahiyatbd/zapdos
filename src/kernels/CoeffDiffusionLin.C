@@ -38,13 +38,13 @@ CoeffDiffusionLin::~CoeffDiffusionLin()
 Real
 CoeffDiffusionLin::computeQpResidual()
 {
-//	return -_diffusivity[_qp] * _grad_u[_qp] * -_grad_test[_i][_qp] ;
-	return _diffusivity[_qp] * Diffusion::computeQpResidual();
+	return -_diffusivity[_qp] * _grad_u[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units ;
+//	return _diffusivity[_qp] * Diffusion::computeQpResidual();
 }
 
 Real
 CoeffDiffusionLin::computeQpJacobian()
 {
-//	return -_diffusivity[_qp] * _grad_phi[_j][_qp] * -_grad_test[_i][_qp] ;
-	return _diffusivity[_qp] * Diffusion::computeQpJacobian();
+	return -_diffusivity[_qp] * _grad_phi[_j][_qp] * _r_units * -_grad_test[_i][_qp] * _r_units ;
+//	return _diffusivity[_qp] * Diffusion::computeQpJacobian();
 }

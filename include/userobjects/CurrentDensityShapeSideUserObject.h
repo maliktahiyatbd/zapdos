@@ -52,6 +52,10 @@ protected:
 	const MaterialProperty<Real> & _e;
 	bool _use_moles;
 	const MaterialProperty<Real> & _N_A;
+
+	Real _r_units;
+	Real _t_units;
+	
 };
 
 #endif

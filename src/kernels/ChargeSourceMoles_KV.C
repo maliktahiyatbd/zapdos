@@ -8,8 +8,8 @@ InputParameters validParams<ChargeSourceMoles_KV>()
 
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
-  params.addRequiredParam<Real>("position_units", "The units of position.");
-  params.addRequiredParam<Real>("time_units", "The units of time.");
+	params.addRequiredParam<Real>("position_units", "The units of position.");
+	params.addRequiredParam<Real>("time_units", "The units of time.");
 
 	return params;
 }
@@ -27,8 +27,8 @@ ChargeSourceMoles_KV::ChargeSourceMoles_KV(const InputParameters & parameters) :
 
 	_potential_units(getParam<std::string>("potential_units")),
 	_use_moles(getParam<bool>("use_moles")),
-  _r_units(1./getParam<Real>("position_units")),
-  _t_units(1./getParam<Real>("time_units"))
+	_r_units(1./getParam<Real>("position_units")),
+	_t_units(1./getParam<Real>("time_units"))
 
 {
 	if (_potential_units.compare("V") == 0)

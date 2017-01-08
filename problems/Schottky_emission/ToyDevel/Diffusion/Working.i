@@ -1,4 +1,4 @@
-position_units = 1E-4
+position_units = 1E-6
 time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
@@ -9,7 +9,7 @@ area = 5.02e-7 # Formerly 3.14e-6
 
 relaxTime = ${/ 50e-9 ${time_units}} #s if time_units = 1
 nCycles = 1000
-steadyStateTime = ${* ${nCycles} ${relaxTime}}
+steadyStateTime = ${/ 1E-6 ${time_units}}
 
 [GlobalParams]
 #	offset = 25
@@ -24,7 +24,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 1000							# Number of elements in the x direction
+	nx = 10000							# Number of elements in the x direction
 	xmax = ${dom0Size}		# Length of test chamber
 []
 
@@ -41,7 +41,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 
 [Executioner]
 	type = Transient
-	end_time = ${/ 10E3 ${time_units}}
+	end_time = ${/ 1e-3 ${time_units}}
 
 #	[./TimeIntegrator]
 #		type = ImplicitEuler #AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
@@ -60,18 +60,18 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
 	petsc_options_value = 'lu mumps'
 
-	nl_rel_tol = 1E-14
-	nl_abs_tol = 5E-12
+	nl_rel_tol = 1E-8
+	nl_abs_tol = 8e-8
 
-	dtmin = ${/ 1e-25 ${time_units}}
-	dtmax = ${/ 1e-7 ${time_units}}
-	nl_max_its = 250
+	dtmin = ${/ 1e-15 ${time_units}}
+	# dtmax = ${/ 1e-7 ${time_units}}
+	nl_max_its = 200
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
 		dt = ${/ 1e-12 ${time_units}}
 		growth_factor = 1.2
-		optimal_iterations = 100
+		optimal_iterations = 8
 	[../]
 []
 
@@ -114,23 +114,24 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		variable = potential
 		block = 0
 	[../]
-	[./Arp_charge_source]
-		type = ChargeSourceMoles_KV
+	
+	[./potential_RHS]
+		type = SetRHS
 		variable = potential
-		charged = Arp
+		value = 0
 		block = 0
 	[../]
+	
+#	[./Arp_charge_source]
+#		type = ChargeSourceMoles_KV
+#		variable = potential
+#		charged = Arp
+#		block = 0
+#	[../]
 #	[./em_charge_source]
 #		type = ChargeSourceMoles_KV
 #		variable = potential
 #		charged = em
-#		block = 0
-#	[../]
-
-#	[./em]
-#		type = SetValue
-#		variable = em
-#		value = -30
 #		block = 0
 #	[../]
 
@@ -141,40 +142,33 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		block = 0
 	[../]
 
-#	[./Arp]
-#		type = SetValue
-#		variable = Arp
-#		value = -30
-#		block = 0
-#	[../]
-
 ## Electron
 	[./em_time_deriv]
 		type = ElectronTimeDerivative
 		variable = em
 		block = 0
 	[../]
-#	[./em_advection]
-#		type = EFieldAdvectionElectrons
-#		variable = em
-#		potential = potential
-#		mean_en = mean_en
-#		block = 0
-#	[../]
+	[./em_advection]
+		type = EFieldAdvectionElectrons
+		variable = em
+		potential = potential
+		mean_en = mean_en
+		block = 0
+	[../]
 	[./em_diffusion]
 		type = CoeffDiffusionElectrons
 		variable = em
 		mean_en = mean_en
 		block = 0
 	[../]
-#	[./em_ionization]
-#		type = ElectronsFromIonization
-#		em = em
-#		variable = em
-#		potential = potential
-#		mean_en = mean_en
-#		block = 0
-#	[../]
+	[./em_ionization]
+		type = ElectronsFromIonization
+		em = em
+		variable = em
+		potential = potential
+		mean_en = mean_en
+		block = 0
+	[../]
 
 ## Ion
 	[./Arp_time_deriv]
@@ -182,25 +176,25 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		variable = Arp
 		block = 0
 	[../]
-#	[./Arp_advection]
-#		type = EFieldAdvection
-#		variable = Arp
-#		potential = potential
-#		block = 0
-#	[../]
+	[./Arp_advection]
+		type = EFieldAdvection
+		variable = Arp
+		potential = potential
+		block = 0
+	[../]
 	[./Arp_diffusion]
 		type = CoeffDiffusion
 		variable = Arp
 		block = 0
 	[../]
-#	[./Arp_ionization]
-#		type = IonsFromIonization
-#		variable = Arp
-#		potential = potential
-#		em = em
-#		mean_en = mean_en
-#		block = 0
-#	[../]
+	[./Arp_ionization]
+		type = IonsFromIonization
+		variable = Arp
+		potential = potential
+		em = em
+		mean_en = mean_en
+		block = 0
+	[../]
 
 ## Mean energy
 #	[./mean_en_time_deriv]
@@ -305,6 +299,15 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		family = MONOMIAL
 		block = 0
 	[../]
+	[./Arp_lin]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./Efield]
+		order = CONSTANT
+		family = MONOMIAL
+	[../]
 #	[./e_temp]
 #		block = 0
 #		order = CONSTANT
@@ -316,15 +319,6 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		order = CONSTANT
 #		family = MONOMIAL
 #		block = 0
-#	[../]
-	[./Arp_lin]
-		order = CONSTANT
-		family = MONOMIAL
-		block = 0
-	[../]
-#	[./Efield]
-#		order = CONSTANT
-#		family = MONOMIAL
 #	[../]
 #	[./Current_em]
 #		order = CONSTANT
@@ -406,6 +400,14 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		block = 0
 	[../]
 
+	[./Efield_g]
+		type = Efield
+		component = 0
+		potential = potential
+		variable = Efield
+		block = 0
+	[../]
+
 #	[./PowerDep_em]
 #		type = PowerDep
 #		density_log = em
@@ -475,13 +477,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		block = 0
 #	[../]
 
-#	[./Efield_g]
-#		type = Efield
-#		component = 0
-#		potential = potential
-#		variable = Efield
-#		block = 0
-#	[../]
+
 #	[./Current_em]
 #		type = Current
 #		potential = potential
@@ -563,71 +559,50 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 #		relax = true
 #	[../]
 
-	[./em_dirichlet_left]
+	[./em_physical_left]
 		type = DirichletBC
 		variable = em
 		boundary = left
-		value = -15
+		value = -2
 	[../]
-
-	[./em_dirichlet_right]
-		type = DirichletBC
+	
+	[./em_physical_right]
+		type = HagelaarElectronAdvectionBC
 		variable = em
 		boundary = right
-		value = 0
+		potential = potential
+		mean_en = mean_en
+		r = 0
 	[../]
-
-	[./Arp_dirichlet_left]
-		type = DirichletBC
-		variable = Arp
-		boundary = left
-		value = 0
-	[../]
-
-	[./Arp_dirichlet_right]
-		type = DirichletBC
-		variable = Arp
-		boundary = right
-		value = -15
-	[../]
-
-#	[./em_physical_right]
-#		type = HagelaarElectronAdvectionBC
-#		variable = em
-#		boundary = right
-#		potential = potential
-#		mean_en = mean_en
-#		r = 0
-#	[../]
 
 ## Argon boundary conditions ##
-#	[./Arp_physical_left_diffusion]
-#		type = HagelaarIonDiffusionBC
-#		variable = Arp
-#		boundary = 'left'
-#		r = 0
-#	[../]
-#	[./Arp_physical_left_advection]
-#		type = HagelaarIonAdvectionBC
-#		variable = Arp
-#		boundary = 'left'
-#		potential = potential
-#		r = 0
-#	[../]
+	[./Arp_physical_left_diffusion]
+		type = HagelaarIonDiffusionBC
+		variable = Arp
+		boundary = 'left'
+		r = 0
+	[../]
+	[./Arp_physical_left_advection]
+		type = HagelaarIonAdvectionBC
+		variable = Arp
+		boundary = 'left'
+		potential = potential
+		r = 0
+	[../]
 
-#	[./Arp_physical_right_diffusion]
-#		type = HagelaarIonDiffusionBC
-#		variable = Arp
-#		boundary = right
-#		r = 0
-#	[../]
-#	[./Arp_physical_right_advection]
-#		type = HagelaarIonAdvectionBC
-#		variable = Arp
-#		boundary = right
-#		potential = potential
-#		r = 0
-#	[../]
+	[./Arp_physical_right_diffusion]
+		type = HagelaarIonDiffusionBC
+		variable = Arp
+		boundary = right
+		r = 0
+	[../]
+	[./Arp_physical_right_advection]
+		type = HagelaarIonAdvectionBC
+		variable = Arp
+		boundary = right
+		potential = potential
+		r = 0
+	[../]
 
 ## Mean energy boundary conditions ##
 #	[./mean_en_physical_left]
@@ -661,14 +636,14 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -13
+		value = -30
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -13
+		value = -30
 		block = 0
 	[../]
 
@@ -691,6 +666,7 @@ steadyStateTime = ${* ${nCycles} ${relaxTime}}
 		type = ParsedFunction
 		value = '-${vhigh} * (${dom0Size} - x) / ${dom0Size}'
 	[../]
+
 []
 
 [Materials]
