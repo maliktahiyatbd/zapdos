@@ -24,7 +24,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 10000							# Number of elements in the x direction
+	nx = 2000							# Number of elements in the x direction
 	xmax = ${dom0Size}		# Length of test chamber
 []
 
@@ -61,7 +61,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	petsc_options_value = 'lu mumps'
 
 	nl_rel_tol = 1E-8
-	nl_abs_tol = 8e-8
+	nl_abs_tol = 0.5e-8
 
 	dtmin = ${/ 1e-15 ${time_units}}
 	# dtmax = ${/ 1e-7 ${time_units}}
@@ -98,7 +98,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
  		ip = Arp
 		mean_en = mean_en
 		execute_on = 'linear nonlinear'
- 	[../]
+	[../]
 	[./data_provider]
 		type = ProvideMobility
 		electrode_area = ${area}
@@ -114,14 +114,14 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		variable = potential
 		block = 0
 	[../]
-	
+
 	[./potential_RHS]
 		type = SetRHS
 		variable = potential
 		value = 0
 		block = 0
 	[../]
-	
+
 #	[./Arp_charge_source]
 #		type = ChargeSourceMoles_KV
 #		variable = potential
@@ -308,6 +308,23 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		order = CONSTANT
 		family = MONOMIAL
 	[../]
+	[./Current_em]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./Current_Arp]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./tot_gas_current]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+
+
 #	[./e_temp]
 #		block = 0
 #		order = CONSTANT
@@ -316,21 +333,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 #	[./x_node]
 #	[../]
 #	[./rho]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./Current_em]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./Current_Arp]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./tot_gas_current]
 #		order = CONSTANT
 #		family = MONOMIAL
 #		block = 0
@@ -408,6 +410,33 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		block = 0
 	[../]
 
+	[./Current_em]
+		type = Current
+		component = 0
+		potential = potential
+		density_log = em
+		variable = Current_em
+		art_diff = false
+		block = 0
+	[../]
+	[./Current_Arp]
+		type = Current
+		component = 0
+		potential = potential
+		density_log = Arp
+		variable = Current_Arp
+		art_diff = false
+		block = 0
+	[../]
+	[./tot_gas_current]
+		type = ParsedAux
+		variable = tot_gas_current
+		args = 'Current_em Current_Arp'
+		function = 'Current_em + Current_Arp'
+		execute_on = 'timestep_end'
+		block = 0
+	[../]
+
 #	[./PowerDep_em]
 #		type = PowerDep
 #		density_log = em
@@ -468,32 +497,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 #		execute_on = 'timestep_end'
 #		block = 0
 #	[../]
-#	[./tot_gas_current]
-#		type = ParsedAux
-#		variable = tot_gas_current
-#		args = 'Current_em Current_Arp'
-#		function = 'Current_em + Current_Arp'
-#		execute_on = 'timestep_end'
-#		block = 0
-#	[../]
 
-
-#	[./Current_em]
-#		type = Current
-#		potential = potential
-#		density_log = em
-#		variable = Current_em
-#		art_diff = false
-#		block = 0
-#	[../]
-#	[./Current_Arp]
-#		type = Current
-#		potential = potential
-#		density_log = Arp
-#		variable = Current_Arp
-#		art_diff = false
-#		block = 0
-#	[../]
 #	[./EFieldAdvAux_em]
 #		type = EFieldAdvAux
 #		potential = potential
@@ -563,7 +567,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		type = DirichletBC
 		variable = em
 		boundary = left
-		value = -2
+		value = -6
 	[../]
 	
 	[./em_physical_right]
