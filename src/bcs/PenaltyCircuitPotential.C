@@ -4,6 +4,7 @@
 template<>
 InputParameters validParams<PenaltyCircuitPotential>()
 {
+<<<<<<< HEAD
 	InputParameters params = validParams<NonlocalIntegratedBC>();
 	params.addRequiredParam<UserObjectName>("current", "The postprocessor response for calculating the current passing through the needle surface.");
 	params.addRequiredParam<Real>("surface_potential", "The electrical potential applied to the surface if no current was flowing in the circuit.");
@@ -19,6 +20,23 @@ InputParameters validParams<PenaltyCircuitPotential>()
 	params.addRequiredParam<Real>("time_units", "Units of time.");
 	params.addRequiredParam<Real>("resistance", "The ballast resistance in Ohms.");
 	return params;
+=======
+	InputParameters p = validParams<NonlocalIntegratedBC>();
+	p.addRequiredParam<UserObjectName>("current", "The postprocessor response for calculating the current passing through the needle surface.");
+	p.addRequiredParam<Real>("surface_potential", "The electrical potential applied to the surface if no current was flowing in the circuit.");
+	p.addRequiredParam<std::string>("surface", "Whether you are specifying the potential on the anode or the cathode with the requirement that the other metal surface be grounded.");
+	p.addRequiredParam<Real>("penalty", "The constant multiplying the penalty term.");
+	p.addRequiredParam<UserObjectName>("data_provider", "The name of the UserObject that can provide some data to materials, bcs, etc.");
+	p.addRequiredCoupledVar("em", "The electron variable.");
+	p.addRequiredCoupledVar("ip", "The ion variable.");
+	p.addRequiredCoupledVar("mean_en", "The ion variable.");
+	p.addParam<Real>("area", "Area of the electrode in m^2, must be provided when the number of dimensions equals 1.");
+	p.addRequiredParam<std::string>("potential_units", "The potential units.");
+	p.addRequiredParam<Real>("position_units", "Units of position.");
+	p.addRequiredParam<Real>("time_units", "Units of time.");
+	p.addRequiredParam<Real>("resistance", "The ballast resistance in Ohms.");
+	return p;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 }
 
 
@@ -38,10 +56,15 @@ PenaltyCircuitPotential::PenaltyCircuitPotential(const InputParameters & paramet
 	_ip_dofs(getVar("ip", 0)->dofIndices()),
 	_mean_en_id(coupled("mean_en")),
 	_mean_en_dofs(getVar("mean_en", 0)->dofIndices()),
+<<<<<<< HEAD
 	
 	_r_units(1. / getParam<Real>("position_units")),
 	_t_units(1. / getParam<Real>("time_units")),
 	
+=======
+	_r_units(1. / getParam<Real>("position_units")),
+	_t_units(1. / getParam<Real>("time_units")),
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 	_resistance(getParam<Real>("resistance"))
 {
 	if (_surface.compare("anode") == 0)
@@ -70,9 +93,15 @@ PenaltyCircuitPotential::PenaltyCircuitPotential(const InputParameters & paramet
 Real
 PenaltyCircuitPotential::computeQpResidual()
 {
+<<<<<<< HEAD
 	Real curr_times_resist = _current_sign * _current * _resistance / _voltage_scaling;
 	if (_use_area)
 		curr_times_resist *= _area;
+=======
+	Real curr_times_resist = _current_sign * _current * _resistance / ( _t_units * _voltage_scaling );
+	if (_use_area)
+		curr_times_resist *= _area * _r_units * _r_units;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 
 	return _test[_i][_qp] * _r_units * _p * (_surface_potential - _u[_qp] + curr_times_resist);
 }
@@ -80,9 +109,15 @@ PenaltyCircuitPotential::computeQpResidual()
 Real
 PenaltyCircuitPotential::computeQpJacobian()
 {
+<<<<<<< HEAD
 	Real d_curr_times_resist_d_potential = _current_sign * _current_jac[_var_dofs[_j]] * _resistance / _voltage_scaling;
 	if (_use_area)
 		d_curr_times_resist_d_potential *= _area;
+=======
+	Real d_curr_times_resist_d_potential = _current_sign * _current_jac[_var_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
+	if (_use_area)
+		d_curr_times_resist_d_potential *= _area * _r_units * _r_units;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 
 	return _test[_i][_qp] * _r_units * _p * (-_phi[_j][_qp] + d_curr_times_resist_d_potential);
 }
@@ -92,27 +127,45 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
 {
 	if (jvar == _em_id)
 	{
+<<<<<<< HEAD
 		Real d_curr_times_resist_d_em = _current_sign * _current_jac[_em_dofs[_j]] * _resistance / _voltage_scaling;
 		if (_use_area)
 			d_curr_times_resist_d_em *= _area;
+=======
+		Real d_curr_times_resist_d_em = _current_sign * _current_jac[_em_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
+		if (_use_area)
+			d_curr_times_resist_d_em *= _area * _r_units * _r_units;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 
 		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_em;
 	}
 
 	else if (jvar == _ip_id)
 	{
+<<<<<<< HEAD
 		Real d_curr_times_resist_d_ip = _current_sign * _current_jac[_ip_dofs[_j]] * _resistance / _voltage_scaling;
 		if (_use_area)
 			d_curr_times_resist_d_ip *= _area;
+=======
+		Real d_curr_times_resist_d_ip = _current_sign * _current_jac[_ip_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
+		if (_use_area)
+			d_curr_times_resist_d_ip *= _area * _r_units * _r_units;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 
 		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_ip;
 	}
 
 	else if (jvar == _mean_en_id)
 	{
+<<<<<<< HEAD
 		Real d_curr_times_resist_d_mean_en = _current_sign * _current_jac[_mean_en_dofs[_j]] * _resistance / _voltage_scaling;
 		if (_use_area)
 			d_curr_times_resist_d_mean_en *= _area;
+=======
+		Real d_curr_times_resist_d_mean_en = _current_sign * _current_jac[_mean_en_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
+		if (_use_area)
+			d_curr_times_resist_d_mean_en *= _area * _r_units * _r_units;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 
 		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_mean_en;
 	}
@@ -124,9 +177,15 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
 Real
 PenaltyCircuitPotential::computeQpNonlocalJacobian(dof_id_type dof_index)
 {
+<<<<<<< HEAD
 	Real d_curr_times_resist_d_potential = _current_sign * _current_jac[dof_index] * _resistance / _voltage_scaling;
 	if (_use_area)
 		d_curr_times_resist_d_potential *= _area;
+=======
+	Real d_curr_times_resist_d_potential = _current_sign * _current_jac[dof_index] * _resistance / ( _t_units * _voltage_scaling );
+	if (_use_area)
+		d_curr_times_resist_d_potential *= _area * _r_units * _r_units;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 
 	return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_potential;
 }
@@ -136,11 +195,19 @@ PenaltyCircuitPotential::computeQpNonlocalOffDiagJacobian(unsigned int jvar, dof
 {
 	if (jvar == _em_id || jvar == _ip_id || jvar == _mean_en_id)
 	{
+<<<<<<< HEAD
 		Real d_curr_times_resist_d_coupled_var = _current_sign * _current_jac[dof_index] * _resistance / _voltage_scaling;
 		if (_use_area)
 			d_curr_times_resist_d_coupled_var *= _area;
 
 		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_coupled_var;
+=======
+		Real d_curr_times_resist_d_coupled_var = _current_sign * _current_jac[dof_index] * _resistance / ( _t_units * _voltage_scaling );
+		if (_use_area)
+			d_curr_times_resist_d_coupled_var *= _area * _r_units * _r_units;
+
+			return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_coupled_var;
+>>>>>>> 5f7449da15248e57704d51bab2913becbae63b52
 	}
 
 	return 0;

@@ -61,11 +61,13 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	petsc_options_value = 'lu mumps'
 
 	nl_rel_tol = 1E-8
+
 	nl_abs_tol = 0.5e-8
 
 	dtmin = ${/ 1e-15 ${time_units}}
 	# dtmax = ${/ 1e-7 ${time_units}}
 	nl_max_its = 200
+
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
@@ -515,32 +517,32 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 
 [BCs]
 ## Potential boundary conditions ##
-#	[./potential_left]
-#		boundary = left
-##		type = NeumannCircuitVoltageNew
-##		source_voltage = potential_bc_func
-#
-#		type = PenaltyCircuitPotential
-#		surface_potential = -${vhigh}
-#		penalty = 1
-#
-#		variable = potential
-#		current = current_density_user_object
-#		surface = 'cathode'
-#		data_provider = data_provider
-#		em = em
-#		ip = Arp
-#		mean_en = mean_en
-#		area = ${area}
-#		resistance = ${resistance}
-#	[../]
-
-	[./potential_dirichlet_left]
-		type = DirichletBC
-		variable = potential
+	[./potential_left]
 		boundary = left
-		value = -${vhigh}
+#		type = NeumannCircuitVoltageNew
+#		source_voltage = potential_bc_func
+
+		type = PenaltyCircuitPotential
+		surface_potential = -${vhigh}
+		penalty = 1
+
+		variable = potential
+		current = current_density_user_object
+		surface = 'cathode'
+		data_provider = data_provider
+		em = em
+		ip = Arp
+		mean_en = mean_en
+		area = ${area}
+		resistance = ${resistance}
 	[../]
+
+#	[./potential_dirichlet_left]
+#		type = DirichletBC
+#		variable = potential
+#		boundary = left
+#		value = -${vhigh}
+#	[../]
 
 	[./potential_dirichlet_right]
 		type = DirichletBC

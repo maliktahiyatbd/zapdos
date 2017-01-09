@@ -31,7 +31,7 @@ protected:
 	const CurrentDensityShapeSideUserObject & _current_uo;
 	const Real & _current;
 	const std::vector<Real> & _current_jac;
-	
+
 	Real _surface_potential;
 	std::string _surface;
 	Real _current_sign;
