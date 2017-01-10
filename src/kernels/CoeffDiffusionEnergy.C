@@ -35,7 +35,7 @@ CoeffDiffusionEnergy::~CoeffDiffusionEnergy()
 Real
 CoeffDiffusionEnergy::computeQpResidual()
 {
-  return -_diffel[_qp] * std::exp(_u[_qp]) * _grad_u[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+  return -_diffel[_qp] * std::exp(_u[_qp]) * _grad_u[_qp] * -_grad_test[_i][_qp];
 }
 
 Real
@@ -43,7 +43,7 @@ CoeffDiffusionEnergy::computeQpJacobian()
 {
   _d_diffel_d_u = _d_diffel_d_actual_mean_en[_qp] * std::exp(_u[_qp] - _em[_qp]) * _phi[_j][_qp];
 
-  return -_diffel[_qp] * (std::exp(_u[_qp]) * _grad_phi[_j][_qp] * _r_units + std::exp(_u[_qp]) * _phi[_j][_qp] * _grad_u[_qp] * _r_units) * -_grad_test[_i][_qp] * _r_units - _d_diffel_d_u * std::exp(_u[_qp]) * _grad_u[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+  return -_diffel[_qp] * (std::exp(_u[_qp]) * _grad_phi[_j][_qp] + std::exp(_u[_qp]) * _phi[_j][_qp] * _grad_u[_qp]) * -_grad_test[_i][_qp] - _d_diffel_d_u * std::exp(_u[_qp]) * _grad_u[_qp] * -_grad_test[_i][_qp];
 }
 
 Real
@@ -53,7 +53,7 @@ CoeffDiffusionEnergy::computeQpOffDiagJacobian(unsigned int jvar)
   {
     _d_diffel_d_em = _d_diffel_d_actual_mean_en[_qp] * std::exp(_u[_qp] - _em[_qp]) * -_phi[_j][_qp];
 
-    return -_d_diffel_d_em * std::exp(_u[_qp]) * _grad_u[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+    return -_d_diffel_d_em * std::exp(_u[_qp]) * _grad_u[_qp] * -_grad_test[_i][_qp];
   }
 
   else

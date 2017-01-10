@@ -24,7 +24,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 2000							# Number of elements in the x direction
+	nx = 8000							# Number of elements in the x direction
 	xmax = ${dom0Size}		# Length of test chamber
 []
 
@@ -61,7 +61,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	petsc_options_value = 'lu mumps'
 
 	nl_rel_tol = 1E-8
-	nl_abs_tol = 0.5e-8
+	nl_abs_tol = 1e-7
 
 	dtmin = ${/ 1e-15 ${time_units}}
 	# dtmax = ${/ 1e-7 ${time_units}}
@@ -71,7 +71,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		cutback_factor = 0.4
 		dt = ${/ 1e-12 ${time_units}}
 		growth_factor = 1.2
-		optimal_iterations = 8
+		optimal_iterations = 25
 	[../]
 []
 
@@ -133,13 +133,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		block = 0
 	[../]
 
-	[./mean_en]
-		type = SetValue
-		variable = mean_en
-		value = -30
-		block = 0
-	[../]
-
 ## Electron
 	[./em_time_deriv]
 		type = ElectronTimeDerivative
@@ -195,24 +188,31 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ## Mean energy
-#	[./mean_en_time_deriv]
-#		type = ElectronTimeDerivative
+#	[./mean_en]
+#		type = SetValue
 #		variable = mean_en
+#		value = -30
 #		block = 0
 #	[../]
-#	[./mean_en_advection]
-#		type = EFieldAdvectionEnergy
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_diffusion]
-#		type = CoeffDiffusionEnergy
-#		variable = mean_en
-#		em = em
-#		block = 0
-#	[../]
+
+	[./mean_en_time_deriv]
+		type = ElectronTimeDerivative
+		variable = mean_en
+		block = 0
+	[../]
+	[./mean_en_advection]
+		type = EFieldAdvectionEnergy
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_diffusion]
+		type = CoeffDiffusionEnergy
+		variable = mean_en
+		em = em
+		block = 0
+	[../]
 #	[./mean_en_joule_heating]
 #		type = JouleHeating
 #		variable = mean_en
@@ -511,31 +511,31 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 
 [BCs]
 ## Potential boundary conditions ##
-	[./potential_left]
-		boundary = left
-#		type = NeumannCircuitVoltageNew
-#		source_voltage = potential_bc_func
-
-		type = PenaltyCircuitPotential
-		surface_potential = -${vhigh}
-		penalty = 1
-		variable = potential
-		current = current_density_user_object
-		surface = 'cathode'
-		data_provider = data_provider
-		em = em
-		ip = Arp
-		mean_en = mean_en
-		area = ${area}
-		resistance = ${resistance}
-	[../]
-
-#	[./potential_dirichlet_left]
-#		type = DirichletBC
-#		variable = potential
+#	[./potential_left]
 #		boundary = left
-#		value = -${vhigh}
+##		type = NeumannCircuitVoltageNew
+##		source_voltage = potential_bc_func
+#
+#		type = PenaltyCircuitPotential
+#		surface_potential = -${vhigh}
+#		penalty = 1
+#		variable = potential
+#		current = current_density_user_object
+#		surface = 'cathode'
+#		data_provider = data_provider
+#		em = em
+#		ip = Arp
+#		mean_en = mean_en
+#		area = ${area}
+#		resistance = ${resistance}
 #	[../]
+
+	[./potential_dirichlet_left]
+		type = DirichletBC
+		variable = potential
+		boundary = left
+		value = -${vhigh}
+	[../]
 
 	[./potential_dirichlet_right]
 		type = DirichletBC
@@ -545,25 +545,25 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ### Electron boundary conditions ##
-#	[./Emission_left]
-#		type = SchottkyEmissionBC
-##		type = SecondaryElectronBC
-#		variable = em
-#		boundary = 'left'
-#		potential = potential
-#		ip = Arp
-#		mean_en = mean_en
-#		r = 1
-#		tau = ${relaxTime}
-#		relax = true
-#	[../]
-
-	[./em_physical_left]
-		type = DirichletBC
+	[./Emission_left]
+		type = SchottkyEmissionBC
+#		type = SecondaryElectronBC
 		variable = em
-		boundary = left
-		value = -6
+		boundary = 'left'
+		potential = potential
+		ip = Arp
+		mean_en = mean_en
+		r = 1
+		tau = ${relaxTime}
+		relax = false
 	[../]
+
+#	[./em_physical_left]
+#		type = DirichletBC
+#		variable = em
+#		boundary = left
+#		value = -10
+#	[../]
 	
 	[./em_physical_right]
 		type = HagelaarElectronAdvectionBC
@@ -604,6 +604,20 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ## Mean energy boundary conditions ##
+	[./mean_en_left]
+		type = DirichletBC
+		variable = mean_en
+		boundary = left
+		value = -13.5
+	[../]
+
+	[./mean_en_right]
+		type = DirichletBC
+		variable = mean_en
+		boundary = right
+		value = -12.5
+	[../]
+
 #	[./mean_en_physical_left]
 #		type = HagelaarEnergyBC
 #		variable = mean_en
@@ -635,21 +649,21 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -30
+		value = -10
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -30
+		value = -15
 		block = 0
 	[../]
 
 	[./mean_en_ic]
 		type = ConstantIC
 		variable = mean_en
-		value = -25
+		value = -13.5
 		block = 0
 	[../]
 []

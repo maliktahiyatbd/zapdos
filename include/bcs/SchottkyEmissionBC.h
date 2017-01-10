@@ -39,6 +39,7 @@ protected:
 	const MaterialProperty<Real> & _d_muem_d_actual_mean_en;
 	const MaterialProperty<Real> & _massem;
 	const MaterialProperty<Real> & _e;
+	const MaterialProperty<Real> & _eps;
 	const MaterialProperty<Real> & _N_A;
 	const MaterialProperty<Real> & _sgnip;
 	const MaterialProperty<Real> & _muip;

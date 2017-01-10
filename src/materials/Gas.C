@@ -215,12 +215,12 @@ Gas::computeQpProperties()
 	_work_function[_qp] = _user_work_function;
 	_field_enhancement[_qp] = _user_field_enhancement;
 
-	_Richardson_coefficient[_qp] = _user_Richardson_coefficient / ( _t_units * _r_units * _r_units );
+	_Richardson_coefficient[_qp] = _user_Richardson_coefficient * ( _r_units / _t_units );
 	_cathode_temperature[_qp] = _user_cathode_temperature;
 
 	_se_energy[_qp] = 2. * 3. / 2.; // Emi uses 2 Volts coming off the wall (presumably for Te). Multiply by 3/2 to get mean_en
-	_e[_qp] = 1.6e-19;
-	_eps[_qp] = 8.85e-12;
+	_e[_qp] = 1.60217662E-19;
+	_eps[_qp] = 8.85418782E-12;
 	_sgnem[_qp] = -1.;
 	_sgnmean_en[_qp] = -1.;
 	_sgnArp[_qp] = 1.;

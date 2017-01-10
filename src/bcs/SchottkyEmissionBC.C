@@ -40,6 +40,7 @@ SchottkyEmissionBC::SchottkyEmissionBC(const InputParameters & parameters) :
 	_massem(getMaterialProperty<Real>("massem")),
 
 	_e(getMaterialProperty<Real>("e")),
+	_eps(getMaterialProperty<Real>("eps")),
 	_N_A(getMaterialProperty<Real>("N_A")),
 
 	_sgnip(getMaterialProperty<Real>("sgn" + _ip_var.name())),
@@ -76,7 +77,7 @@ SchottkyEmissionBC::SchottkyEmissionBC(const InputParameters & parameters) :
 		_voltage_scaling = 1000;
 	}
 
-	_dPhi_over_F = 3.7946865E-5 * sqrt(_r_units / _voltage_scaling); // eV*sqrt(m/kV) (if _voltage_scaling = 1000)
+	_dPhi_over_F = 0.00003794686 ; // sqrt(q / (4*pi*E_0) [eV / ( V / m )]
 }
 
 Real
@@ -102,12 +103,12 @@ SchottkyEmissionBC::computeQpResidual()
 			// je = AR * T^2 * exp(-(wf - dPhi) / (kB * T))
 			// dPhi = _dPhi_over_F * sqrt(F) // eV
 
-		F = -(1 - _a) * _field_enhancement[_qp] * _normals[_qp] * _grad_potential[_qp];
+		F = -(1 - _a) * _field_enhancement[_qp] * _normals[_qp] * _grad_potential[_qp] * _r_units * _voltage_scaling;
 
 		kB = 8.617385E-5; // eV/K
 		dPhi = _dPhi_over_F * sqrt(F);
 
-		_j_TE = _Richardson_coefficient[_qp] * pow(_cathode_temperature[_qp], 2) * exp(-(_work_function[_qp] - dPhi) / (kB * _cathode_temperature[_qp]));
+		_j_TE = _Richardson_coefficient[_qp] * pow(_cathode_temperature[_qp], 2) * std::exp(-(_work_function[_qp] - dPhi) / (kB * _cathode_temperature[_qp]));
 		_j_SE = _e[_qp] * _se_coeff[_qp] * _ion_flux * _normals[_qp];
 		
 		if (_use_moles)

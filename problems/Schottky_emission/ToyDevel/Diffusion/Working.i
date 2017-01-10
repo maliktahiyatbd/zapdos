@@ -24,7 +24,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 2000							# Number of elements in the x direction
+	nx = 8000							# Number of elements in the x direction
 	xmax = ${dom0Size}		# Length of test chamber
 []
 
@@ -61,7 +61,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	petsc_options_value = 'lu mumps'
 
 	nl_rel_tol = 1E-8
-	nl_abs_tol = 0.5e-8
+	nl_abs_tol = 1e-7
 
 	dtmin = ${/ 1e-15 ${time_units}}
 	# dtmax = ${/ 1e-7 ${time_units}}
@@ -71,7 +71,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		cutback_factor = 0.4
 		dt = ${/ 1e-12 ${time_units}}
 		growth_factor = 1.2
-		optimal_iterations = 8
+		optimal_iterations = 25
 	[../]
 []
 
@@ -113,30 +113,23 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		block = 0
 	[../]
 
-	[./potential_RHS]
-		type = SetRHS
+#	[./potential_RHS]
+#		type = SetRHS
+#		variable = potential
+#		value = 0
+#		block = 0
+#	[../]
+
+	[./Arp_charge_source]
+		type = ChargeSourceMoles_KV
 		variable = potential
-		value = 0
+		charged = Arp
 		block = 0
 	[../]
-
-#	[./Arp_charge_source]
-#		type = ChargeSourceMoles_KV
-#		variable = potential
-#		charged = Arp
-#		block = 0
-#	[../]
-#	[./em_charge_source]
-#		type = ChargeSourceMoles_KV
-#		variable = potential
-#		charged = em
-#		block = 0
-#	[../]
-
-	[./mean_en]
-		type = SetValue
-		variable = mean_en
-		value = -30
+	[./em_charge_source]
+		type = ChargeSourceMoles_KV
+		variable = potential
+		charged = em
 		block = 0
 	[../]
 
@@ -195,6 +188,13 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ## Mean energy
+	[./mean_en]
+		type = SetValue
+		variable = mean_en
+		value = -30
+		block = 0
+	[../]
+
 #	[./mean_en_time_deriv]
 #		type = ElectronTimeDerivative
 #		variable = mean_en
@@ -545,25 +545,25 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ### Electron boundary conditions ##
-#	[./Emission_left]
-#		type = SchottkyEmissionBC
-##		type = SecondaryElectronBC
-#		variable = em
-#		boundary = 'left'
-#		potential = potential
-#		ip = Arp
-#		mean_en = mean_en
-#		r = 1
-#		tau = ${relaxTime}
-#		relax = true
-#	[../]
-
-	[./em_physical_left]
-		type = DirichletBC
+	[./Emission_left]
+		type = SchottkyEmissionBC
+#		type = SecondaryElectronBC
 		variable = em
-		boundary = left
-		value = -6
+		boundary = 'left'
+		potential = potential
+		ip = Arp
+		mean_en = mean_en
+		r = 1
+		tau = ${relaxTime}
+		relax = false
 	[../]
+
+#	[./em_physical_left]
+#		type = DirichletBC
+#		variable = em
+#		boundary = left
+#		value = -10
+#	[../]
 	
 	[./em_physical_right]
 		type = HagelaarElectronAdvectionBC
@@ -635,14 +635,14 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[./em_ic]
 		type = ConstantIC
 		variable = em
-		value = -30
+		value = -10
 		block = 0
 	[../]
 
 	[./Arp_ic]
 		type = ConstantIC
 		variable = Arp
-		value = -30
+		value = -15
 		block = 0
 	[../]
 
