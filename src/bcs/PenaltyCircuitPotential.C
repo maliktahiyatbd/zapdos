@@ -9,7 +9,7 @@ InputParameters validParams<PenaltyCircuitPotential>()
 	params.addRequiredParam<Real>("surface_potential", "The electrical potential applied to the surface if no current was flowing in the circuit.");
 	params.addRequiredParam<std::string>("surface", "Whether you are specifying the potential on the anode or the cathode with the requirement that the other metal surface be grounded.");
 	params.addRequiredParam<Real>("penalty", "The constant multiplying the penalty term.");
-	params.addRequiredParam<UserObjectName>("data_provider", "The name of the UserObject that can provide some data to materials, bcs, etc.");
+//	params.addRequiredParam<UserObjectName>("data_provider", "The name of the UserObject that can provide some data to materials, bcs, etc.");
 	params.addRequiredCoupledVar("em", "The electron variable.");
 	params.addRequiredCoupledVar("ip", "The ion variable.");
 	params.addRequiredCoupledVar("mean_en", "The ion variable.");
@@ -30,7 +30,7 @@ PenaltyCircuitPotential::PenaltyCircuitPotential(const InputParameters & paramet
 	_surface_potential(getParam<Real>("surface_potential")),
 	_surface(getParam<std::string>("surface")),
 	_p(getParam<Real>("penalty")),
-	_data(getUserObject<ProvideMobility>("data_provider")),
+//	_data(getUserObject<ProvideMobility>("data_provider")),
 	_var_dofs(_var.dofIndices()),
 	_em_id(coupled("em")),
 	_em_dofs(getVar("em", 0)->dofIndices()),

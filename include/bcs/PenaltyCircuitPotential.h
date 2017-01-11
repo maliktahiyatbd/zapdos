@@ -37,7 +37,7 @@ protected:
 	Real _current_sign;
 	Real _p;
 	
-	const ProvideMobility & _data;
+//	const ProvideMobility & _data;
 	
 	const std::vector<dof_id_type> & _var_dofs;
 	

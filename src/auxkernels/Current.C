@@ -40,17 +40,20 @@ Current::Current(const InputParameters & parameters) :
 Real
 Current::computeValue()
 {
-	Real r = _sgn[_qp] * _e[_qp] * (_t_units / _r_units) * (_sgn[_qp] * _mu[_qp] * -_grad_potential[_qp](_component) * std::exp(_density_log[_qp]) - _diff[_qp]* std::exp(_density_log[_qp]) * _grad_density_log[_qp](_component));
+	Real _current = _sgn[_qp] * _e[_qp] * (_sgn[_qp] * _mu[_qp] * -_grad_potential[_qp](_component) * std::exp(_density_log[_qp]) - _diff[_qp]* std::exp(_density_log[_qp]) * _grad_density_log[_qp](_component));
 
 	if (_art_diff)
 	{
 		Real vd_mag = _mu[_qp] * _grad_potential[_qp].norm();
 		Real delta = vd_mag * _current_elem->hmax()/2.;
-		r += _sgn[_qp] * _e[_qp] * (_t_units / _r_units) * -delta * std::exp(_density_log[_qp]) * _grad_density_log[_qp](_component);
+		_current += _sgn[_qp] * _e[_qp] * -delta * std::exp(_density_log[_qp]) * _grad_density_log[_qp](_component);
 	}
 	
-	if (_use_moles)
-		r *= _N_A[_qp] ;
+	if (_use_moles) {
+		_current *= _N_A[_qp] ;
+	}
 	
-	return r ;
+	_current *= (_t_units / _r_units);
+	
+	return _current ;
 }

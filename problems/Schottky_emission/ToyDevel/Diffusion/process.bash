@@ -1,5 +1,7 @@
 #!/bin/bash -i
 
+module purge
+module load paraview
 
 OutputFile="NotWorking_out"
 

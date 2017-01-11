@@ -17,7 +17,13 @@ public:
   virtual Real computeValue();
 
 protected:
-  Real _r_units;
+	bool _use_moles;
+	
+	Real _r_units;
+	Real _t_units;
+	
+	const MaterialProperty<Real> & _e;
+	const MaterialProperty<Real> & _N_A;
 
   MooseVariable & _density_var;
   const VariableValue & _density_log;

@@ -3,7 +3,7 @@ time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
 
-vhigh = 210E-3 #kV
+vhigh = 225E-3 #kV
 resistance = 1 #Ohms
 area = 5.02e-7 # Formerly 3.14e-6
 
@@ -24,7 +24,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 8000							# Number of elements in the x direction
+	nx = 4000							# Number of elements in the x direction
 	xmax = ${dom0Size}		# Length of test chamber
 []
 
@@ -89,20 +89,20 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 []
 
 [UserObjects]
- 	[./current_density_user_object]
-		type = CurrentDensityShapeSideUserObject
-		boundary = left
-		potential = potential
-		em = em
- 		ip = Arp
-		mean_en = mean_en
-		execute_on = 'linear nonlinear'
-	[../]
-	[./data_provider]
-		type = ProvideMobility
-		electrode_area = ${area}
-		ballast_resist = ${resistance}
-	[../]
+#	[./current_density_user_object]
+#		type = CurrentDensityShapeSideUserObject
+#		boundary = left
+#		potential = potential
+#		em = em
+#		ip = Arp
+#		mean_en = mean_en
+#		execute_on = 'linear nonlinear'
+#	[../]
+#	[./data_provider]
+#		type = ProvideMobility
+#		electrode_area = ${area}
+#		ballast_resist = ${resistance}
+#	[../]
 []
 
 [Kernels]
@@ -188,13 +188,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ## Mean energy
-#	[./mean_en]
-#		type = SetValue
-#		variable = mean_en
-#		value = -30
-#		block = 0
-#	[../]
-
 	[./mean_en_time_deriv]
 		type = ElectronTimeDerivative
 		variable = mean_en
@@ -213,34 +206,34 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		em = em
 		block = 0
 	[../]
-#	[./mean_en_joule_heating]
-#		type = JouleHeating
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_ionization]
-#		type = ElectronEnergyLossFromIonization
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_elastic]
-#		type = ElectronEnergyLossFromElastic
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_excitation]
-#		type = ElectronEnergyLossFromExcitation
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
+	[./mean_en_joule_heating]
+		type = JouleHeating
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_ionization]
+		type = ElectronEnergyLossFromIonization
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_elastic]
+		type = ElectronEnergyLossFromElastic
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_excitation]
+		type = ElectronEnergyLossFromExcitation
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
 
 ## Stabilization
 #	[./Arp_log_stabilization]
@@ -292,6 +285,10 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		order = CONSTANT
 		family = MONOMIAL
 	[../]
+	[./Efield]
+		order = CONSTANT
+		family = MONOMIAL
+	[../]
 	[./em_lin]
 		order = CONSTANT
 		family = MONOMIAL
@@ -302,10 +299,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		family = MONOMIAL
 		block = 0
 	[../]
-	[./Efield]
-		order = CONSTANT
-		family = MONOMIAL
-	[../]
+
 	[./Current_em]
 		order = CONSTANT
 		family = MONOMIAL
@@ -322,54 +316,53 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		block = 0
 	[../]
 
-
-#	[./e_temp]
-#		block = 0
-#		order = CONSTANT
-#		family = MONOMIAL
-#	[../]
+	[./e_temp]
+		block = 0
+		order = CONSTANT
+		family = MONOMIAL
+	[../]
 #	[./x_node]
 #	[../]
-#	[./rho]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./EFieldAdvAux_em]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./DiffusiveFlux_em]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./PowerDep_em]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./PowerDep_Arp]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./ProcRate_el]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./ProcRate_ex]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
-#	[./ProcRate_iz]
-#		order = CONSTANT
-#		family = MONOMIAL
-#		block = 0
-#	[../]
+	[./rho]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./EFieldAdvAux_em]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./DiffusiveFlux_em]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./PowerDep_em]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./PowerDep_Arp]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./ProcRate_el]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./ProcRate_ex]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
+	[./ProcRate_iz]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
 []
 
 [AuxKernels]
@@ -385,6 +378,15 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		potential = potential
 		block = 0
 	[../]
+	
+	[./Efield_g]
+		type = Efield
+		component = 0
+		potential = potential
+		variable = Efield
+		block = 0
+	[../]
+	
 	[./em_lin]
 		type = Density
 		variable = em_lin
@@ -398,11 +400,12 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		block = 0
 	[../]
 
-	[./Efield_g]
-		type = Efield
-		component = 0
-		potential = potential
-		variable = Efield
+	[./rho]
+		type = ParsedAux
+		variable = rho
+		args = 'em_lin Arp_lin'
+		function = 'Arp_lin - em_lin'
+		execute_on = 'timestep_end'
 		block = 0
 	[../]
 
@@ -432,81 +435,75 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		execute_on = 'timestep_end'
 		block = 0
 	[../]
+	
+	[./e_temp]
+		type = ElectronTemperature
+		variable = e_temp
+		electron_density = em
+		mean_en = mean_en
+		block = 0
+	[../]
 
-#	[./PowerDep_em]
-#		type = PowerDep
-#		density_log = em
-#		potential = potential
-#		art_diff = false
-#		variable = PowerDep_em
-#		block = 0
-#	[../]
-#	[./PowerDep_Arp]
-#		type = PowerDep
-#		density_log = Arp
-#		potential = potential
-#		art_diff = false
-#		variable = PowerDep_Arp
-#		block = 0
-#	[../]
-#	[./ProcRate_el]
-#		type = ProcRate
-#		em = em
-#		potential = potential
-#		proc = el
-#		variable = ProcRate_el
-#		block = 0
-#	[../]
-#	[./ProcRate_ex]
-#		type = ProcRate
-#		em = em
-#		potential = potential
-#		proc = ex
-#		variable = ProcRate_ex
-#		block = 0
-#	[../]
-#	[./ProcRate_iz]
-#		type = ProcRate
-#		em = em
-#		potential = potential
-#		proc = iz
-#		variable = ProcRate_iz
-#		block = 0
-#	[../]
-#	[./e_temp]
-#		type = ElectronTemperature
-#		variable = e_temp
-#		electron_density = em
-#		mean_en = mean_en
-#		block = 0
-#	[../]
+	[./PowerDep_em]
+		type = PowerDep
+		density_log = em
+		potential = potential
+		art_diff = false
+		variable = PowerDep_em
+		block = 0
+	[../]
+	[./PowerDep_Arp]
+		type = PowerDep
+		density_log = Arp
+		potential = potential
+		art_diff = false
+		variable = PowerDep_Arp
+		block = 0
+	[../]
+	[./ProcRate_el]
+		type = ProcRate
+		em = em
+		potential = potential
+		proc = el
+		variable = ProcRate_el
+		block = 0
+	[../]
+	[./ProcRate_ex]
+		type = ProcRate
+		em = em
+		potential = potential
+		proc = ex
+		variable = ProcRate_ex
+		block = 0
+	[../]
+	[./ProcRate_iz]
+		type = ProcRate
+		em = em
+		potential = potential
+		proc = iz
+		variable = ProcRate_iz
+		block = 0
+	[../]
 #	[./x_ng]
 #		type = Position
 #		variable = x_node
 #		block = 0
 #	[../]
-#	[./rho]
-#		type = ParsedAux
-#		variable = rho
-#		args = 'em_lin Arp_lin'
-#		function = 'Arp_lin - em_lin'
-#		execute_on = 'timestep_end'
-#		block = 0
-#	[../]
 
-#	[./EFieldAdvAux_em]
-#		type = EFieldAdvAux
-#		potential = potential
-#		density_log = em
-#		variable = EFieldAdvAux_em
-#		block = 0
-#	[../]
-#	[./DiffusiveFlux_em]
-#		type = DiffusiveFlux
-#		density_log = em
-#		variable = DiffusiveFlux_em
-#		block = 0
-#	[../]
+
+	[./EFieldAdvAux_em]
+		type = EFieldAdvAux
+		potential = potential
+		density_log = em
+		variable = EFieldAdvAux_em
+		block = 0
+	[../]
+	[./DiffusiveFlux_em]
+		type = DiffusiveFlux
+		density_log = em
+		variable = DiffusiveFlux_em
+		block = 0
+	[../]
 []
 
 [BCs]
@@ -604,39 +601,39 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ## Mean energy boundary conditions ##
-	[./mean_en_left]
-		type = DirichletBC
-		variable = mean_en
-		boundary = left
-		value = -13.5
-	[../]
-
-	[./mean_en_right]
-		type = DirichletBC
-		variable = mean_en
-		boundary = right
-		value = -12.5
-	[../]
-
-#	[./mean_en_physical_left]
-#		type = HagelaarEnergyBC
+#	[./mean_en_left]
+#		type = DirichletBC
 #		variable = mean_en
-#		boundary = 'left'
-#		potential = potential
-#		em = em
-#		ip = Arp
-#		r = 0
+#		boundary = left
+#		value = -13.5
 #	[../]
 
-#	[./mean_en_physical_right]
-#		type = HagelaarEnergyBC
+#	[./mean_en_right]
+#		type = DirichletBC
 #		variable = mean_en
 #		boundary = right
-#		potential = potential
-#		em = em
-#		ip = Arp
-#		r = 0
+#		value = -12.5
 #	[../]
+
+	[./mean_en_physical_left]
+		type = HagelaarEnergyBC
+		variable = mean_en
+		boundary = 'left'
+		potential = potential
+		em = em
+		ip = Arp
+		r = 0
+	[../]
+
+	[./mean_en_physical_right]
+		type = HagelaarEnergyBC
+		variable = mean_en
+		boundary = right
+		potential = potential
+		em = em
+		ip = Arp
+		r = 0
+	[../]
 []
 
 [ICs]
@@ -697,7 +694,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		user_field_enhancement = 55
 		user_Richardson_coefficient = 80E4
 		user_cathode_temperature = 1273
-		property_tables_file = td_argon_mean_en.txt
+		property_tables_file = td_argon_mean_en.tsv
 		block = 0
 	[../]
 []
