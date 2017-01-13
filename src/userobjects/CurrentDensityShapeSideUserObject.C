@@ -10,8 +10,8 @@ InputParameters validParams<CurrentDensityShapeSideUserObject>()
 	params.addRequiredCoupledVar("potential", "The electrical potential.");
 	params.addRequiredCoupledVar("mean_en", "The mean energy variable.");
 	params.addRequiredParam<bool>("use_moles", "Whether the densities are in molar units.");
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 	return params;
 }
 

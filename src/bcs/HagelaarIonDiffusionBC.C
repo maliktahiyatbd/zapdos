@@ -6,8 +6,8 @@ InputParameters validParams<HagelaarIonDiffusionBC>()
 	InputParameters params = validParams<IntegratedBC>();
 	params.addRequiredParam<Real>("r", "The reflection coefficient");
 	
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 	
 	params.addParam<Real>("user_velocity", -1., "Optional parameter if user wants to specify the thermal velocity, in m/s");
 

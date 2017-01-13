@@ -8,8 +8,8 @@ InputParameters validParams<FieldEmissionBC>()
 	params.addRequiredCoupledVar("potential","The electric potential");
 	params.addRequiredCoupledVar("mean_en", "The mean energy.");
 	params.addRequiredCoupledVar("ip", "The ion density.");
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
 	params.addParam<Real>("tau", 1e-9, "The time constant for ramping the boundary condition.");
 	params.addParam<bool>("relax", false, "Use relaxation for emission.");

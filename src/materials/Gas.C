@@ -14,8 +14,8 @@ InputParameters validParams<Gas>()
 
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
-	params.addRequiredParam<Real>("position_units", "The units of position.");
-	params.addRequiredParam<Real>("time_units", "The units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 
 	params.addRequiredParam<FileName>("property_tables_file", "The file containing interpolation tables for material properties.");
 

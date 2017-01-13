@@ -1,15 +1,15 @@
 /****************************************************************/
-/*               DO NOT MODIFY THIS HEADER                      */
-/* MOOSE - Multiphysics Object Oriented Simulation Environment  */
-/*                                                              */
-/*           (c) 2010 Battelle Energy Alliance, LLC             */
-/*                   ALL RIGHTS RESERVED                        */
-/*                                                              */
-/*          Prepared by Battelle Energy Alliance, LLC           */
-/*            Under Contract No. DE-AC07-05ID14517              */
-/*            With the U. S. Department of Energy               */
-/*                                                              */
-/*            See COPYRIGHT for full restrictions               */
+/*							 DO NOT MODIFY THIS HEADER											*/
+/* MOOSE - Multiphysics Object Oriented Simulation Environment	*/
+/*																															*/
+/*					 (c) 2010 Battelle Energy Alliance, LLC						 */
+/*									 ALL RIGHTS RESERVED												*/
+/*																															*/
+/*					Prepared by Battelle Energy Alliance, LLC					 */
+/*						Under Contract No. DE-AC07-05ID14517							*/
+/*						With the U. S. Department of Energy							 */
+/*																															*/
+/*						See COPYRIGHT for full restrictions							 */
 /****************************************************************/
 
 #include "DiffusiveFlux.h"
@@ -17,28 +17,39 @@
 template<>
 InputParameters validParams<DiffusiveFlux>()
 {
-  InputParameters params = validParams<AuxKernel>();
-  params.addRequiredCoupledVar("density_log","The variable representing the log of the density.");
-  params.addRequiredParam<Real>("position_units", "Units of position.");
-  return params;
+	InputParameters params = validParams<AuxKernel>();
+	params.addRequiredCoupledVar("density_log","The variable representing the log of the density.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
+	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
+	params.addParam<int>("component", 0, "The component of the electric field to access. Accepts an integer");
+	return params;
 }
 
 DiffusiveFlux::DiffusiveFlux(const InputParameters & parameters) :
-    AuxKernel(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
+	AuxKernel(parameters),
+	_component(getParam<int>("component")),
+	_use_moles(getParam<bool>("use_moles")),
+	_r_units(1. / getParam<Real>("position_units")),
+	_t_units(1. / getParam<Real>("time_units")),
 
-    // Coupled variables
+	_N_A(getMaterialProperty<Real>("N_A")),
 
-    _grad_density_log(coupledGradient("density_log")),
-    _density_var(*getVar("density_log",0)),
-    _density_log(coupledValue("density_log")),
+	// Coupled variables
 
-    // Material properties
+	_grad_density_log(coupledGradient("density_log")),
+	_density_var(*getVar("density_log",0)),
+	_density_log(coupledValue("density_log")),
 
-    _diff(getMaterialProperty<Real>("diff" + _density_var.name()))
+	// Material properties
+
+	_diff(getMaterialProperty<Real>("diff" + _density_var.name()))
 {}
 
 Real DiffusiveFlux::computeValue()
 {
-  return -_diff[_qp] * std::exp(_density_log[_qp]) * _grad_density_log[_qp](0) * _r_units * 6.02e23;
+	if (_use_moles)
+		return -_diff[_qp] * std::exp(_density_log[_qp]) * _grad_density_log[_qp](_component) * ( _r_units / _t_units ) * _N_A[_qp];
+	else
+		return -_diff[_qp] * std::exp(_density_log[_qp]) * _grad_density_log[_qp](_component) * ( _r_units / _t_units );
 }

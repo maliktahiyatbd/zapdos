@@ -8,10 +8,10 @@ InputParameters validParams<Current>()
 	params.addRequiredCoupledVar("density_log","The electron density");
 	params.addRequiredCoupledVar("potential","The potential");
 	params.addParam<bool>("art_diff",false,"Whether there is a current contribution from artificial diffusion.");
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
-	params.addRequiredParam<int>("component", "The component of the electric field to access. Accepts an integer");
+	params.addParam<int>("component", 0, "The component of the electric field to access. Accepts an integer");
 	return params;
 }
 

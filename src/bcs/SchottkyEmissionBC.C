@@ -8,8 +8,8 @@ InputParameters validParams<SchottkyEmissionBC>()
 	params.addRequiredCoupledVar("potential","The electric potential");
 	params.addRequiredCoupledVar("mean_en", "The mean energy.");
 	params.addRequiredCoupledVar("ip", "The ion density.");
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
 	params.addParam<Real>("tau", 1e-9, "The time constant for ramping the boundary condition.");

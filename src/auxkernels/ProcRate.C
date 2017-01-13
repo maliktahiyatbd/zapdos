@@ -8,8 +8,8 @@ InputParameters validParams<ProcRate>()
 	params.addRequiredCoupledVar("em","The electron density");
 	params.addRequiredCoupledVar("potential","The potential");
 	params.addRequiredParam<std::string>("proc", "The process that we want to get the townsend coefficient for. Options are iz, ex, and el.");
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "Units of position.");
+	params.addParam<Real>("time_units", 1, "Units of time.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
 	return params;
 }

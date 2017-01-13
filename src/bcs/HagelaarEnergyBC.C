@@ -8,8 +8,8 @@ InputParameters validParams<HagelaarEnergyBC>()
 	params.addRequiredCoupledVar("potential","The electric potential");
 	params.addRequiredCoupledVar("em", "The electron density.");
 	params.addRequiredCoupledVar("ip", "The ion density.");
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 	return params;
 }
 

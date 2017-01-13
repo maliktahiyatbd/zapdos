@@ -12,23 +12,29 @@ class DiffusiveFlux : public AuxKernel
 {
  public:
 
-  DiffusiveFlux(const InputParameters & parameters);
+	DiffusiveFlux(const InputParameters & parameters);
 
  protected:
 
-  virtual Real computeValue();
+	virtual Real computeValue();
 
-  Real _r_units;
+	int _component;
+	bool _use_moles;
+	
+	Real _r_units;
+	Real _t_units;
+	
+	const MaterialProperty<Real> & _N_A;
 
-  // Coupled variables
+	// Coupled variables
 
-  const VariableGradient & _grad_density_log;
-  MooseVariable & _density_var;
-  const VariableValue & _density_log;
+	const VariableGradient & _grad_density_log;
+	MooseVariable & _density_var;
+	const VariableValue & _density_log;
 
-  // Material properties
+	// Material properties
 
-  const MaterialProperty<Real> & _diff;
+	const MaterialProperty<Real> & _diff;
 };
 
 #endif //DIFFUSIVEFLUX_H

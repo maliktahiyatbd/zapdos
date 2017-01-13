@@ -15,8 +15,8 @@ InputParameters validParams<PenaltyCircuitPotential>()
 	params.addRequiredCoupledVar("mean_en", "The ion variable.");
 	params.addParam<Real>("area", "Must be provided when the number of dimensions equals 1.");
 	params.addRequiredParam<std::string>("potential_units", "The potential units.");
-	params.addRequiredParam<Real>("position_units", "Units of position.");
-	params.addRequiredParam<Real>("time_units", "Units of time.");
+	params.addParam<Real>("position_units", 1, "The units of position.");
+	params.addParam<Real>("time_units", 1, "The units of time.");
 	params.addRequiredParam<Real>("resistance", "The ballast resistance in Ohms.");
 	return params;
 }
