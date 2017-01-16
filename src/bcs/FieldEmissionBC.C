@@ -68,9 +68,9 @@ FieldEmissionBC::FieldEmissionBC(const InputParameters & parameters) :
 	_voltage_scaling = 1000;
 	}
 
-	FE_a = 1.541434E-6 * pow(_voltage_scaling, 2) / _t_units ;		// A eV/kV^2 (if _voltage_scaling == 1000)
-	FE_b = 6.830890E9 / ( _r_units * _voltage_scaling ) ;			// kV/m-eV^1.5 (if _voltage_scaling == 1000)
-	FE_c = 1.439964E-9 * ( _r_units * _voltage_scaling ) ;			// eV^2*m/kV (if _voltage_scaling == 1000)
+	FE_a = 1.541434E-6 * pow(_voltage_scaling, 2) * pow( _r_units , 3 ) / _t_units ;		// A eV/kV^2 (if _voltage_scaling == 1000)
+	FE_b = 6.830890E9 / ( _r_units * _voltage_scaling ) ;											// kV/m-eV^1.5 (if _voltage_scaling == 1000)
+	FE_c = 1.439964E-9 * ( _r_units * _voltage_scaling ) ;										// eV^2*m/kV (if _voltage_scaling == 1000)
 
 }
 
@@ -151,14 +151,14 @@ FieldEmissionBC::computeQpOffDiagJacobian(unsigned int jvar)
 	Real _d_j_SE_d_potential;
 	Real _relaxation_Expr;
 
+	if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
+		_a = 1.0;
+	}
+	else {
+		_a = 0.0;
+	}
+	
 	if (jvar == _potential_id) {
-		if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-			_a = 1.0;
-			return 0.0 ;
-		} else {
-			_a = 0.0;
-
-			_ion_flux = _sgnip[_qp] * _muip[_qp] * -_grad_potential[_qp] * std::exp(_ip[_qp]) - _Dip[_qp] * std::exp(_ip[_qp]) * _grad_ip[_qp];
 			_d_ion_flux_d_potential = _sgnip[_qp] * _muip[_qp] * -_grad_phi[_j][_qp] * std::exp(_ip[_qp]) ;
 			_d_j_SE_d_potential = _e[_qp] * _se_coeff[_qp] * _d_ion_flux_d_potential * _normals[_qp] ;
 			
@@ -180,35 +180,21 @@ FieldEmissionBC::computeQpOffDiagJacobian(unsigned int jvar)
 			(_grad_phi[_j][_qp] * _normals[_qp] ) / (_grad_potential[_qp] * _normals[_qp] ) ;
 
 			if ( _relax == true )
-			_relaxation_Expr = std::tanh(_t / _tau) ;
+				_relaxation_Expr = std::tanh(_t / _tau) ;
 			else
-			_relaxation_Expr = 1.0 ;
+				_relaxation_Expr = 1.0 ;
 
 			if (_use_moles)
 				return _relaxation_Expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * ( -_d_j_FE_d_potential - _d_j_SE_d_potential ) / ( _e[_qp] * _N_A[_qp] );
 			else
 				return _relaxation_Expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * ( -_d_j_FE_d_potential - _d_j_SE_d_potential ) / _e[_qp];
 				
-		}
 	} else if (jvar == _mean_en_id) {
-	if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-		_a = 1.0;
-	}
-	else {
-		_a = 0.0;
-	}
+		_actual_mean_en = std::exp(_mean_en[_qp] - _u[_qp]);
 
-	_actual_mean_en = std::exp(_mean_en[_qp] - _u[_qp]);
-
-	return 0.;
+		return 0.;
 	} else if (jvar == _ip_id) {
-	if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-		_a = 1.0;
-	} else {
-		_a = 0.0;
-	}
-
-	_d_ion_flux_d_ip = _sgnip[_qp] * _muip[_qp] * -_grad_potential[_qp] * std::exp(_ip[_qp]) * _phi[_j][_qp] - _Dip[_qp] * std::exp(_ip[_qp]) * _grad_phi[_j][_qp] - _Dip[_qp] * std::exp(_ip[_qp]) * _phi[_j][_qp] * _grad_ip[_qp];
+		_d_ion_flux_d_ip = _sgnip[_qp] * _muip[_qp] * -_grad_potential[_qp] * std::exp(_ip[_qp]) * _phi[_j][_qp] - _Dip[_qp] * std::exp(_ip[_qp]) * _grad_phi[_j][_qp] - _Dip[_qp] * std::exp(_ip[_qp]) * _phi[_j][_qp] * _grad_ip[_qp];
 
 		return 0;
 	} else {
