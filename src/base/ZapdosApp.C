@@ -88,6 +88,7 @@
 
 #include "HagelaarEnergyBC.h"
 #include "HagelaarEnergyAdvectionBC.h"
+#include "SchottkyEmissionEnergyBC.h"
 
 // Actions
 
@@ -221,8 +222,11 @@ ZapdosApp::registerObjects(Factory & factory)
 	registerBoundaryCondition(HagelaarIonDiffusionBC);
 	registerBoundaryCondition(HagelaarElectronBC);
 	registerBoundaryCondition(HagelaarElectronAdvectionBC);
+	
 	registerBoundaryCondition(HagelaarEnergyBC);
+	registerBoundaryCondition(SchottkyEmissionEnergyBC);
 	registerBoundaryCondition(HagelaarEnergyAdvectionBC);
+
 	registerBoundaryCondition(NeumannCircuitVoltageMoles_KV);
 	registerBoundaryCondition(NeumannCircuitVoltageNew);
 	registerBoundaryCondition(DCIonBC);

@@ -15,6 +15,12 @@ public:
 	SchottkyEmissionBC(const InputParameters & parameters);
 
 protected:
+	Real EmissionFlux();
+	Real d_EmissionFlux_d_em();
+	Real d_EmissionFlux_d_potential();
+	Real d_EmissionFlux_d_mean_en();
+	Real d_EmissionFlux_d_ip();
+
 	virtual Real computeQpResidual();
 	virtual Real computeQpJacobian();
 	virtual Real computeQpOffDiagJacobian(unsigned int jvar);
@@ -28,6 +34,7 @@ protected:
 
 	const VariableGradient & _grad_potential;
 	unsigned int _potential_id;
+
 	const VariableValue & _mean_en;
 	unsigned int _mean_en_id;
 	MooseVariable & _ip_var;
@@ -45,6 +52,8 @@ protected:
 	const MaterialProperty<Real> & _muip;
 	const MaterialProperty<Real> & _Dip;
 	const MaterialProperty<Real> & _se_coeff;
+	const MaterialProperty<Real> & _se_energy;
+	
 	const MaterialProperty<Real> & _work_function;
 	const MaterialProperty<Real> & _field_enhancement;
 	const MaterialProperty<Real> & _Richardson_coefficient;
@@ -53,15 +62,15 @@ protected:
 	Real _a;
 	Real _v_thermal;
 	RealVectorValue _ion_flux;
-	Real _n_gamma;
+	Real _n_emitted;
 	Real _d_v_thermal_d_u;
 	Real _d_v_thermal_d_mean_en;
 	RealVectorValue _d_ion_flux_d_potential;
 	RealVectorValue _d_ion_flux_d_ip;
-	Real _d_n_gamma_d_potential;
-	Real _d_n_gamma_d_ip;
-	Real _d_n_gamma_d_u;
-	Real _d_n_gamma_d_mean_en;
+	Real _d_n_emitted_d_potential;
+	Real _d_n_emitted_d_ip;
+	Real _d_n_emitted_d_u;
+	Real _d_n_emitted_d_mean_en;
 	Real _actual_mean_en;
 	Real _tau;
 	bool _relax;

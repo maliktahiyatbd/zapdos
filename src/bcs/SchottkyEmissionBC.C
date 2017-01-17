@@ -28,6 +28,7 @@ SchottkyEmissionBC::SchottkyEmissionBC(const InputParameters & parameters) :
 // Coupled Variables
 	_grad_potential(coupledGradient("potential")),
 	_potential_id(coupled("potential")),
+	
 	_mean_en(coupledValue("mean_en")),
 	_mean_en_id(coupled("mean_en")),
 	_ip_var(*getVar("ip",0)),
@@ -47,6 +48,8 @@ SchottkyEmissionBC::SchottkyEmissionBC(const InputParameters & parameters) :
 	_muip(getMaterialProperty<Real>("mu" + _ip_var.name())),
 	_Dip(getMaterialProperty<Real>("diff" + _ip_var.name())),
 	_se_coeff(getMaterialProperty<Real>("se_coeff")),
+	_se_energy(getMaterialProperty<Real>("se_energy")),
+	
 	_work_function(getMaterialProperty<Real>("work_function")),
 	_field_enhancement(getMaterialProperty<Real>("field_enhancement")),
 	_Richardson_coefficient(getMaterialProperty<Real>("Richardson_coefficient")),
@@ -55,15 +58,15 @@ SchottkyEmissionBC::SchottkyEmissionBC(const InputParameters & parameters) :
 	_a(0.5),
 	_v_thermal(0),
 	_ion_flux(0, 0, 0),
-	_n_gamma(0),
+	_n_emitted(0),
 	_d_v_thermal_d_u(0),
 	_d_v_thermal_d_mean_en(0),
 	_d_ion_flux_d_potential(0, 0, 0),
 	_d_ion_flux_d_ip(0, 0, 0),
-	_d_n_gamma_d_potential(0),
-	_d_n_gamma_d_ip(0),
-	_d_n_gamma_d_u(0),
-	_d_n_gamma_d_mean_en(0),
+	_d_n_emitted_d_potential(0),
+	_d_n_emitted_d_ip(0),
+	_d_n_emitted_d_u(0),
+	_d_n_emitted_d_mean_en(0),
 	_actual_mean_en(0),
 
 	_tau(getParam<Real>("tau")),
@@ -83,137 +86,124 @@ SchottkyEmissionBC::SchottkyEmissionBC(const InputParameters & parameters) :
 Real
 SchottkyEmissionBC::computeQpResidual()
 {
-	Real dPhi;
-	Real kB;
-	Real _j_TE;
-	Real _j_SE;
-	Real F;
-	Real _relaxation_Expr;
+	Real _EmissionFlux;
+	Real _relaxation_expr;
 
-	if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-		_a = 1.0;
-		return 0;
-	}
-	else {
-		_a = 0.0;
+	_EmissionFlux = SchottkyEmissionBC::EmissionFlux() ;
+	_relaxation_expr = _relax ? std::tanh(_t / _tau) : 1.0 ;
 
-		_ion_flux = _sgnip[_qp] * _muip[_qp] * -_grad_potential[_qp] * std::exp(_ip[_qp]) - _Dip[_qp] * std::exp(_ip[_qp]) * _grad_ip[_qp];
-
-		// Schottky emission
-			// je = AR * T^2 * exp(-(wf - dPhi) / (kB * T))
-			// dPhi = _dPhi_over_F * sqrt(F) // eV
-
-		F = -(1 - _a) * _field_enhancement[_qp] * _normals[_qp] * _grad_potential[_qp] * _r_units * _voltage_scaling;
-
-		kB = 8.617385E-5; // eV/K
-		dPhi = _dPhi_over_F * sqrt(F);
-
-		_j_TE = _Richardson_coefficient[_qp] * pow(_cathode_temperature[_qp], 2) * std::exp(-(_work_function[_qp] - dPhi) / (kB * _cathode_temperature[_qp]));
-		_j_SE = _e[_qp] * _se_coeff[_qp] * _ion_flux * _normals[_qp];
-		
-		if (_use_moles)
-			_j_SE = _j_SE * _N_A[_qp] ;
-
-		if ( _relax == true ) {
-			_relaxation_Expr = std::tanh(_t / _tau) ;
-		} else if ( _relax == false ) {
-			_relaxation_Expr = 1.0 ;
-		}
-
-		if (_use_moles)
-			return _relaxation_Expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * ( - _j_TE - _j_SE ) / (_e[_qp] * _N_A[_qp] );
-		else
-			return _relaxation_Expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * ( - _j_TE - _j_SE ) / _e[_qp];
-		
-		
-	}
+	return -_relaxation_expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * _EmissionFlux ; 
 
 }
 
 Real
 SchottkyEmissionBC::computeQpJacobian()
 {
-	if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-		_a = 1.0;
-	}
-	else {
-		_a = 0.0;
-	}
-
-	_actual_mean_en = std::exp(_mean_en[_qp] - _u[_qp]);
-
 	return 0.;
 }
 
 Real
 SchottkyEmissionBC::computeQpOffDiagJacobian(unsigned int jvar)
 {
+	Real _d_EmissionFlux_d_offDiag(0);
+	Real _relaxation_expr;
+	
+	_relaxation_expr = _relax ? std::tanh(_t / _tau) : 1.0 ;
+
+	if (jvar == _potential_id) {
+		_d_EmissionFlux_d_offDiag = SchottkyEmissionBC::d_EmissionFlux_d_potential() ;		
+	} else if (jvar == _mean_en_id) {
+		_d_EmissionFlux_d_offDiag = SchottkyEmissionBC::d_EmissionFlux_d_mean_en() ;		
+	} else if (jvar == _ip_id) {
+		_d_EmissionFlux_d_offDiag = SchottkyEmissionBC::d_EmissionFlux_d_ip() ;	
+	}
+	
+	return -_relaxation_expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * _d_EmissionFlux_d_offDiag ; 
+}
+
+Real 
+SchottkyEmissionBC::EmissionFlux()
+{
 	Real dPhi;
-	Real kB;
+	Real kB = 8.617385E-5; // eV/K;
+	Real _j_TE;
+	Real _j_SE;
+	Real F;
+	
+	if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
+			_a = 1.0;
+			return 0;
+	} else {
+		_a = 0.0;
+	}
+	
+	_ion_flux = (_sgnip[_qp] * _muip[_qp] * -_grad_potential[_qp] * std::exp(_ip[_qp]) - _Dip[_qp] * std::exp(_ip[_qp]) * _grad_ip[_qp]) * ( _use_moles ? _N_A[_qp] : 1 );
+
+	// Schottky emission
+		// je = AR * T^2 * exp(-(wf - dPhi) / (kB * T))
+		// dPhi = _dPhi_over_F * sqrt(F) // eV
+
+	F = -(1 - _a) * _field_enhancement[_qp] * _normals[_qp] * _grad_potential[_qp] * _r_units * _voltage_scaling;
+
+	dPhi = _dPhi_over_F * sqrt(F);
+
+	_j_TE = _Richardson_coefficient[_qp] * std::pow(_cathode_temperature[_qp], 2) * std::exp(-(_work_function[_qp] - dPhi) / (kB * _cathode_temperature[_qp]));
+	_j_SE = _e[_qp] * _se_coeff[_qp] * _ion_flux * _normals[_qp] ;
+	
+	return ( _j_TE + _j_SE ) / (_e[_qp] * ( _use_moles ? _N_A[_qp] : 1 ) ) ;
+}
+
+Real 
+SchottkyEmissionBC::d_EmissionFlux_d_potential()
+{
+	Real dPhi;
+	Real kB = 8.617385E-5; // eV/K;
 	Real _j_TE;
 	Real _d_j_TE_d_potential;
 	Real _d_j_SE_d_potential;
 	Real F;
-	Real _relaxation_Expr;
-
-	if (jvar == _potential_id) {
-		if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-			_a = 1.0;
-			return 0.0 ;
-		} else {
-			_a = 0.0;
-
-			_ion_flux = _sgnip[_qp] * _muip[_qp] * -_grad_potential[_qp] * std::exp(_ip[_qp]) - _Dip[_qp] * std::exp(_ip[_qp]) * _grad_ip[_qp];
-			_d_ion_flux_d_potential = _sgnip[_qp] * _muip[_qp] * -_grad_phi[_j][_qp] * std::exp(_ip[_qp]) ;
-			_d_j_SE_d_potential = _e[_qp] * _se_coeff[_qp] * _d_ion_flux_d_potential * _normals[_qp] ;
-			
-			if (_use_moles)
-				_d_j_SE_d_potential = _d_j_SE_d_potential * _N_A[_qp] ;
-
-			// Schottky emission
-				// je = AR * T^2 * exp(-(wf - dPhi) / (kB * T))
-				// dPhi = _dPhi_over_F * sqrt(F) // eV
-
-			F = -(1 - _a) * _field_enhancement[_qp] * _normals[_qp] * _grad_potential[_qp];
-			kB = 8.617385E-5; // eV/K
-			dPhi = _dPhi_over_F * sqrt(F);
-
-			_j_TE = _Richardson_coefficient[_qp] * pow(_cathode_temperature[_qp], 2) * exp(-(_work_function[_qp] - dPhi) / (kB * _cathode_temperature[_qp]));
-
-			_d_j_TE_d_potential = _j_TE * (dPhi / (2 * kB * _cathode_temperature[_qp])) * 
-								(_grad_phi[_j][_qp] * _normals[_qp] ) / (_grad_potential[_qp] * _normals[_qp] );
-
-			if ( _relax == true ) {
-				_relaxation_Expr = std::tanh(_t / _tau) ;
-			} else if ( _relax == false ) {
-				_relaxation_Expr = 1.0 ;
-			}
-
-			if (_use_moles)
-				return _relaxation_Expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * ( -_d_j_TE_d_potential - _d_j_SE_d_potential ) / ( _e[_qp] * _N_A[_qp] );
-			else
-				return _relaxation_Expr * _test[_i][_qp] * 2. / (1. + _r) * (1 - _a) * ( -_d_j_TE_d_potential - _d_j_SE_d_potential ) / _e[_qp];
-
-		}
-	} else if (jvar == _mean_en_id) {
-		if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-			_a = 1.0;
-		}
-		else {
-			_a = 0.0;
-		}
-		_actual_mean_en = std::exp(_mean_en[_qp] - _u[_qp]);
-
-		return 0.;
-	} else if (jvar == _ip_id) {
-		if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
-			_a = 1.0;
-		} else {
-			_a = 0.0;
-		}
-
-		return 0;
+	
+	if ( _normals[_qp] * -1.0 * -_grad_potential[_qp] > 0.0) {
+		_a = 1.0;
+		return 0.0 ;
 	} else {
-		return 0.0;
+		_a = 0.0;
 	}
+
+	_ion_flux = (_sgnip[_qp] * _muip[_qp] * -_grad_potential[_qp] * std::exp(_ip[_qp]) - _Dip[_qp] * std::exp(_ip[_qp]) * _grad_ip[_qp]) * ( _use_moles ? _N_A[_qp] : 1 );
+	_d_ion_flux_d_potential = _sgnip[_qp] * _muip[_qp] * -_grad_phi[_j][_qp] * std::exp(_ip[_qp]) ;
+	_d_j_SE_d_potential = _e[_qp] * _se_coeff[_qp] * _d_ion_flux_d_potential * _normals[_qp] ;
+	
+	// Schottky emission
+	// je = AR * T^2 * exp(-(wf - dPhi) / (kB * T))
+	// dPhi = _dPhi_over_F * sqrt(F) // eV
+
+	F = -(1 - _a) * _field_enhancement[_qp] * _normals[_qp] * _grad_potential[_qp];
+
+	dPhi = _dPhi_over_F * sqrt(F);
+
+	_j_TE = _Richardson_coefficient[_qp] * std::pow(_cathode_temperature[_qp], 2) * exp(-(_work_function[_qp] - dPhi) / (kB * _cathode_temperature[_qp]));
+
+	_d_j_TE_d_potential = _j_TE * (dPhi / (2 * kB * _cathode_temperature[_qp])) * 
+						(_grad_phi[_j][_qp] * _normals[_qp] ) / (_grad_potential[_qp] * _normals[_qp] );
+	
+	return ( _d_j_TE_d_potential + _d_j_SE_d_potential ) / (_e[_qp] * ( _use_moles ? _N_A[_qp] : 1 ) ) ;
+}
+
+Real 
+SchottkyEmissionBC::d_EmissionFlux_d_em()
+{
+	return 0.0;
+}
+
+Real 
+SchottkyEmissionBC::d_EmissionFlux_d_mean_en()
+{
+	return 0.0;
+}
+
+Real 
+SchottkyEmissionBC::d_EmissionFlux_d_ip()
+{
+	return 0.0;
 }

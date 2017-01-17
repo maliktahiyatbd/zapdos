@@ -65,13 +65,13 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 
 	dtmin = ${/ 1e-18 ${time_units}}
 	# dtmax = ${/ 1e-7 ${time_units}}
-	nl_max_its = 50
+	nl_max_its = 20
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
 		dt = ${/ 1e-12 ${time_units}}
 		growth_factor = 1.2
-		optimal_iterations = 50
+		optimal_iterations = 25
 	[../]
 []
 
@@ -193,47 +193,47 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		variable = mean_en
 		block = 0
 	[../]
-#	[./mean_en_advection]
-#		type = EFieldAdvectionEnergy
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
+	[./mean_en_advection]
+		type = EFieldAdvectionEnergy
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
 	[./mean_en_diffusion]
 		type = CoeffDiffusionEnergy
 		variable = mean_en
 		em = em
 		block = 0
 	[../]
-#	[./mean_en_joule_heating]
-#		type = JouleHeating
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_ionization]
-#		type = ElectronEnergyLossFromIonization
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_elastic]
-#		type = ElectronEnergyLossFromElastic
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_excitation]
-#		type = ElectronEnergyLossFromExcitation
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
+	[./mean_en_joule_heating]
+		type = JouleHeating
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_ionization]
+		type = ElectronEnergyLossFromIonization
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_elastic]
+		type = ElectronEnergyLossFromElastic
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_excitation]
+		type = ElectronEnergyLossFromExcitation
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
 
 ## Stabilization
 #	[./Arp_log_stabilization]
@@ -601,13 +601,39 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ## Mean energy boundary conditions ##
-	[./mean_en_left]
-		type = DirichletBC
+#	[./mean_en_left]
+#		type = DirichletBC
+#		variable = mean_en
+#		boundary = left
+#		value = -13.5
+#	[../]
+
+	[./mean_en_emission_left]
+		type = SchottkyEmissionEnergyBC
 		variable = mean_en
 		boundary = left
-		value = -13.5
+		em = em
+		potential = potential
+		ip = Arp
+		mean_en = mean_en
+		r = 1
+		tau = ${relaxTime}
+		relax = false
 	[../]
 
+	[./mean_en_emission_right]
+		type = SchottkyEmissionEnergyBC
+		variable = mean_en
+		boundary = right
+		em = em
+		potential = potential
+		ip = Arp
+		mean_en = mean_en
+		r = 0
+		tau = ${relaxTime}
+		relax = false
+	[../]
+	
 #	[./mean_en_right]
 #		type = DirichletBC
 #		variable = mean_en
@@ -625,15 +651,16 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 #		r = 0
 #	[../]
 
-	[./mean_en_physical_right]
-		type = HagelaarEnergyBC
-		variable = mean_en
-		boundary = right
-		potential = potential
-		em = em
-		ip = Arp
-		r = 0
-	[../]
+#	[./mean_en_physical_right]
+#		type = HagelaarEnergyBC
+#		variable = mean_en
+#		boundary = right
+#		potential = potential
+#		em = em
+#		ip = Arp
+#		r = 0
+#	[../]
+
 []
 
 [ICs]
