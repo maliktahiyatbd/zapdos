@@ -21,19 +21,6 @@ protected:
 	//Variables
 	unsigned int _em_id;
 	const VariableValue & _em;
-
-	//System variables
-	Real _v_drift;
-	Real _d_v_drift_d_u;
-	
-	Real _emission_flux;
-	Real _d_emission_flux_d_u;
-	
-	Real _n_emitted;
-	Real _d_n_emitted_d_u;
-	
-	Real _n_e_transported;
-	Real _d_n_e_transported_d_u;
 };
 
 

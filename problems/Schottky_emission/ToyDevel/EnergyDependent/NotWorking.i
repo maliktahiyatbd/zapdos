@@ -51,14 +51,14 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	ss_check_tol = 1E-15
 	ss_tmin = ${steadyStateTime}
 
-#	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -snes_ksp_ew -superlu_dist'
+	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -snes_ksp_ew -superlu_dist'
 	solve_type = NEWTON
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
 #	petsc_options_value = 'lu mumps NONZERO 1.e-10 preonly 1e-3 100'
 
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-	petsc_options_value = 'lu mumps'
+	petsc_options_value = 'lu superlu_dist'
 
 	nl_rel_tol = 1E-8
 	nl_abs_tol = 1e-8
@@ -69,7 +69,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
-		dt = ${/ 1e-12 ${time_units}}
+		dt = ${/ 1e-13 ${time_units}}
 		growth_factor = 1.2
 		optimal_iterations = 25
 	[../]
@@ -103,6 +103,23 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 #		electrode_area = ${area}
 #		ballast_resist = ${resistance}
 #	[../]
+[]
+
+[Variables]
+	[./potential]
+	[../]
+	[./em]
+		block = 0
+		initial_condition = -10
+	[../]
+	[./Arp]
+		block = 0
+		initial_condition = -15
+	[../]
+	[./mean_en]
+		block = 0
+		initial_condition = -13.5
+	[../]
 []
 
 [Kernels]
@@ -213,27 +230,28 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		em = em
 		block = 0
 	[../]
-	[./mean_en_ionization]
-		type = ElectronEnergyLossFromIonization
-		variable = mean_en
-		potential = potential
-		em = em
-		block = 0
-	[../]
-	[./mean_en_elastic]
-		type = ElectronEnergyLossFromElastic
-		variable = mean_en
-		potential = potential
-		em = em
-		block = 0
-	[../]
-	[./mean_en_excitation]
-		type = ElectronEnergyLossFromExcitation
-		variable = mean_en
-		potential = potential
-		em = em
-		block = 0
-	[../]
+#	[./mean_en_elastic]
+#		type = ElectronEnergyLossFromElastic
+#		variable = mean_en
+#		potential = potential
+#		em = em
+#		block = 0
+#	[../]
+#	[./mean_en_excitation]
+#		type = ElectronEnergyLossFromExcitation
+#		variable = mean_en
+#		potential = potential
+#		em = em
+#		block = 0
+#	[../]
+#	[./mean_en_ionization]
+#		type = ElectronEnergyLossFromIonization
+#		variable = mean_en
+#		potential = potential
+#		em = em
+#		block = 0
+#	[../]
+
 
 ## Stabilization
 #	[./Arp_log_stabilization]
@@ -260,20 +278,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 #		potential = potential
 #		block = 0
 #	[../]
-[]
-
-[Variables]
-	[./potential]
-	[../]
-	[./em]
-		block = 0
-	[../]
-	[./Arp]
-		block = 0
-	[../]
-	[./mean_en]
-		block = 0
-	[../]
 []
 
 [AuxVariables]
@@ -542,11 +546,25 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ### Electron boundary conditions ##
+#	[./em_dirichlet_left]
+#		type = DirichletBC
+#		variable = em
+#		boundary = left
+#		value = -8
+#	[../]
+
+#	[./em_dirichlet_right]
+#		type = DirichletBC
+#		variable = em
+#		boundary = right
+#		value = -2
+#	[../]
+
 	[./Emission_left]
 		type = SchottkyEmissionBC
 #		type = SecondaryElectronBC
 		variable = em
-		boundary = 'left'
+		boundary = left
 		potential = potential
 		ip = Arp
 		mean_en = mean_en
@@ -555,13 +573,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		relax = false
 	[../]
 
-#	[./em_physical_left]
-#		type = DirichletBC
-#		variable = em
-#		boundary = left
-#		value = -10
-#	[../]
-	
 	[./em_physical_right]
 		type = HagelaarElectronAdvectionBC
 		variable = em
@@ -570,6 +581,19 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		mean_en = mean_en
 		r = 0
 	[../]
+
+#	[./Emission_right]
+#		type = SchottkyEmissionBC
+#		type = SecondaryElectronBC
+#		variable = em
+#		boundary = right
+#		potential = potential
+#		ip = Arp
+#		mean_en = mean_en
+#		r = 0
+#		tau = ${relaxTime}
+#		relax = false
+#	[../]
 
 ## Argon boundary conditions ##
 	[./Arp_physical_left_diffusion]
@@ -601,13 +625,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ## Mean energy boundary conditions ##
-#	[./mean_en_left]
-#		type = DirichletBC
-#		variable = mean_en
-#		boundary = left
-#		value = -13.5
-#	[../]
-
 	[./mean_en_emission_left]
 		type = SchottkyEmissionEnergyBC
 		variable = mean_en
@@ -621,46 +638,52 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		relax = false
 	[../]
 
-	[./mean_en_emission_right]
-		type = SchottkyEmissionEnergyBC
-		variable = mean_en
-		boundary = right
-		em = em
-		potential = potential
-		ip = Arp
-		mean_en = mean_en
-		r = 0
-		tau = ${relaxTime}
-		relax = false
-	[../]
-	
-#	[./mean_en_right]
-#		type = DirichletBC
+#	[./mean_en_emission_right]
+#		type = SchottkyEmissionEnergyBC
 #		variable = mean_en
 #		boundary = right
-#		value = -10.5
+#		em = em
+#		potential = potential
+#		ip = Arp
+#		mean_en = mean_en
+#		r = 0
+#		tau = ${relaxTime}
+#		relax = false
 #	[../]
 
 #	[./mean_en_physical_left]
 #		type = HagelaarEnergyBC
 #		variable = mean_en
-#		boundary = 'left'
+#		boundary = left
 #		potential = potential
 #		em = em
 #		ip = Arp
-#		r = 0
+#		r = 1
 #	[../]
 
-#	[./mean_en_physical_right]
-#		type = HagelaarEnergyBC
+	[./mean_en_physical_right]
+		type = HagelaarEnergyAdvectionBC
+		variable = mean_en
+		boundary = right
+		potential = potential
+		em = em
+		ip = Arp
+		r = 0
+	[../]
+
+#	[./mean_en_diriclet_left]
+#		type = DirichletBC
+#		variable = mean_en
+#		boundary = left
+#		value = -15
+#	[../]
+
+#	[./mean_en_diriclet_right]
+#		type = DirichletBC
 #		variable = mean_en
 #		boundary = right
-#		potential = potential
-#		em = em
-#		ip = Arp
-#		r = 0
+#		value = -10
 #	[../]
-
 []
 
 [ICs]
@@ -668,27 +691,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		type = FunctionIC
 		variable = potential
 		function = potential_ic_func
-	[../]
-
-	[./em_ic]
-		type = ConstantIC
-		variable = em
-		value = -10
-		block = 0
-	[../]
-
-	[./Arp_ic]
-		type = ConstantIC
-		variable = Arp
-		value = -15
-		block = 0
-	[../]
-
-	[./mean_en_ic]
-		type = ConstantIC
-		variable = mean_en
-		value = -13.5
-		block = 0
 	[../]
 []
 

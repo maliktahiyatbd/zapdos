@@ -49,9 +49,9 @@ Real JouleHeating::computeQpResidual()
 
 Real JouleHeating::computeQpJacobian()
 {
-	Real	actual_mean_en = std::exp(_u[_qp] - _em[_qp]);
-	Real	d_muem_d_mean_en = _d_muem_d_actual_mean_en[_qp] * actual_mean_en * _phi[_j][_qp];
-	Real	d_diffem_d_mean_en = _d_diffem_d_actual_mean_en[_qp] * actual_mean_en * _phi[_j][_qp];
+	Real actual_mean_en = std::exp(_u[_qp] - _em[_qp]);
+	Real d_muem_d_mean_en = _d_muem_d_actual_mean_en[_qp] * actual_mean_en * _phi[_j][_qp];
+	Real d_diffem_d_mean_en = _d_diffem_d_actual_mean_en[_qp] * actual_mean_en * _phi[_j][_qp];
 
 	return _test[_i][_qp] * -_grad_potential[_qp] * _voltage_scaling * (-d_muem_d_mean_en * -_grad_potential[_qp] * std::exp(_em[_qp]) - d_diffem_d_mean_en * std::exp(_em[_qp]) * _grad_em[_qp]);
 }
@@ -64,9 +64,9 @@ Real JouleHeating::computeQpOffDiagJacobian(unsigned int jvar)
 		}
 	else if (jvar == _em_id)
 		{
-			Real	actual_mean_en = std::exp(_u[_qp] - _em[_qp]);
-			Real	d_muem_d_em = _d_muem_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
-			Real	d_diffem_d_em = _d_diffem_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
+			Real actual_mean_en = std::exp(_u[_qp] - _em[_qp]);
+			Real d_muem_d_em = _d_muem_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
+			Real d_diffem_d_em = _d_diffem_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
 
 			return _test[_i][_qp] * -_grad_potential[_qp] * _voltage_scaling * (-_muem[_qp] * -_grad_potential[_qp] * std::exp(_em[_qp]) * _phi[_j][_qp] - d_muem_d_em * -_grad_potential[_qp] * std::exp(_em[_qp]) - _diffem[_qp] * (std::exp(_em[_qp]) * _phi[_j][_qp] * _grad_em[_qp] + std::exp(_em[_qp]) * _grad_phi[_j][_qp]) - d_diffem_d_em * std::exp(_em[_qp]) * _grad_em[_qp]);
 		}

@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -pe mpi-* 96
+#$ -pe mpi-* 48
 #$ -N steady_state
 #$ -M jhaase1@nd.edu
 #$ -m a
@@ -7,8 +7,8 @@
 ######$ -q *@@dgo
 
 module purge
-module load ompi/1.10.2-gcc-4.9.2
+module load ompi/2.0.1-gcc-6.2.0
 
 fsync -d 30 Log.txt &
 
-mpirun -np 96 ~/zapdos/zapdos-opt -i NotWorking.i > Log.txt
+mpirun -np 48 ~/zapdos/zapdos-opt -i NotWorking.i > Log.txt

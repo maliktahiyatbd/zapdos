@@ -15,11 +15,11 @@ public:
 	SchottkyEmissionBC(const InputParameters & parameters);
 
 protected:
-	Real EmissionFlux();
-	Real d_EmissionFlux_d_em();
-	Real d_EmissionFlux_d_potential();
-	Real d_EmissionFlux_d_mean_en();
-	Real d_EmissionFlux_d_ip();
+	Real emission_flux();
+	Real d_emission_flux_d_em();
+	Real d_emission_flux_d_potential();
+	Real d_emission_flux_d_mean_en();
+	Real d_emission_flux_d_ip();
 
 	virtual Real computeQpResidual();
 	virtual Real computeQpJacobian();
@@ -60,25 +60,42 @@ protected:
 	const MaterialProperty<Real> & _cathode_temperature;
 
 	Real _a;
-	Real _v_thermal;
+	
 	RealVectorValue _ion_flux;
-	Real _n_emitted;
-	Real _d_v_thermal_d_u;
-	Real _d_v_thermal_d_mean_en;
+	
 	RealVectorValue _d_ion_flux_d_potential;
 	RealVectorValue _d_ion_flux_d_ip;
-	Real _d_n_emitted_d_potential;
-	Real _d_n_emitted_d_ip;
-	Real _d_n_emitted_d_u;
-	Real _d_n_emitted_d_mean_en;
+
 	Real _actual_mean_en;
 	Real _tau;
 	bool _relax;
+	
 	std::string _potential_units;
 
 	// Unique variables
 	Real _voltage_scaling;
 	Real _dPhi_over_F;
+	
+	//System variables
+	Real _relaxation_expr;
+	
+	Real _v_thermal;
+	Real _d_v_thermal_d_u;
+	
+	Real _v_drift;
+	Real _d_v_drift_d_u;
+	
+	Real _emission_flux;
+	Real _d_emission_flux_d_u;
+	
+	Real _n_emitted;
+	Real _d_n_emitted_d_u;
+	
+	Real _n_e_transported;
+	Real _d_n_e_transported_d_u;
+	
+	Real _n_transported;
+	Real _d_n_transported_d_u;
 
 };
 
