@@ -3,13 +3,18 @@ time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
 
-vhigh = 150E-3 #kV
+vhigh = 200E-3 #kV
 resistance = 1 #Ohms
 area = 5.02e-7 # Formerly 3.14e-6
 
-relaxTime = ${/ 50e-9 ${time_units}} #s if time_units = 1
-nCycles = 1000
-steadyStateTime = ${/ 1E-6 ${time_units}}
+offTime  = ${/ 21.05E-9 ${time_units}} #s
+onTime = ${/ 0.3051E-9 ${time_units}} #s
+
+nCycles = 4
+
+cyclePeriod = ${+ ${onTime} ${offTime}}
+dutyCycle = ${/ ${onTime} ${cyclePeriod}}
+EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 [GlobalParams]
 #	offset = 25
@@ -41,15 +46,15 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 
 [Executioner]
 	type = Transient
-	end_time = ${/ 1e-3 ${time_units}}
+	end_time = ${EndTime} # ${/ 1e-3 ${time_units}}
 
 #	[./TimeIntegrator]
 #		type = ImplicitEuler #AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
 #	[../]
 
-	trans_ss_check = 1
-	ss_check_tol = 1E-15
-	ss_tmin = ${steadyStateTime}
+#	trans_ss_check = 1
+#	ss_check_tol = 1E-15
+#	ss_tmin = ${steadyStateTime}
 
 	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -snes_ksp_ew -superlu_dist'
 	solve_type = NEWTON
@@ -64,12 +69,12 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	nl_abs_tol = 1e-8
 
 	dtmin = ${/ 1e-18 ${time_units}}
-	# dtmax = ${/ 1e-7 ${time_units}}
+	dtmax = ${/ ${onTime} 20 }
 	nl_max_its = 20
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
-		dt = ${/ 1e-13 ${time_units}}
+		dt = ${/ 1e-15 ${time_units}}
 		growth_factor = 1.2
 		optimal_iterations = 25
 	[../]
@@ -80,7 +85,12 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	print_linear_residuals = false
 	[./out]
 		type = Exodus
-#		execute_on = 'final'
+		execute_on = 'final'
+	[../]
+	
+	[./checkpoint]
+		type = Checkpoint
+		num_files = 2
 	[../]
 []
 
@@ -110,7 +120,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 	[./em]
 		block = 0
-		initial_condition = -10
+		initial_condition = -15
 	[../]
 	[./Arp]
 		block = 0
@@ -118,7 +128,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 	[./mean_en]
 		block = 0
-		initial_condition = -13.5
+		initial_condition = -14
 	[../]
 []
 
@@ -230,27 +240,27 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		em = em
 		block = 0
 	[../]
-#	[./mean_en_elastic]
-#		type = ElectronEnergyLossFromElastic
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_excitation]
-#		type = ElectronEnergyLossFromExcitation
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
-#	[./mean_en_ionization]
-#		type = ElectronEnergyLossFromIonization
-#		variable = mean_en
-#		potential = potential
-#		em = em
-#		block = 0
-#	[../]
+	[./mean_en_elastic]
+		type = ElectronEnergyLossFromElastic
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_excitation]
+		type = ElectronEnergyLossFromExcitation
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
+	[./mean_en_ionization]
+		type = ElectronEnergyLossFromIonization
+		variable = mean_en
+		potential = potential
+		em = em
+		block = 0
+	[../]
 
 
 ## Stabilization
@@ -532,10 +542,12 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 #	[../]
 
 	[./potential_dirichlet_left]
-		type = DirichletBC
+#		type = DirichletBC
+		type = FunctionDirichletBC
 		variable = potential
 		boundary = left
-		value = -${vhigh}
+#		value = -${vhigh}
+		function = potential_bc_func
 	[../]
 
 	[./potential_dirichlet_right]
@@ -546,20 +558,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 	[../]
 
 ### Electron boundary conditions ##
-#	[./em_dirichlet_left]
-#		type = DirichletBC
-#		variable = em
-#		boundary = left
-#		value = -8
-#	[../]
-
-#	[./em_dirichlet_right]
-#		type = DirichletBC
-#		variable = em
-#		boundary = right
-#		value = -2
-#	[../]
-
 	[./Emission_left]
 		type = SchottkyEmissionBC
 #		type = SecondaryElectronBC
@@ -569,12 +567,12 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		ip = Arp
 		mean_en = mean_en
 		r = 1
-		tau = ${relaxTime}
+#		tau = ${relaxTime}
 		relax = false
 	[../]
 
 	[./em_physical_right]
-		type = HagelaarElectronAdvectionBC
+		type = HagelaarElectronAdvectionBC # HagelaarElectronBC
 		variable = em
 		boundary = right
 		potential = potential
@@ -634,7 +632,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		ip = Arp
 		mean_en = mean_en
 		r = 1
-		tau = ${relaxTime}
+#		tau = ${relaxTime}
 		relax = false
 	[../]
 
@@ -662,7 +660,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 #	[../]
 
 	[./mean_en_physical_right]
-		type = HagelaarEnergyAdvectionBC
+		type = HagelaarEnergyAdvectionBC # HagelaarEnergyBC
 		variable = mean_en
 		boundary = right
 		potential = potential
@@ -670,20 +668,6 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 		ip = Arp
 		r = 0
 	[../]
-
-#	[./mean_en_diriclet_left]
-#		type = DirichletBC
-#		variable = mean_en
-#		boundary = left
-#		value = -15
-#	[../]
-
-#	[./mean_en_diriclet_right]
-#		type = DirichletBC
-#		variable = mean_en
-#		boundary = right
-#		value = -10
-#	[../]
 []
 
 [ICs]
@@ -695,12 +679,22 @@ steadyStateTime = ${/ 1E-6 ${time_units}}
 []
 
 [Functions]
+#	[./potential_bc_func]
+#		type = ParsedFunction
+#		vars = 'VHigh'
+#		vals = '${vhigh}')
+#		value = '-VHigh'
+#	[../]
+	
 	[./potential_bc_func]
-		type = ParsedFunction
-		vars = 'VHigh'
-		vals = '${vhigh}')
-		value = '-VHigh'
+		type = SmoothedStepFunction		
+		vLow = -0.001
+		vHigh = -${vhigh}
+		period = ${cyclePeriod}
+		duty = ${dutyCycle}
+		rise = 500
 	[../]
+	
 	[./potential_ic_func]
 		type = ParsedFunction
 		value = '-${vhigh} * (${dom0Size} - x) / ${dom0Size}'

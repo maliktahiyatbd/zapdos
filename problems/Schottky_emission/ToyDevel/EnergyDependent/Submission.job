@@ -1,14 +1,23 @@
 #!/bin/bash
-#$ -pe mpi-* 48
+#$ -pe mpi-* 96
 #$ -N steady_state
 #$ -M jhaase1@nd.edu
 #$ -m a
 #$ -r y
-######$ -q *@@dgo
+#$ -q *@@dgo
 
 module purge
 module load ompi/2.0.1-gcc-6.2.0
 
-fsync -d 30 Log.txt &
+fsync -d 30 Log1.txt &
+fsync -d 30 Log2.txt &
 
-mpirun -np 48 ~/zapdos/zapdos-opt -i NotWorking.i > Log.txt
+mpirun -np 96 ~/zapdos/zapdos-opt -i Transient.i > Log1.txt
+
+mv Transient.i Real_Transient.i
+mv SteadyState.i Transient.i
+
+mpirun -np 96 ~/zapdos/zapdos-opt -i Transient.i --restart > Log2.txt
+
+mv Transient.i SteadyState.i
+mv Real_Transient.i Transient.i

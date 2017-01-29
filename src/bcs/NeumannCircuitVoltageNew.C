@@ -71,7 +71,7 @@ NeumannCircuitVoltageNew::computeQpResidual()
   if (_use_area)
     curr_times_resist *= _area;
 
-  return _test[_i][_qp] * _r_units * (_source_voltage.value(_t, _q_point[_qp]) - _u[_qp] + curr_times_resist);
+  return _test[_i][_qp] /* * _r_units*/ * (_source_voltage.value(_t, _q_point[_qp]) - _u[_qp] + curr_times_resist);
 }
 
 Real
@@ -81,7 +81,7 @@ NeumannCircuitVoltageNew::computeQpJacobian()
   if (_use_area)
     d_curr_times_resist_d_potential *= _area;
 
-  return _test[_i][_qp] * _r_units * (-_phi[_j][_qp] + d_curr_times_resist_d_potential);
+  return _test[_i][_qp] /* * _r_units*/ * (-_phi[_j][_qp] + d_curr_times_resist_d_potential);
 }
 
 Real
@@ -93,7 +93,7 @@ NeumannCircuitVoltageNew::computeQpOffDiagJacobian(unsigned int jvar)
     if (_use_area)
       d_curr_times_resist_d_em *= _area;
 
-    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_em;
+    return _test[_i][_qp] /* * _r_units*/ * d_curr_times_resist_d_em;
   }
 
   else if (jvar == _ip_id)
@@ -102,7 +102,7 @@ NeumannCircuitVoltageNew::computeQpOffDiagJacobian(unsigned int jvar)
     if (_use_area)
       d_curr_times_resist_d_ip *= _area;
 
-    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_ip;
+    return _test[_i][_qp] /* * _r_units*/ * d_curr_times_resist_d_ip;
   }
 
   else if (jvar == _mean_en_id)
@@ -111,7 +111,7 @@ NeumannCircuitVoltageNew::computeQpOffDiagJacobian(unsigned int jvar)
     if (_use_area)
       d_curr_times_resist_d_mean_en *= _area;
 
-    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_mean_en;
+    return _test[_i][_qp] /* * _r_units*/ * d_curr_times_resist_d_mean_en;
   }
 
   else
@@ -125,7 +125,7 @@ NeumannCircuitVoltageNew::computeQpNonlocalJacobian(dof_id_type dof_index)
   if (_use_area)
     d_curr_times_resist_d_potential *= _area;
 
-  return _test[_i][_qp] * _r_units * d_curr_times_resist_d_potential;
+  return _test[_i][_qp] /* * _r_units*/ * d_curr_times_resist_d_potential;
 }
 
 Real
@@ -137,7 +137,7 @@ NeumannCircuitVoltageNew::computeQpNonlocalOffDiagJacobian(unsigned int jvar, do
     if (_use_area)
       d_curr_times_resist_d_coupled_var *= _area;
 
-    return _test[_i][_qp] * _r_units * d_curr_times_resist_d_coupled_var;
+    return _test[_i][_qp] /* * _r_units*/ * d_curr_times_resist_d_coupled_var;
   }
 
   return 0;

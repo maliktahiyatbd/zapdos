@@ -46,9 +46,9 @@ HagelaarElectronBC::computeQpResidual()
 		_a = 0.0;
 	}
 
-	_v_thermal = std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
+	_v_thermal = ( _r_units / _t_units ) * std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
 
-	return _test[_i][_qp] * _r_units * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_u[_qp]) * _normals[_qp] + 0.5 * _v_thermal * std::exp(_u[_qp]));
+	return _test[_i][_qp] * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _muem[_qp] * -_grad_potential[_qp] * std::exp(_u[_qp]) * _normals[_qp] + 0.5 * _v_thermal * std::exp(_u[_qp]));
 }
 
 Real
@@ -62,11 +62,11 @@ HagelaarElectronBC::computeQpJacobian()
 	}
 
 	_actual_mean_en = std::exp(_mean_en[_qp] - _u[_qp]);
-	_v_thermal = std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
+	_v_thermal = ( _r_units / _t_units ) * std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
 	_d_v_thermal_d_u = 0.5 / _v_thermal * 8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]) * -_phi[_j][_qp];
 
 
-	return _test[_i][_qp] * _r_units * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_u[_qp]) * _phi[_j][_qp] * _normals[_qp] - (2. * _a - 1.) * _d_muem_d_actual_mean_en[_qp] * _actual_mean_en * -_phi[_j][_qp] * -_grad_potential[_qp] * _r_units * std::exp(_u[_qp]) * _normals[_qp] + 0.5 * _d_v_thermal_d_u * std::exp(_u[_qp]) + 0.5 * _v_thermal * std::exp(_u[_qp]) * _phi[_j][_qp]);
+	return _test[_i][_qp] * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _muem[_qp] * -_grad_potential[_qp] * std::exp(_u[_qp]) * _phi[_j][_qp] * _normals[_qp] - (2. * _a - 1.) * _d_muem_d_actual_mean_en[_qp] * _actual_mean_en * -_phi[_j][_qp] * -_grad_potential[_qp] * std::exp(_u[_qp]) * _normals[_qp] + 0.5 * _d_v_thermal_d_u * std::exp(_u[_qp]) + 0.5 * _v_thermal * std::exp(_u[_qp]) * _phi[_j][_qp]);
 }
 
 Real
@@ -79,9 +79,9 @@ HagelaarElectronBC::computeQpOffDiagJacobian(unsigned int jvar)
 		else
 			_a = 0.0;
 
-		_v_thermal = std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
+		_v_thermal = ( _r_units / _t_units ) * std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
 
-		return _test[_i][_qp] * _r_units * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _muem[_qp] * -_grad_phi[_j][_qp] * _r_units * std::exp(_u[_qp]) * _normals[_qp]);
+		return _test[_i][_qp] * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _muem[_qp] * -_grad_phi[_j][_qp] * std::exp(_u[_qp]) * _normals[_qp]);
 	}
 
 	else if (jvar == _mean_en_id)
@@ -93,11 +93,11 @@ HagelaarElectronBC::computeQpOffDiagJacobian(unsigned int jvar)
 			_a = 0.0;
 		}
 
-		_v_thermal = std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
+		_v_thermal = ( _r_units / _t_units ) * std::sqrt(8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]));
 		_d_v_thermal_d_mean_en	= 0.5 / _v_thermal * 8 * _e[_qp] * 2.0 / 3 * std::exp(_mean_en[_qp] - _u[_qp]) / (M_PI * _massem[_qp]) * _phi[_j][_qp];
 		_actual_mean_en = std::exp(_mean_en[_qp] - _u[_qp]);
 
-		return _test[_i][_qp] * _r_units * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _d_muem_d_actual_mean_en[_qp] * _actual_mean_en * _phi[_j][_qp] * -_grad_potential[_qp] * _r_units * std::exp(_u[_qp]) * _normals[_qp] + 0.5 * _d_v_thermal_d_mean_en * std::exp(_u[_qp]));
+		return _test[_i][_qp] * (1. - _r) / (1. + _r) * (-(2 * _a - 1) * _d_muem_d_actual_mean_en[_qp] * _actual_mean_en * _phi[_j][_qp] * -_grad_potential[_qp] * std::exp(_u[_qp]) * _normals[_qp] + 0.5 * _d_v_thermal_d_mean_en * std::exp(_u[_qp]));
 	}
 
 	else

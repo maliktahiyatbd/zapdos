@@ -109,7 +109,7 @@ SchottkyEmissionBC::computeQpResidual()
 //	_v_thermal = (_r_units / _t_units) * std::sqrt(8.0 * _e[_qp] * 2.0 / 3.0 * _actual_mean_en / (M_PI * _massem[_qp]));
 	_v_drift = ( 1.0 - 2.0 * _a ) * _muem[_qp] * -_grad_potential[_qp] * _normals[_qp] ;
 	
-	_emission_flux = (1.0 - _a) * SchottkyEmissionBC::emission_flux() ;
+	_emission_flux = (_a == 0.0 ) ? SchottkyEmissionBC::emission_flux() : 0.0 ;
 	_n_emitted = _emission_flux / ( _v_drift + std::numeric_limits<double>::epsilon()) ;
 	
 	_n_transported = ( std::exp(_u[_qp]) - _n_emitted ) ;
@@ -145,18 +145,18 @@ SchottkyEmissionBC::computeQpOffDiagJacobian(unsigned int jvar)
 	
 	_v_drift = ( 1.0 - 2.0 * _a ) * _muem[_qp] * -_grad_potential[_qp] * _normals[_qp] ;
 	
-	_emission_flux = (1.0 - _a) * SchottkyEmissionBC::emission_flux() ;
+	_emission_flux = (_a == 0.0 ) ? SchottkyEmissionBC::emission_flux() : 0.0 ;
 	
 	_n_emitted = _emission_flux / ( _v_drift + std::numeric_limits<double>::epsilon()) ;
 	
 	if (jvar == _potential_id) {
-		_d_emission_flux_d_u = (1.0 - _a) * SchottkyEmissionBC::d_emission_flux_d_potential() ;
+		_d_emission_flux_d_u = (_a == 0.0 ) ? SchottkyEmissionBC::d_emission_flux_d_potential() : 0.0 ;
 		_d_v_drift_d_u = ( 1.0 - 2.0 * _a ) * _muem[_qp] * -_grad_phi[_j][_qp] * std::exp(_u[_qp]) * _normals[_qp];
 	} else if (jvar == _mean_en_id) {
-		_d_emission_flux_d_u = (1.0 - _a) * SchottkyEmissionBC::d_emission_flux_d_mean_en() ;
+		_d_emission_flux_d_u = (_a == 0.0 ) ? SchottkyEmissionBC::d_emission_flux_d_mean_en() : 0.0 ;
 		_d_v_drift_d_u = ( 1.0 - 2.0 * _a ) * _d_muem_d_actual_mean_en[_qp] * _actual_mean_en * _phi[_j][_qp] * -_grad_potential[_qp] * std::exp(_u[_qp]) * _normals[_qp];
 	} else if (jvar == _ip_id) {
-		_d_emission_flux_d_u = (1.0 - _a) * SchottkyEmissionBC::d_emission_flux_d_ip() ;
+		_d_emission_flux_d_u = (_a == 0.0 ) ? SchottkyEmissionBC::d_emission_flux_d_ip() : 0.0 ;
 	}
 	
 	return -_test[_i][_qp] * (
