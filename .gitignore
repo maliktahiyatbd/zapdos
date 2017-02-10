@@ -186,3 +186,5 @@ GTAGS
 
 *.txt
 problems/Pictures
+
+.jitcache/

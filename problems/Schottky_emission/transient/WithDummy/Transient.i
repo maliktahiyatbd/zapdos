@@ -87,7 +87,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		type = Exodus
 		execute_on = 'final'
 	[../]
-	
+
 	[./checkpoint]
 		type = Checkpoint
 		execute_on = 'final'
@@ -157,7 +157,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 
 ## Native Poisson's equation
-	[./potential_diffusion_dom1]
+	[./native_potential_diffusion_dom1]
 		type = CoeffDiffusionLin
 		variable = native_potential
 		block = 0
@@ -168,7 +168,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		value = 1E-15
 		block = 0
 	[../]
-	
+
 ## Electron
 	[./em_time_deriv]
 		type = ElectronTimeDerivative
@@ -371,7 +371,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		family = MONOMIAL
 		block = 0
 	[../]
-	
+
 	[./PowerDepProvided_em]
 		order = CONSTANT
 		family = MONOMIAL
@@ -382,7 +382,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		family = MONOMIAL
 		block = 0
 	[../]
-	
+
 	[./ProcRate_el]
 		order = CONSTANT
 		family = MONOMIAL
@@ -413,7 +413,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		potential = potential
 		block = 0
 	[../]
-	
+
 	[./Efield_g]
 		type = Efield
 		component = 0
@@ -421,7 +421,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = Efield
 		block = 0
 	[../]
-	
+
 	[./em_lin]
 		type = Density
 		variable = em_lin
@@ -470,7 +470,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		execute_on = 'timestep_end'
 		block = 0
 	[../]
-	
+
 	[./e_temp]
 		type = ElectronTemperature
 		variable = e_temp
@@ -513,8 +513,8 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		power_used = true
 		variable = PowerDepProvided_Arp
 		block = 0
-	[../]	
-	
+	[../]
+
 	[./ProcRate_el]
 		type = ProcRate
 		em = em
@@ -583,11 +583,11 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #	[../]
 
 	[./potential_dirichlet_left]
-#		type = DirichletBC
+		# type = DirichletBC
 		type = FunctionDirichletBC
 		variable = potential
 		boundary = left
-#		value = -${vhigh}
+		# value = -${vhigh}
 		function = potential_bc_func
 	[../]
 
@@ -599,7 +599,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 
 ### Native potential boundary conditions ###
-	[./potential_dirichlet_left]
+	[./native_potential_dirichlet_left]
 #		type = DirichletBC
 		type = FunctionDirichletBC
 		variable = native_potential
@@ -608,13 +608,13 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		function = potential_bc_func
 	[../]
 
-	[./potential_dirichlet_right]
+	[./native_potential_dirichlet_right]
 		type = DirichletBC
 		variable = native_potential
 		boundary = right
 		value = 0
 	[../]
-	
+
 ### Electron boundary conditions ##
 	[./Emission_left]
 		type = SchottkyEmissionBC
@@ -734,7 +734,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = potential
 		function = potential_ic_func
 	[../]
-	
+
 	[./native_potential_ic]
 		type = FunctionIC
 		variable = native_potential
@@ -749,16 +749,16 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #		vals = '${vhigh}')
 #		value = '-VHigh'
 #	[../]
-	
+
 	[./potential_bc_func]
-		type = SmoothedStepFunction		
+		type = SmoothedStepFunction
 		vLow = -0.001
 		vHigh = -${vhigh}
 		period = ${cyclePeriod}
 		duty = ${dutyCycle}
 		rise = 500
 	[../]
-	
+
 	[./potential_ic_func]
 		type = ParsedFunction
 		value = '-${vhigh} * (${dom0Size} - x) / ${dom0Size}'
@@ -784,7 +784,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		property_tables_file = td_argon_mean_en.tsv
 		block = 0
 	[../]
-	
+
 	[./electricConstant]
 		type = GenericConstantMaterial
 		block = 0
