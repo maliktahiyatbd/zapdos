@@ -1,12 +1,16 @@
 #!/bin/bash
-#$ -pe mpi-* 32
-#$ -N Transient-Drift-200V-Test2
+#$ -pe mpi-* 96
+#$ -N V_200
 #$ -M jhaase1@nd.edu
 #$ -m a
 #$ -r y
-######$ -q *@@dgo
+#$ -q *@@dgo
 
-module load ompi/1.10.2-gcc-4.9.2
-fsync -d 30 Log.txt &
+##module purge
+##module load ompi/2.0.1-gcc-6.2.0
 
-mpirun -np 32 ~/zapdos/zapdos-opt -i Input.i > Log.txt
+rm -rf Transient_out.e Transient_checkpoint_cp
+
+mpirun -np 16 ~/zapdos/zapdos-opt -i Transient.i
+
+mpirun -np 16 ~/zapdos/zapdos-opt -i SteadyState.i

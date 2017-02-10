@@ -1,9 +1,9 @@
 #!/bin/bash -i
 
-
-OutputFile="Input_out"
-
+module purge
 module load paraview
+
+OutputFile="NotWorking_out"
 
 pvpython ToCSV.py "${OutputFile}"
 

@@ -12,12 +12,14 @@ InputParameters validParams<PowerDep>()
 	params.addParam<Real>("position_units", 1, "Units of position.");
 	params.addParam<Real>("time_units", 1, "Units of time.");
 	params.addRequiredParam<bool>("use_moles", "Whether to use units of moles as opposed to # of molecules.");
+	params.addParam<bool>("power_used", false, "Whether to calculate power used (only drift and using native field).");
 	return params;
 }
 
 PowerDep::PowerDep(const InputParameters & parameters) :
 		AuxKernel(parameters),
 
+	_power_used(getParam<bool>("power_used")),
 	_use_moles(getParam<bool>("use_moles")),
 	_r_units(1. / getParam<Real>("position_units")),
 	_t_units(1. / getParam<Real>("time_units")),
@@ -45,10 +47,13 @@ PowerDep::PowerDep(const InputParameters & parameters) :
 Real
 PowerDep::computeValue()
 {
-	_current = _sgn[_qp] * _e[_qp] * (_sgn[_qp] * _mu[_qp] * -_grad_potential[_qp] * std::exp(_density_log[_qp]) - _diff[_qp]* std::exp(_density_log[_qp]) * _grad_density_log[_qp]);
-
-	if (_art_diff)
-	{
+	if (_power_used) {
+		_current = _sgn[_qp] * _e[_qp] * _sgn[_qp] * _mu[_qp] * -_grad_potential[_qp] * std::exp(_density_log[_qp]);
+	} else {
+		_current = _sgn[_qp] * _e[_qp] * (_sgn[_qp] * _mu[_qp] * -_grad_potential[_qp] * std::exp(_density_log[_qp]) - _diff[_qp]* std::exp(_density_log[_qp]) * _grad_density_log[_qp]);
+	}
+	
+	if (_art_diff) {
 		Real vd_mag = _mu[_qp] * _grad_potential[_qp].norm();
 		Real delta = vd_mag * _current_elem->hmax()/2.;
 		_current += _sgn[_qp] * _e[_qp] * -delta * std::exp(_density_log[_qp]) * _grad_density_log[_qp];

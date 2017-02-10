@@ -3,18 +3,20 @@
 module purge
 module load paraview
 
-OutputFile="NotWorking_out"
+OutputFile="SteadyState_out"
+StartFile="Initial"
+EndFile="Final"
 
-pvpython ToCSV.py "${OutputFile}"
+pvpython toCSV2.py "${OutputFile}" "${StartFile}" 0
 
-for file in $( ls ${OutputFile}*0.csv ) ; do
+for file in $( ls ${StartFile}*0.csv ) ; do
 	TempOutputFile=${file//"0.csv"/".txt"}
 	mv ${file} ${TempOutputFile}
 done
 
-rm ${OutputFile}*.csv
+rm ${StartFile}*.csv
 
-for file in $( ls ${OutputFile}*.txt ) ; do
+for file in $( ls ${StartFile}*.txt ) ; do
 	NewOutputFile=${file//"_out"/""}
 	NewOutputFile=${NewOutputFile//"Input"/"Output"}
 	NewOutputFile=${NewOutputFile//".txt"/".csv"}
