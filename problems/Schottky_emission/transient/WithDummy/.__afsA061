@@ -90,7 +90,6 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	
 	[./checkpoint]
 		type = Checkpoint
-		execute_on = 'final'
 		num_files = 2
 	[../]
 []
@@ -140,6 +139,13 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = potential
 		block = 0
 	[../]
+
+#	[./potential_RHS]
+#		type = SetRHS
+#		variable = potential
+#		value = 0
+#		block = 0
+#	[../]
 
 	[./Arp_charge_source]
 		type = ChargeSourceMoles_KV

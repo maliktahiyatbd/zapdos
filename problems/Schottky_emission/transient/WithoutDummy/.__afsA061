@@ -3,16 +3,14 @@ time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
 
-vhigh = 190E-3 #kV
+vhigh = 180E-3 #kV
 resistance = 1 #Ohms
 area = 5.02e-7 # Formerly 3.14e-6
 
 offTime  = ${/ 21.05E-9 ${time_units}} #s
 onTime = ${/ 0.3051E-9 ${time_units}} #s
 
-completedCycles = 4
-desiredCycles = 1
-nCycles = ${+ ${completedCycles} ${desiredCycles} }
+nCycles = 4
 
 cyclePeriod = ${+ ${onTime} ${offTime}}
 dutyCycle = ${/ ${onTime} ${cyclePeriod}}
@@ -29,14 +27,14 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 []
 
 [Mesh]
-  #MOOSE supports reading field data from ExodusII, XDA/XDR, and mesh checkpoint files (.e, .xda, .xdr, .cp)
-  file = Transient_out.e
-  #This method of restart is only supported on serial meshes  
-  distribution = serial  
+	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
+	dim = 1								# Dimension of the mesh
+	nx = 2000							# Number of elements in the x direction
+	xmax = ${dom0Size}				# Length of test chamber
 []
 
 [Problem]
-  restart_file_base = 'Transient_checkpoint_cp/LATEST'
+	type = FEProblem
 []
 
 [Preconditioning]
@@ -76,7 +74,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		cutback_factor = 0.4
-		dt = ${/ ${onTime} 20 }
+		dt = ${/ 1e-15 ${time_units}}
 		growth_factor = 1.2
 		optimal_iterations = 25
 	[../]
@@ -87,7 +85,12 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	print_linear_residuals = false
 	[./out]
 		type = Exodus
-#		execute_on = 'final'
+		execute_on = 'final'
+	[../]
+	
+	[./checkpoint]
+		type = Checkpoint
+		num_files = 2
 	[../]
 []
 
@@ -114,31 +117,18 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 [Variables]
 	[./potential]
-		type = LAGRANGE
-		order = FIRST
-		initial_from_file_var = potential
-		initial_from_file_timestep = 'LATEST'
 	[../]
 	[./em]
 		block = 0
-		type = LAGRANGE
-		order = FIRST
-		initial_from_file_var = em
-		initial_from_file_timestep = 'LATEST'
+		initial_condition = -15
 	[../]
 	[./Arp]
 		block = 0
-		type = LAGRANGE
-		order = FIRST
-		initial_from_file_var = Arp
-		initial_from_file_timestep = 'LATEST'
+		initial_condition = -15
 	[../]
 	[./mean_en]
 		block = 0
-		type = LAGRANGE
-		order = FIRST
-		initial_from_file_var = mean_en
-		initial_from_file_timestep = 'LATEST'
+		initial_condition = -14
 	[../]
 []
 
@@ -149,6 +139,13 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = potential
 		block = 0
 	[../]
+
+#	[./potential_RHS]
+#		type = SetRHS
+#		variable = potential
+#		value = 0
+#		block = 0
+#	[../]
 
 	[./Arp_charge_source]
 		type = ChargeSourceMoles_KV
@@ -670,6 +667,14 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		em = em
 		ip = Arp
 		r = 0
+	[../]
+[]
+
+[ICs]
+	[./potential_ic]
+		type = FunctionIC
+		variable = potential
+		function = potential_ic_func
 	[../]
 []
 

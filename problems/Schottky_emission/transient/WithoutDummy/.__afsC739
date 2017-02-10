@@ -3,7 +3,7 @@ time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
 
-vhigh = 190E-3 #kV
+vhigh = 180E-3 #kV
 resistance = 1 #Ohms
 area = 5.02e-7 # Formerly 3.14e-6
 
@@ -29,7 +29,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 [Mesh]
 	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
 	dim = 1								# Dimension of the mesh
-	nx = 2000							# Number of elements in the x direction
+	nx = 1000							# Number of elements in the x direction
 	xmax = ${dom0Size}				# Length of test chamber
 []
 
@@ -90,7 +90,6 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	
 	[./checkpoint]
 		type = Checkpoint
-		execute_on = 'final'
 		num_files = 2
 	[../]
 []
@@ -140,6 +139,13 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = potential
 		block = 0
 	[../]
+
+#	[./potential_RHS]
+#		type = SetRHS
+#		variable = potential
+#		value = 0
+#		block = 0
+#	[../]
 
 	[./Arp_charge_source]
 		type = ChargeSourceMoles_KV
