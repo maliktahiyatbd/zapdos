@@ -72,7 +72,7 @@ PenaltyCircuitPotential::computeQpResidual()
 {
 	Real curr_times_resist = _current_sign * _current * _resistance / ( _t_units * _voltage_scaling );
 	if (_use_area)
-		curr_times_resist *= _area * _r_units * _r_units;
+		curr_times_resist *= _area /* * _r_units * _r_units */;
 	return _test[_i][_qp] * _r_units * _p * (_surface_potential - _u[_qp] + curr_times_resist);
 }
 
@@ -81,7 +81,7 @@ PenaltyCircuitPotential::computeQpJacobian()
 {
 	Real d_curr_times_resist_d_potential = _current_sign * _current_jac[_var_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
 	if (_use_area)
-		d_curr_times_resist_d_potential *= _area * _r_units * _r_units;
+		d_curr_times_resist_d_potential *= _area /* * _r_units * _r_units */;
 
 	return _test[_i][_qp] * _r_units * _p * (-_phi[_j][_qp] + d_curr_times_resist_d_potential);
 }
@@ -93,7 +93,7 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
 	{
 		Real d_curr_times_resist_d_em = _current_sign * _current_jac[_em_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
 		if (_use_area)
-			d_curr_times_resist_d_em *= _area * _r_units * _r_units;
+			d_curr_times_resist_d_em *= _area /* * _r_units * _r_units */;
 
 		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_em;
 	}
@@ -102,7 +102,7 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
 	{
 		Real d_curr_times_resist_d_ip = _current_sign * _current_jac[_ip_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
 		if (_use_area)
-			d_curr_times_resist_d_ip *= _area * _r_units * _r_units;
+			d_curr_times_resist_d_ip *= _area /* * _r_units * _r_units */;
 
 		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_ip;
 	}
@@ -111,7 +111,7 @@ PenaltyCircuitPotential::computeQpOffDiagJacobian(unsigned int jvar)
 	{
 		Real d_curr_times_resist_d_mean_en = _current_sign * _current_jac[_mean_en_dofs[_j]] * _resistance / ( _t_units * _voltage_scaling );
 		if (_use_area)
-			d_curr_times_resist_d_mean_en *= _area * _r_units * _r_units;
+			d_curr_times_resist_d_mean_en *= _area /* * _r_units * _r_units */;
 
 		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_mean_en;
 	}
@@ -125,7 +125,7 @@ PenaltyCircuitPotential::computeQpNonlocalJacobian(dof_id_type dof_index)
 {
 	Real d_curr_times_resist_d_potential = _current_sign * _current_jac[dof_index] * _resistance / ( _t_units * _voltage_scaling );
 	if (_use_area)
-		d_curr_times_resist_d_potential *= _area * _r_units * _r_units;
+		d_curr_times_resist_d_potential *= _area /* * _r_units * _r_units */;
 
 	return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_potential;
 }
@@ -137,9 +137,9 @@ PenaltyCircuitPotential::computeQpNonlocalOffDiagJacobian(unsigned int jvar, dof
 	{
 		Real d_curr_times_resist_d_coupled_var = _current_sign * _current_jac[dof_index] * _resistance / ( _t_units * _voltage_scaling );
 		if (_use_area)
-			d_curr_times_resist_d_coupled_var *= _area * _r_units * _r_units;
+			d_curr_times_resist_d_coupled_var *= _area /* * _r_units * _r_units */;
 
-			return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_coupled_var;
+		return _test[_i][_qp] * _r_units * _p * d_curr_times_resist_d_coupled_var;
 	}
 
 	return 0;
