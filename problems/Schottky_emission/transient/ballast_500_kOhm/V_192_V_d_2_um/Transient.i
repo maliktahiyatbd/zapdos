@@ -3,7 +3,7 @@ time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
 
-vhigh = 193E-3 #kV
+vhigh = 192E-3 #kV
 resistance = 1 #Ohms
 area = 5.02e-7 # Formerly 3.14e-6
 
@@ -108,30 +108,31 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 []
 
 [Debug]
-	show_var_residual_norms = false
+	show_var_residual_norms = true
 []
 
 [UserObjects]
-#	[./current_density_user_object]
-#		type = CurrentDensityShapeSideUserObject
-#		boundary = left
-#		potential = potential
-#		em = em
-#		ip = Arp
-#		mean_en = mean_en
-#		execute_on = 'linear nonlinear'
-#	[../]
-#	[./data_provider]
-#		type = ProvideMobility
-#		electrode_area = ${area}
-#		ballast_resist = ${resistance}
-#	[../]
+	[./current_density_user_object]
+		type = CurrentDensityShapeSideUserObject
+		boundary = left
+		potential = potential
+		em = em
+		ip = Arp
+		mean_en = mean_en
+		execute_on = 'linear nonlinear'
+	[../]
+	[./data_provider]
+		type = ProvideMobility
+		electrode_area = ${area}
+		ballast_resist = ${resistance}
+	[../]
 []
 
 [Variables]
 	[./potential]
 	[../]
 	[./native_potential]
+		# scaling = 1E-4
 	[../]
 	[./em]
 		block = 0
@@ -575,33 +576,33 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 [BCs]
 ## Potential boundary conditions ##
-#	[./potential_left]
-#		boundary = left
-##		type = NeumannCircuitVoltageNew
-##		source_voltage = potential_bc_func
-#
+	[./potential_left]
+		boundary = left
+		type = NeumannCircuitVoltageNew
+		source_voltage = potential_bc_func
+
 #		type = PenaltyCircuitPotential
 #		surface_potential = -${vhigh}
 #		penalty = 1
-#		variable = potential
-#		current = current_density_user_object
-#		surface = 'cathode'
-#		data_provider = data_provider
-#		em = em
-#		ip = Arp
-#		mean_en = mean_en
-#		area = ${area}
-#		resistance = ${resistance}
-#	[../]
-
-	[./potential_dirichlet_left]
-		# type = DirichletBC
-		type = FunctionDirichletBC
 		variable = potential
-		boundary = left
-		# value = -${vhigh}
-		function = potential_bc_func
+		current = current_density_user_object
+		surface = 'cathode'
+		data_provider = data_provider
+		em = em
+		ip = Arp
+		mean_en = mean_en
+		area = ${area}
+		resistance = ${resistance}
 	[../]
+
+#	[./potential_dirichlet_left]
+#		# type = DirichletBC
+#		type = FunctionDirichletBC
+#		variable = potential
+#		boundary = left
+#		# value = -${vhigh}
+#		function = potential_bc_func
+#	[../]
 
 	[./potential_dirichlet_right]
 		type = DirichletBC
@@ -611,13 +612,32 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 
 ### Native potential boundary conditions ###
+#	[./native_potential_dirichlet_left]
+##		type = DirichletBC
+#		type = FunctionDirichletBC
+#		variable = native_potential
+#		boundary = left
+##		value = -${vhigh}
+#		function = potential_bc_func
+#	[../]
+
 	[./native_potential_dirichlet_left]
-#		type = DirichletBC
-		type = FunctionDirichletBC
-		variable = native_potential
 		boundary = left
-#		value = -${vhigh}
-		function = potential_bc_func
+		type = NeumannCircuitVoltageNew
+		source_voltage = potential_bc_func
+
+#		type = PenaltyCircuitPotential
+#		surface_potential = -${vhigh}
+#		penalty = 1
+		variable = native_potential
+		current = current_density_user_object
+		surface = 'cathode'
+		data_provider = data_provider
+		em = em
+		ip = Arp
+		mean_en = mean_en
+		area = ${area}
+		resistance = ${resistance}
 	[../]
 
 	[./native_potential_dirichlet_right]

@@ -57,13 +57,19 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #	ss_tmin = ${steadyStateTime}
 
 	petsc_options = '-snes_ksp_ew -superlu_dist'
-	solve_type = NEWTON
+	solve_type = PJFNK
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-#	petsc_options_value = 'lu mumps NONZERO 1.e-10 preonly 1e-3 100'
+#	petsc_options_value = ' lu       mumps                         NONZERO               1.e-10                  preonly   1e-3                       100'
 
-	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-	petsc_options_value = 'lu superlu_dist'
+	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
+	petsc_options_value = ' lu       superlu_dist                  NONZERO               1.e-10                  preonly   1e-3                       100'
+
+#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
+#	petsc_options_value = 'lu superlu_dist'
+
+#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
+#	petsc_options_value = 'lu mumps'
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
 #	petsc_options_value = 'asm lu'
@@ -74,6 +80,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	dtmin = ${/ 1e-18 ${time_units}}
 	dtmax = ${/ ${onTime} 20 }
 	nl_max_its = 40
+	
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		dt = ${/ 1e-15 ${time_units}}
@@ -84,7 +91,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 []
 
 [Outputs]
-	print_perf_log = false
+	print_perf_log = true
 	print_linear_residuals = false
 	console = true
 	

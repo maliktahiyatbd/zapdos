@@ -1,6 +1,6 @@
 #!/bin/bash
-#$ -pe mpi-* 16
-#$ -N V_195
+#$ -pe smp 16
+#$ -N V_192
 #$ -M jhaase1@nd.edu
 #$ -m ae
 #$ -r y

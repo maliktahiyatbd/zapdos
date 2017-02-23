@@ -3,14 +3,16 @@ time_units = 1E-9 #s
 
 dom0Size = ${/ 2E-6 ${position_units}} #m
 
-vhigh = 193E-3 #kV
+vhigh = 192E-3 #kV
 resistance = 1 #Ohms
 area = 5.02e-7 # Formerly 3.14e-6
 
-offTime  = ${/ 21E-9 ${time_units}} #s
+offTime	= ${/ 21E-9 ${time_units}} #s
 onTime = ${/ 0.5E-9 ${time_units}} #s
 
-nCycles = 4
+completedCycles = 4
+desiredCycles = 1
+nCycles = ${+ ${completedCycles} ${desiredCycles} }
 
 cyclePeriod = ${+ ${onTime} ${offTime}}
 dutyCycle = ${/ ${onTime} ${cyclePeriod}}
@@ -27,14 +29,14 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 []
 
 [Mesh]
-	type = GeneratedMesh	# Can generate simple lines, rectangles and rectangular prisms
-	dim = 1								# Dimension of the mesh
-	nx = 1000							# Number of elements in the x direction
-	xmax = ${dom0Size}				# Length of test chamber
+	#MOOSE supports reading field data from ExodusII, XDA/XDR, and mesh checkpoint files (.e, .xda, .xdr, .cp)
+	file = Transient_out.e
+	#This method of restart is only supported on serial meshes	
+	distribution = serial	
 []
 
 [Problem]
-	type = FEProblem
+	restart_file_base = 'Transient_checkpoint_cp/LATEST'
 []
 
 [Preconditioning]
@@ -56,23 +58,14 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #	ss_check_tol = 1E-15
 #	ss_tmin = ${steadyStateTime}
 
-	petsc_options = '-snes_ksp_ew -superlu_dist'
-	solve_type = PJFNK
-
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-#	petsc_options_value = ' lu       mumps                         NONZERO               1.e-10                  preonly   1e-3                       100'
+	petsc_options = '-snes_ksp_ew'
+	solve_type = NEWTON
 
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-	petsc_options_value = ' lu       superlu_dist                  NONZERO               1.e-10                  preonly   1e-3                       100'
-
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-#	petsc_options_value = 'lu superlu_dist'
+	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
 #	petsc_options_value = 'lu mumps'
-
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-#	petsc_options_value = 'asm lu'
 
 	nl_rel_tol = 1E-8
 	nl_abs_tol = 1e-8
@@ -93,17 +86,11 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 [Outputs]
 	print_perf_log = true
 	print_linear_residuals = false
-	console = true
+	console=true
 	
 	[./out]
 		type = Exodus
-		execute_on = 'final'
-	[../]
-
-	[./checkpoint]
-		type = Checkpoint
-		execute_on = 'final'
-		num_files = 2
+#		execute_on = 'final'
 	[../]
 []
 
@@ -130,20 +117,37 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 [Variables]
 	[./potential]
+		type = LAGRANGE
+		order = FIRST
+		initial_from_file_var = potential
+		initial_from_file_timestep = 'LATEST'
 	[../]
 	[./native_potential]
+		type = LAGRANGE
+		order = FIRST
+		initial_from_file_var = native_potential
+		initial_from_file_timestep = 'LATEST'
 	[../]
 	[./em]
 		block = 0
-		initial_condition = -15
+		type = LAGRANGE
+		order = FIRST
+		initial_from_file_var = em
+		initial_from_file_timestep = 'LATEST'
 	[../]
 	[./Arp]
 		block = 0
-		initial_condition = -15
+		type = LAGRANGE
+		order = FIRST
+		initial_from_file_var = Arp
+		initial_from_file_timestep = 'LATEST'
 	[../]
 	[./mean_en]
 		block = 0
-		initial_condition = -14
+		type = LAGRANGE
+		order = FIRST
+		initial_from_file_var = mean_en
+		initial_from_file_timestep = 'LATEST'
 	[../]
 []
 
@@ -167,7 +171,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		charged = em
 		block = 0
 	[../]
-
+	
 ## Native Poisson's equation
 	[./native_potential_diffusion_dom1]
 		type = CoeffDiffusionLin
@@ -180,7 +184,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		value = 1E-15
 		block = 0
 	[../]
-
+	
 ## Electron
 	[./em_time_deriv]
 		type = ElectronTimeDerivative
@@ -383,7 +387,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		family = MONOMIAL
 		block = 0
 	[../]
-
+	
 	[./PowerDepProvided_em]
 		order = CONSTANT
 		family = MONOMIAL
@@ -394,7 +398,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		family = MONOMIAL
 		block = 0
 	[../]
-
+	
 	[./ProcRate_el]
 		order = CONSTANT
 		family = MONOMIAL
@@ -425,7 +429,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		potential = potential
 		block = 0
 	[../]
-
+	
 	[./Efield_g]
 		type = Efield
 		component = 0
@@ -433,7 +437,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = Efield
 		block = 0
 	[../]
-
+	
 	[./em_lin]
 		type = Density
 		variable = em_lin
@@ -482,7 +486,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		execute_on = 'timestep_end'
 		block = 0
 	[../]
-
+	
 	[./e_temp]
 		type = ElectronTemperature
 		variable = e_temp
@@ -507,7 +511,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = PowerDep_Arp
 		block = 0
 	[../]
-
+	
 	[./PowerDepProvided_em]
 		type = PowerDep
 		density_log = em
@@ -525,8 +529,8 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		power_used = true
 		variable = PowerDepProvided_Arp
 		block = 0
-	[../]
-
+	[../]	
+	
 	[./ProcRate_el]
 		type = ProcRate
 		em = em
@@ -595,11 +599,11 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #	[../]
 
 	[./potential_dirichlet_left]
-		# type = DirichletBC
+#		type = DirichletBC
 		type = FunctionDirichletBC
 		variable = potential
 		boundary = left
-		# value = -${vhigh}
+#		value = -${vhigh}
 		function = potential_bc_func
 	[../]
 
@@ -626,7 +630,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		boundary = right
 		value = 0
 	[../]
-
+	
 ### Electron boundary conditions ##
 	[./Emission_left]
 		type = SchottkyEmissionBC
@@ -740,20 +744,6 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 []
 
-[ICs]
-	[./potential_ic]
-		type = FunctionIC
-		variable = potential
-		function = potential_ic_func
-	[../]
-
-	[./native_potential_ic]
-		type = FunctionIC
-		variable = native_potential
-		function = potential_ic_func
-	[../]
-[]
-
 [Functions]
 #	[./potential_bc_func]
 #		type = ParsedFunction
@@ -761,16 +751,16 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #		vals = '${vhigh}')
 #		value = '-VHigh'
 #	[../]
-
+	
 	[./potential_bc_func]
-		type = SmoothedStepFunction
+		type = SmoothedStepFunction		
 		vLow = -0.001
 		vHigh = -${vhigh}
 		period = ${cyclePeriod}
 		duty = ${dutyCycle}
 		rise = 500
 	[../]
-
+	
 	[./potential_ic_func]
 		type = ParsedFunction
 		value = '-${vhigh} * (${dom0Size} - x) / ${dom0Size}'
@@ -796,11 +786,11 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		property_tables_file = td_argon_mean_en.tsv
 		block = 0
 	[../]
-
+	
 	[./electricConstant]
 		type = GenericConstantMaterial
 		block = 0
-		prop_names  = 'diffnative_potential'
+		prop_names	= 'diffnative_potential'
 		prop_values = '8.85418782E-12'
 	[../]
 []

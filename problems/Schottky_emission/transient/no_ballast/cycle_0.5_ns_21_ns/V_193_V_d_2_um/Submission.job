@@ -11,6 +11,6 @@ module load ompi/2.0.1-gcc-6.2.0
 
 rm -rf Transient_out.e Transient_checkpoint_cp
 
-mpirun -np 8 ~/zapdos/zapdos-opt -i Transient.i --no-color > Transient.log
+mpirun -np 16 ~/zapdos/zapdos-opt -i Transient.i --no-color > Transient.log
 
-mpirun -np 8 ~/zapdos/zapdos-opt -i SteadyState.i --no-color > SteadyState.log
+mpirun -np 16 ~/zapdos/zapdos-opt -i SteadyState.i --no-color > SteadyState.log

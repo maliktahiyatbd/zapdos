@@ -58,28 +58,33 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #	ss_check_tol = 1E-15
 #	ss_tmin = ${steadyStateTime}
 
-	petsc_options = '-snes_ksp_ew'
-	solve_type = NEWTON
+	petsc_options = '-superlu_dist -snes_converged_reason' # -snes_linesearch_monitor'
+	solve_type = PJFNK
 
 	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-	petsc_options_value = 'lu superlu_dist NONZERO 1.e-10 preonly 1e-3 100'
+	petsc_options_value = 'lu mumps NONZERO 1.e-10 preonly 1e-3 100'
+
+#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -ksp_type -snes_linesearch_minlambda'
+#	petsc_options_value = 'lu 	mumps		      preonly	1e-3'
+	
+#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -ksp_type -snes_linesearch_minlambda'
+#	petsc_options_value = 'lu 	superlu_dist		      preonly	1e-3'
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-#	petsc_options_value = 'lu mumps'
+#	petsc_options_value = 'asm lu'
 
 	nl_rel_tol = 1E-8
 	nl_abs_tol = 1e-8
 
 	dtmin = ${/ 1e-18 ${time_units}}
 	dtmax = ${/ ${onTime} 20 }
-	nl_max_its = 40
-	
+	nl_max_its = 30
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		dt = ${/ 1e-15 ${time_units}}
 		cutback_factor = 0.8
 		growth_factor = 1.5
-		optimal_iterations = 25
+		optimal_iterations = 10
 	[../]
 []
 
@@ -127,6 +132,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		order = FIRST
 		initial_from_file_var = native_potential
 		initial_from_file_timestep = 'LATEST'
+		scaling = 1E-4
 	[../]
 	[./em]
 		block = 0
@@ -622,7 +628,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 #		type = PenaltyCircuitPotential
 #		surface_potential = -${vhigh}
-		penalty = 1
+#		penalty = 1
 		variable = native_potential
 		current = current_density_user_object
 		surface = 'cathode'

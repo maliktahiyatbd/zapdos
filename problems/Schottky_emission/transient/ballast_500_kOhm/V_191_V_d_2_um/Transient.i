@@ -14,7 +14,7 @@ nCycles = 4
 
 cyclePeriod = ${+ ${onTime} ${offTime}}
 dutyCycle = ${/ ${onTime} ${cyclePeriod}}
-EndTime = ${* ${nCycles} ${cyclePeriod}}
+EndTime = ${/ 1E-13 ${time_units}} #s ${* ${nCycles} ${cyclePeriod}}
 
 [GlobalParams]
 #	offset = 25
@@ -56,14 +56,17 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #	ss_check_tol = 1E-15
 #	ss_tmin = ${steadyStateTime}
 
-	petsc_options = '-superlu_dist -snes_converged_reason -snes_linesearch_monitor'
-	solve_type = NEWTON
+	petsc_options = '-superlu_dist -snes_converged_reason' # -snes_linesearch_monitor'
+	solve_type = PJFNK
 
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-#	petsc_options_value = 'lu mumps NONZERO 1.e-10 preonly 1e-3 100'
+	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
+	petsc_options_value = 'lu mumps NONZERO 1.e-10 preonly 1e-3 100'
 
-	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -ksp_type -snes_linesearch_minlambda'
-	petsc_options_value = 'lu 	superlu_dist		      preonly	1e-3'
+#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -ksp_type -snes_linesearch_minlambda'
+#	petsc_options_value = 'lu 	mumps		      preonly	1e-3'
+	
+#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -ksp_type -snes_linesearch_minlambda'
+#	petsc_options_value = 'lu 	superlu_dist		      preonly	1e-3'
 
 #	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
 #	petsc_options_value = 'asm lu'
@@ -73,18 +76,18 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 	dtmin = ${/ 1e-18 ${time_units}}
 	dtmax = ${/ ${onTime} 20 }
-	nl_max_its = 20
+	nl_max_its = 30
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		dt = ${/ 1e-15 ${time_units}}
-		cutback_factor = 0.4
-		growth_factor = 1.2
+		cutback_factor = 0.8
+		growth_factor = 1.5
 		optimal_iterations = 10
 	[../]
 []
 
 [Outputs]
-	print_perf_log = false
+	print_perf_log = true
 	print_linear_residuals = false
 	console = true
 
@@ -101,7 +104,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 []
 
 [Debug]
-	show_var_residual_norms = true
+	show_var_residual_norms = false
 []
 
 [UserObjects]
@@ -124,8 +127,9 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 [Variables]
 	[./potential]
 	[../]
-	# [./native_potential]
-	# [../]
+	 [./native_potential]
+		scaling = 1E-4
+	 [../]
 	[./em]
 		block = 0
 		initial_condition = -15
@@ -162,17 +166,17 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 
 ## Native Poisson's equation
-	# [./native_potential_diffusion_dom1]
-	# 	type = CoeffDiffusionLin
-	# 	variable = native_potential
-	# 	block = 0
-	# [../]
-	# [./Native_Poisson_RHS]
-	# 	type = SetRHS
-	# 	variable = native_potential
-	# 	value = 1E-15
-	# 	block = 0
-	# [../]
+	 [./native_potential_diffusion_dom1]
+	 	type = CoeffDiffusionLin
+	 	variable = native_potential
+	 	block = 0
+	 [../]
+	 [./Native_Poisson_RHS]
+	 	type = SetRHS
+	 	variable = native_potential
+	 	value = 1E-15
+	 	block = 0
+	 [../]
 
 ## Electron
 	[./em_time_deriv]
@@ -501,24 +505,24 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		block = 0
 	[../]
 
-	# [./PowerDepProvided_em]
-	# 	type = PowerDep
-	# 	density_log = em
-	# 	potential = native_potential
-	# 	art_diff = false
-	# 	power_used = true
-	# 	variable = PowerDepProvided_em
-	# 	block = 0
-	# [../]
-	# [./PowerDepProvided_Arp]
-	# 	type = PowerDep
-	# 	density_log = Arp
-	# 	potential = native_potential
-	# 	art_diff = false
-	# 	power_used = true
-	# 	variable = PowerDepProvided_Arp
-	# 	block = 0
-	# [../]
+	 [./PowerDepProvided_em]
+	 	type = PowerDep
+	 	density_log = em
+	 	potential = native_potential
+	 	art_diff = false
+	 	power_used = true
+	 	variable = PowerDepProvided_em
+	 	block = 0
+	 [../]
+	 [./PowerDepProvided_Arp]
+	 	type = PowerDep
+	 	density_log = Arp
+	 	potential = native_potential
+	 	art_diff = false
+	 	power_used = true
+	 	variable = PowerDepProvided_Arp
+	 	block = 0
+	 [../]
 
 	[./ProcRate_el]
 		type = ProcRate
@@ -568,7 +572,6 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 [BCs]
 ## Potential boundary conditions ##
-## Potential boundary conditions ##
 	[./potential_left]
 		boundary = left
 		type = NeumannCircuitVoltageNew
@@ -605,24 +608,24 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 
 ### Native potential boundary conditions ###
-# 	[./native_potential_dirichlet_left]
-# 		boundary = left
-# 		type = NeumannCircuitVoltageNew
-# 		source_voltage = potential_bc_func
+ 	[./native_potential_dirichlet_left]
+ 		boundary = left
+ 		type = NeumannCircuitVoltageNew
+ 		source_voltage = potential_bc_func
 
-# #		type = PenaltyCircuitPotential
-# #		surface_potential = -${vhigh}
+#		type = PenaltyCircuitPotential
+#		surface_potential = -${vhigh}
 # 		penalty = 1
-# 		variable = native_potential
-# 		current = current_density_user_object
-# 		surface = 'cathode'
-# 		data_provider = data_provider
-# 		em = em
-# 		ip = Arp
-# 		mean_en = mean_en
-# 		area = ${area}
-# 		resistance = ${resistance}
-# 	[../]
+ 		variable = native_potential
+ 		current = current_density_user_object
+ 		surface = 'cathode'
+ 		data_provider = data_provider
+ 		em = em
+ 		ip = Arp
+ 		mean_en = mean_en
+ 		area = ${area}
+ 		resistance = ${resistance}
+ 	[../]
 
 #	[./native_potential_dirichlet_left]
 ##		type = DirichletBC
@@ -633,12 +636,12 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #		function = potential_bc_func
 #	[../]
 
-	# [./native_potential_dirichlet_right]
-	# 	type = DirichletBC
-	# 	variable = native_potential
-	# 	boundary = right
-	# 	value = 0
-	# [../]
+	[./native_potential_dirichlet_right]
+		type = DirichletBC
+		variable = native_potential
+		boundary = right
+		value = 0
+	[../]
 
 ### Electron boundary conditions ##
 	[./Emission_left]
@@ -760,11 +763,11 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		function = potential_ic_func
 	[../]
 
-	# [./native_potential_ic]
-	# 	type = FunctionIC
-	# 	variable = native_potential
-	# 	function = potential_ic_func
-	# [../]
+	[./native_potential_ic]
+		type = FunctionIC
+		variable = native_potential
+		function = potential_ic_func
+	[../]
 []
 
 [Functions]
@@ -810,10 +813,10 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		block = 0
 	[../]
 
-	# [./electricConstant]
-	# 	type = GenericConstantMaterial
-	# 	block = 0
-	# 	prop_names  = 'diffnative_potential'
-	# 	prop_values = '8.85418782E-12'
-	# [../]
+	[./electricConstant]
+		type = GenericConstantMaterial
+		block = 0
+		prop_names  = 'diffnative_potential'
+		prop_values = '8.85418782E-12'
+	[../]
 []
