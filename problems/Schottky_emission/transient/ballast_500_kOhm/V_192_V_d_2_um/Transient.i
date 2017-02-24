@@ -17,7 +17,7 @@ dutyCycle = ${/ ${onTime} ${cyclePeriod}}
 EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 [GlobalParams]
-#	offset = 25
+	offset = 30
 	time_units = ${time_units}
 	position_units = ${position_units}
 	potential_units = kV
@@ -52,35 +52,23 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 #		type = ImplicitEuler #AStableDirk4 #CrankNicolson #ImplicitMidpoint #AStableDirk4 #CrankNicolson #ImplicitEuler
 #	[../]
 
-#	trans_ss_check = 1
-#	ss_check_tol = 1E-15
-#	ss_tmin = ${steadyStateTime}
+	petsc_options = '-snes_converged_reason -snes_linesearch_monitor -ksp_converged_reason'
+	solve_type = NEWTON
 
-	petsc_options = '-snes_ksp_ew -superlu_dist'
-	solve_type = PJFNK
+	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
+	petsc_options_value = ' lu       superlu_dist                  NONZERO               1.e-10                  preonly   1e-3'
 
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-#	petsc_options_value = ' lu       mumps                         NONZERO               1.e-10                  preonly   1e-3                       100'
-
-	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda -ksp_gmres_restart'
-	petsc_options_value = ' lu       superlu_dist                  NONZERO               1.e-10                  preonly   1e-3                       100'
-
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-#	petsc_options_value = 'lu superlu_dist'
-
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-#	petsc_options_value = 'lu mumps'
-
-#	petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-#	petsc_options_value = 'asm lu'
+	# petsc_options_iname = '-pc_type -sub_pc_type -sub_ksp_type -snes_linesearch_minlambda'
+	# petsc_options_value = 'asm 	lu	     preonly	   1e-3'
 
 	nl_rel_tol = 1E-8
 	nl_abs_tol = 1e-8
 
-	dtmin = ${/ 1e-18 ${time_units}}
+	# dtmin = ${/ 1e-18 ${time_units}}
+	dtmin = ${/ 1e-15 ${time_units}}
 	dtmax = ${/ ${onTime} 20 }
 	nl_max_its = 40
-	
+
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		dt = ${/ 1e-15 ${time_units}}
@@ -92,12 +80,12 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 
 [Outputs]
 	print_perf_log = true
-	print_linear_residuals = false
+	print_linear_residuals = true
 	console = true
-	
+
 	[./out]
 		type = Exodus
-		execute_on = 'final'
+		# execute_on = 'final'
 	[../]
 
 	[./checkpoint]
@@ -285,25 +273,22 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 
 
-## Stabilization
-#	[./Arp_log_stabilization]
-#		type = LogStabilizationMoles
-#		variable = Arp
-#		offset = 20
-#		block = 0
-#	[../]
-#	[./em_log_stabilization]
-#		type = LogStabilizationMoles
-#		variable = em
-#		offset = 20
-#		block = 0
-#	[../]
-#	[./mean_en_log_stabilization]
-#		type = LogStabilizationMoles
-#		variable = mean_en
-#		block = 0
-#		offset = 35
-#	[../]
+# Stabilization
+	[./Arp_log_stabilization]
+		type = LogStabilizationMoles
+		variable = Arp
+		block = 0
+	[../]
+	[./em_log_stabilization]
+		type = LogStabilizationMoles
+		variable = em
+		block = 0
+	[../]
+	[./mean_en_log_stabilization]
+		type = LogStabilizationMoles
+		variable = mean_en
+		block = 0
+	[../]
 #	[./mean_en_advection_stabilization]
 #		type = EFieldArtDiff
 #		variable = mean_en
@@ -785,6 +770,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[./potential_bc_func]
 		type = SmoothedStepFunction
 		vLow = -0.001
+		# vLow = -${vhigh}
 		vHigh = -${vhigh}
 		period = ${cyclePeriod}
 		duty = ${dutyCycle}
