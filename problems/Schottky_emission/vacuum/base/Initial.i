@@ -81,7 +81,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}} # (time units)
 
 [Outputs]
 	print_perf_log = true
-	print_linear_residuals = false
+	print_linear_residuals = true
 	console = true
 	
 	[./out]
@@ -89,15 +89,15 @@ steadyStateTime = ${/ 1E-6 ${time_units}} # (time units)
 		execute_on = 'final'
 	[../]
 
-	[./checkpoint]
-		type = Checkpoint
-		execute_on = 'final'
-		num_files = 2
-	[../]
+#	[./checkpoint]
+#		type = Checkpoint
+#		execute_on = 'final'
+#		num_files = 2
+#	[../]
 []
 
 [Debug]
-	show_var_residual_norms = false
+	show_var_residual_norms = true
 []
 
 [UserObjects]
@@ -784,7 +784,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}} # (time units)
 		user_Richardson_coefficient = 80E4
 		user_cathode_temperature = 1273
 		
-		user_p_gas = 3E2 #Pa
+		user_p_gas = 1E2 #Pa
 		
 		property_tables_file = td_argon_mean_en.tsv
 		block = 0
