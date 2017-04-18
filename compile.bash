@@ -11,10 +11,10 @@ if [ -r /opt/crc/Modules/current/init/bash ]
 	    source /opt/crc/Modules/current/init/bash
 fi
 
-module unload intel gcc git matlab ompi allinea
-module load cmake git gcc/4.9.2 ompi/1.10.2-gcc-4.9.2 boost/1.61
+module purge
+module load cmake git ompi/2.0.1-gcc-6.2.0 boost/1.63
 
-source /afs/crc.nd.edu/user/j/jhaase1/Moose-dir/moose.bash
+source /afs/crc.nd.edu/user/j/jhaase1/ZapdosDir/moose.bash
 
 export CC=mpicc
 export CXX=mpicxx

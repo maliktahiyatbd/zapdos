@@ -1,16 +1,17 @@
 /****************************************************************/
-/*			DO NOT MODIFY THIS HEADER		*/
+/*							 DO NOT MODIFY THIS HEADER											*/
 /* MOOSE - Multiphysics Object Oriented Simulation Environment	*/
-/*								*/
-/*	 	(c) 2010 Battelle Energy Alliance, LLC		*/
-/*	 		ALL RIGHTS RESERVED			*/
-/*								*/
-/*		Prepared by Battelle Energy Alliance, LLC	*/
-/*		Under Contract No. DE-AC07-05ID14517		*/
-/*		With the U. S. Department of Energy		*/
-/*								*/
-/*		See COPYRIGHT for full restrictions		*/
+/*																															*/
+/*					 (c) 2010 Battelle Energy Alliance, LLC							*/
+/*									 ALL RIGHTS RESERVED												*/
+/*																															*/
+/*					Prepared by Battelle Energy Alliance, LLC						*/
+/*						Under Contract No. DE-AC07-05ID14517							*/
+/*						With the U. S. Department of Energy								*/
+/*																															*/
+/*						See COPYRIGHT for full restrictions								*/
 /****************************************************************/
+
 #ifndef GAS_H_
 #define GAS_H_
 
@@ -43,6 +44,8 @@ protected:
 	bool _interp_elastic_coeff;
 	bool _ramp_trans_coeffs;
 	std::string _potential_units;
+	Real _r_units;
+	Real _t_units;
 	Real _voltage_scaling;
 	Real _user_se_coeff;
 	Real _user_work_function;
@@ -53,16 +56,16 @@ protected:
 	Real _user_p_gas;
 	bool _use_moles;
 
-	MaterialProperty<Real>	& _muem;
-	MaterialProperty<Real>	& _d_muem_d_actual_mean_en;
-	MaterialProperty<Real>	& _diffem;
-	MaterialProperty<Real>	& _d_diffem_d_actual_mean_en;
-	MaterialProperty<Real>	& _muArp;
-	MaterialProperty<Real>	& _diffArp;
-	MaterialProperty<Real>	& _rate_coeff_ion;
-	MaterialProperty<Real>	& _Eiz;
-	MaterialProperty<Real>	& _Eex;
-	MaterialProperty<Real>	& _Ar;
+	MaterialProperty<Real> & _muem;
+	MaterialProperty<Real> & _d_muem_d_actual_mean_en;
+	MaterialProperty<Real> & _diffem;
+	MaterialProperty<Real> & _d_diffem_d_actual_mean_en;
+	MaterialProperty<Real> & _muArp;
+	MaterialProperty<Real> & _diffArp;
+	MaterialProperty<Real> & _rate_coeff_ion;
+	MaterialProperty<Real> & _Eiz;
+	MaterialProperty<Real> & _Eex;
+	MaterialProperty<Real> & _Ar;
 	MaterialProperty<Real> & _mumean_en;
 	MaterialProperty<Real> & _d_mumean_en_d_actual_mean_en;
 	MaterialProperty<Real> & _diffmean_en;
@@ -72,10 +75,10 @@ protected:
 	MaterialProperty<Real> & _massGas;
 	MaterialProperty<Real> & _massArp;
 	MaterialProperty<Real> & _se_coeff;
-	MaterialProperty<Real> &  _work_function;
-	MaterialProperty<Real> &  _field_enhancement;
-	MaterialProperty<Real> &  _Richardson_coefficient;
-	MaterialProperty<Real> &  _cathode_temperature;
+	MaterialProperty<Real> & _work_function;
+	MaterialProperty<Real> & _field_enhancement;
+	MaterialProperty<Real> & _Richardson_coefficient;
+	MaterialProperty<Real> & _cathode_temperature;
 	MaterialProperty<Real> & _se_energy;
 	MaterialProperty<Real> & _ElectronTotalFluxMag;
 	MaterialProperty<Real> & _ElectronTotalFluxMagSizeForm;

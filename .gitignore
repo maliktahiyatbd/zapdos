@@ -72,6 +72,8 @@ traceout*.txt
 *.vtu
 .depend
 *.mp4
+.__*
+*.log
 
 # Allow .e files in gold directories (7 levels)
 !/gold/*.e
@@ -189,3 +191,4 @@ problems/Pictures
 .ipynb_checkpoints
 
 .failed_tests
+.jitcache/

@@ -19,7 +19,9 @@ protected:
 	virtual Real computeQpJacobian();
 	virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
+	bool _use_moles;
 	Real _r_units;
+	Real _t_units;
 	Real _r;
 
 	// Coupled variables
@@ -37,6 +39,7 @@ protected:
 	const MaterialProperty<Real> & _d_muem_d_actual_mean_en;
 	const MaterialProperty<Real> & _massem;
 	const MaterialProperty<Real> & _e;
+	const MaterialProperty<Real> & _N_A;
 	const MaterialProperty<Real> & _sgnip;
 	const MaterialProperty<Real> & _muip;
 	const MaterialProperty<Real> & _Dip;
@@ -44,25 +47,24 @@ protected:
 	const MaterialProperty<Real> & _work_function;
 	const MaterialProperty<Real> & _field_enhancement;
 
-	Real  _a;
-	Real  _v_thermal;
-	RealVectorValue  _ion_flux;
-	Real  _n_gamma;
-	Real  _d_v_thermal_d_u;
-	Real  _d_v_thermal_d_mean_en;
-	RealVectorValue  _d_ion_flux_d_potential;
-	RealVectorValue  _d_ion_flux_d_ip;
-	Real  _d_n_gamma_d_potential;
-	Real  _d_n_gamma_d_ip;
-	Real  _d_n_gamma_d_u;
-	Real  _d_n_gamma_d_mean_en;
+	Real _a;
+	Real _v_thermal;
+	RealVectorValue	_ion_flux;
+	Real _n_gamma;
+	Real _d_v_thermal_d_u;
+	Real _d_v_thermal_d_mean_en;
+	RealVectorValue	_d_ion_flux_d_potential;
+	RealVectorValue	_d_ion_flux_d_ip;
+	Real _d_n_gamma_d_potential;
+	Real _d_n_gamma_d_ip;
+	Real _d_n_gamma_d_u;
+	Real _d_n_gamma_d_mean_en;
 	Real _actual_mean_en;
-  Real _tau;
-  bool _relax;
+	Real _tau;
+	bool _relax;
 	std::string _potential_units;
 
 	// Unique variables
-
 	Real _voltage_scaling;
 	Real FE_a;
 	Real FE_b;

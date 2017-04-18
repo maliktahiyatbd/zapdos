@@ -35,7 +35,7 @@ CoeffDiffusionElectrons::~CoeffDiffusionElectrons()
 Real
 CoeffDiffusionElectrons::computeQpResidual()
 {
-  return -_diffem[_qp] * std::exp(_u[_qp]) * _grad_u[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+  return -_diffem[_qp] * std::exp(_u[_qp]) * _grad_u[_qp] * -_grad_test[_i][_qp];
 }
 
 Real
@@ -43,7 +43,7 @@ CoeffDiffusionElectrons::computeQpJacobian()
 {
   _d_diffem_d_u = _d_diffem_d_actual_mean_en[_qp] * std::exp(_mean_en[_qp] - _u[_qp]) * -_phi[_j][_qp];
 
-  return -_diffem[_qp] * (std::exp(_u[_qp]) * _grad_phi[_j][_qp] * _r_units + std::exp(_u[_qp]) * _phi[_j][_qp] * _grad_u[_qp] * _r_units) * -_grad_test[_i][_qp] * _r_units - _d_diffem_d_u * std::exp(_u[_qp]) * _grad_u[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+  return -_diffem[_qp] * (std::exp(_u[_qp]) * _grad_phi[_j][_qp] + std::exp(_u[_qp]) * _phi[_j][_qp] * _grad_u[_qp]) * -_grad_test[_i][_qp] - _d_diffem_d_u * std::exp(_u[_qp]) * _grad_u[_qp] * -_grad_test[_i][_qp];
 }
 
 Real
@@ -53,7 +53,7 @@ CoeffDiffusionElectrons::computeQpOffDiagJacobian(unsigned int jvar)
   {
     _d_diffem_d_mean_en = _d_diffem_d_actual_mean_en[_qp] * std::exp(_mean_en[_qp] - _u[_qp]) * _phi[_j][_qp];
 
-    return -_d_diffem_d_mean_en * std::exp(_u[_qp]) * _grad_u[_qp] * _r_units * -_grad_test[_i][_qp] * _r_units;
+    return -_d_diffem_d_mean_en * std::exp(_u[_qp]) * _grad_u[_qp] * -_grad_test[_i][_qp];
   }
 
   else
