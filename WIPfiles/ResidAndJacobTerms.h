@@ -17,10 +17,10 @@
 
 #include "ElementUserObject.h"
 
-//Forward Declarations
+// Forward Declarations
 class ResidAndJacobTerms;
 
-template<>
+template <>
 InputParameters validParams<ResidAndJacobTerms>();
 
 class ResidAndJacobTerms : public ElementUserObject
@@ -39,7 +39,6 @@ public:
   virtual void finalize();
 
 protected:
-
   const VariableValue & _u;
   const VariableGradient & _grad_u;
   const MaterialProperty<Real> & _diffusivity;

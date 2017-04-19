@@ -17,10 +17,10 @@
 
 #include "AuxKernel.h"
 
-//Forward Declarations
+// Forward Declarations
 class Ey;
 
-template<>
+template <>
 InputParameters validParams<Ey>();
 
 /**
@@ -43,7 +43,7 @@ protected:
   virtual Real computeValue();
   virtual void computeVarValues(std::vector<Real> & values);
 
-  //int _component;
+  // int _component;
   Real _r_units;
   std::string _potential_units;
 
@@ -52,4 +52,4 @@ protected:
   Real _voltage_scaling;
 };
 
-#endif //EY_H
+#endif // EY_H

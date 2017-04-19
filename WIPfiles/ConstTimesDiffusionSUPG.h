@@ -20,7 +20,7 @@
 
 class ConstTimesDiffusionSUPG;
 
-template<>
+template <>
 InputParameters validParams<ConstTimesDiffusionSUPG>();
 
 class ConstTimesDiffusionSUPG : public Diffusion
@@ -30,9 +30,7 @@ public:
   virtual ~ConstTimesDiffusionSUPG();
 
 protected:
-
   virtual Real computeQpResidual();
-
 
   virtual Real computeQpJacobian();
 
@@ -40,6 +38,5 @@ protected:
   MaterialProperty<RealVectorValue> _velocity_norm;
   MaterialProperty<Real> _diffusivity;
 };
-
 
 #endif /* CONSTTIMESDIFFUSIONSUPG_H */

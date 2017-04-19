@@ -20,7 +20,7 @@
 // Forward Declaration
 class ReactantFirstOrderRxn;
 
-template<>
+template <>
 InputParameters validParams<ReactantFirstOrderRxn>();
 
 class ReactantFirstOrderRxn : public Kernel
@@ -31,9 +31,8 @@ public:
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-  
+
   // The reaction coefficient
-  const MaterialProperty<Real> &  _reaction_coeff;
-  
+  const MaterialProperty<Real> & _reaction_coeff;
 };
-#endif //REACTANTFIRSTORDERRXN_H
+#endif // REACTANTFIRSTORDERRXN_H

@@ -17,10 +17,10 @@
 
 #include "AuxKernel.h"
 
-//Forward Declarations
+// Forward Declarations
 class Ex;
 
-template<>
+template <>
 InputParameters validParams<Ex>();
 
 /**
@@ -50,4 +50,4 @@ protected:
   Real _voltage_scaling;
 };
 
-#endif //EX_H
+#endif // EX_H

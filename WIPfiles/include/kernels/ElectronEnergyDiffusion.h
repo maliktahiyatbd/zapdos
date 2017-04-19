@@ -20,7 +20,7 @@
 
 class ElectronEnergyDiffusion;
 
-template<>
+template <>
 InputParameters validParams<ElectronEnergyDiffusion>();
 
 class ElectronEnergyDiffusion : public Diffusion
@@ -30,7 +30,6 @@ public:
   virtual ~ElectronEnergyDiffusion();
 
 protected:
-
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
@@ -51,6 +50,5 @@ protected:
   Real _mu_Te;
   Real _d_D_Te_d_Te;
 };
-
 
 #endif /* ELECTRONENERGYDIFFUSION_H */

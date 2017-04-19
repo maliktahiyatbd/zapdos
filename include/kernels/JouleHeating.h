@@ -19,46 +19,44 @@
 
 class JouleHeating;
 
-template<>
+template <>
 InputParameters validParams<JouleHeating>();
 
 class JouleHeating : public Kernel
 {
- public:
+public:
+  JouleHeating(const InputParameters & parameters);
 
-	JouleHeating(const InputParameters & parameters);
+protected:
+  virtual Real computeQpResidual();
 
- protected:
+  virtual Real computeQpJacobian();
 
-	virtual Real computeQpResidual();
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-	virtual Real computeQpJacobian();
+  // Input file scalars
+  Real _r_units;
 
-	virtual Real computeQpOffDiagJacobian(unsigned int jvar);
+  // Material properties
 
-	// Input file scalars
-	Real _r_units;
+  const MaterialProperty<Real> & _muem;
+  const MaterialProperty<Real> & _d_muem_d_actual_mean_en;
+  const MaterialProperty<Real> & _diffem;
+  const MaterialProperty<Real> & _d_diffem_d_actual_mean_en;
 
-	// Material properties
+  std::string _potential_units;
 
-	const MaterialProperty<Real> & _muem;
-	const MaterialProperty<Real> & _d_muem_d_actual_mean_en;
-	const MaterialProperty<Real> & _diffem;
-	const MaterialProperty<Real> & _d_diffem_d_actual_mean_en;
+  // Coupled variables
 
-	std::string _potential_units;
+  unsigned int _potential_id;
+  const VariableGradient & _grad_potential;
+  const VariableValue & _em;
+  const VariableGradient & _grad_em;
+  unsigned int _em_id;
 
-	// Coupled variables
+  // Unique variables
 
-	unsigned int _potential_id;
-	const VariableGradient & _grad_potential;
-	const VariableValue & _em;
-	const VariableGradient & _grad_em;
-	unsigned int _em_id;
-
-	// Unique variables
-
-	Real _voltage_scaling;
+  Real _voltage_scaling;
 };
 
-#endif //JOULEHEATING_H
+#endif // JOULEHEATING_H

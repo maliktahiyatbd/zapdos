@@ -14,8 +14,9 @@
 
 #include "ArbNumSecondOrderRxns.h"
 
-template<>
-InputParameters validParams<ArbNumSecondOrderRxns>()
+template <>
+InputParameters
+validParams<ArbNumSecondOrderRxns>()
 {
   InputParameters params = validParams<Kernel>();
   params.addRequiredParam<Real>("reaction_coeff", "The reaction coefficient of the medium");
@@ -23,26 +24,27 @@ InputParameters validParams<ArbNumSecondOrderRxns>()
   return params;
 }
 
-ArbNumSecondOrderRxns::ArbNumSecondOrderRxns(const InputParameters & parameters) :
-    Kernel(parameters),
-    
+ArbNumSecondOrderRxns::ArbNumSecondOrderRxns(const InputParameters & parameters)
+  : Kernel(parameters),
+
     _reaction_coeff(getParam<Real>("reaction_coeff")),
     // Couple to the second reactant
     _reactant_two(coupledValue("reactant_two")),
     // Get the ID for the off-jacobian calculations
     _reactant_two_id(coupled("reactant_two"))
-{}
+{
+}
 
 Real
 ArbNumSecondOrderRxns::computeQpResidual()
 {
-  return _test[_i][_qp]*_reaction_coeff*_reactant_two[_qp]*_u[_qp];
+  return _test[_i][_qp] * _reaction_coeff * _reactant_two[_qp] * _u[_qp];
 }
 
 Real
 ArbNumSecondOrderRxns::computeQpJacobian()
 {
-  return _test[_i][_qp]*_reaction_coeff*_reactant_two[_qp]*_phi[_j][_qp];
+  return _test[_i][_qp] * _reaction_coeff * _reactant_two[_qp] * _phi[_j][_qp];
 }
 
 Real
@@ -50,8 +52,8 @@ ArbNumSecondOrderRxns::computeQpOffDiagJacobian(unsigned int jvar)
 {
   if (jvar == _reactant_two_id)
   {
-    return _test[_i][_qp]*_reaction_coeff*_phi[_j][_qp]*_u[_qp];
+    return _test[_i][_qp] * _reaction_coeff * _phi[_j][_qp] * _u[_qp];
   }
-  
+
   return 0.0;
 }

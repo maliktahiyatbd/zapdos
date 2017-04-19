@@ -14,9 +14,9 @@
 
 #include "ConstTimesDiffusionSUPG.h"
 
-
-template<>
-InputParameters validParams<ConstTimesDiffusionSUPG>()
+template <>
+InputParameters
+validParams<ConstTimesDiffusionSUPG>()
 {
   // Start with the parameters from our parent
   InputParameters params = validParams<Diffusion>();
@@ -28,9 +28,8 @@ InputParameters validParams<ConstTimesDiffusionSUPG>()
   return params;
 }
 
-
-ConstTimesDiffusionSUPG::ConstTimesDiffusionSUPG(const InputParameters & parameters) :
-    Diffusion(parameters),
+ConstTimesDiffusionSUPG::ConstTimesDiffusionSUPG(const InputParameters & parameters)
+  : Diffusion(parameters),
 
     _alpha(getMaterialProperty<Real>("alpha")),
     _velocity_norm(getMaterialProperty<RealVectorValue>("velocity_norm")),
@@ -39,9 +38,7 @@ ConstTimesDiffusionSUPG::ConstTimesDiffusionSUPG(const InputParameters & paramet
 {
 }
 
-ConstTimesDiffusionSUPG::~ConstTimesDiffusionSUPG()
-{
-}
+ConstTimesDiffusionSUPG::~ConstTimesDiffusionSUPG() {}
 
 Real
 ConstTimesDiffusionSUPG::computeQpResidual()
@@ -54,5 +51,5 @@ Real
 ConstTimesDiffusionSUPG::computeQpJacobian()
 {
   // Use the MaterialProperty references we stored earlier
-  return _diffusivity[_qp]* Diffusion::computeQpJacobian();
+  return _diffusivity[_qp] * Diffusion::computeQpJacobian();
 }

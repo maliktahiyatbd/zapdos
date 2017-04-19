@@ -14,17 +14,19 @@
 
 #include "ElectronTemperatureTimeDerivative.h"
 
-template<>
-InputParameters validParams<ElectronTemperatureTimeDerivative>()
+template <>
+InputParameters
+validParams<ElectronTemperatureTimeDerivative>()
 {
   InputParameters params = validParams<TimeKernel>();
   params.addParam<bool>("lumping", false, "True for mass matrix lumping, false otherwise");
-  params.addRequiredCoupledVar("em","The electron density.");
+  params.addRequiredCoupledVar("em", "The electron density.");
   return params;
 }
 
-ElectronTemperatureTimeDerivative::ElectronTemperatureTimeDerivative(const InputParameters & parameters) :
-    TimeKernel(parameters),
+ElectronTemperatureTimeDerivative::ElectronTemperatureTimeDerivative(
+    const InputParameters & parameters)
+  : TimeKernel(parameters),
 
     // Input parameters
 
@@ -43,13 +45,13 @@ ElectronTemperatureTimeDerivative::ElectronTemperatureTimeDerivative(const Input
 Real
 ElectronTemperatureTimeDerivative::computeQpResidual()
 {
-  return _test[_i][_qp]*1.5*_k_boltz[_qp]*_em[_qp]*_u_dot[_qp];
+  return _test[_i][_qp] * 1.5 * _k_boltz[_qp] * _em[_qp] * _u_dot[_qp];
 }
 
 Real
 ElectronTemperatureTimeDerivative::computeQpJacobian()
 {
-  return _test[_i][_qp]*_phi[_j][_qp]*_du_dot_du[_qp];
+  return _test[_i][_qp] * _phi[_j][_qp] * _du_dot_du[_qp];
 }
 
 void

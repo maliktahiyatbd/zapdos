@@ -18,11 +18,11 @@
 #include "NodalBC.h"
 #include "ProvideMobility.h"
 
-//Forward Declarations
+// Forward Declarations
 class CircuitVoltage;
 class Function;
 
-template<>
+template <>
 InputParameters validParams<CircuitVoltage>();
 
 /**
@@ -53,4 +53,4 @@ protected:
   const ProvideMobility & _data;
 };
 
-#endif //CIRCUITVOLTAGE_H
+#endif // CIRCUITVOLTAGE_H

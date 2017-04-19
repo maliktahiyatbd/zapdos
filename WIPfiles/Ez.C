@@ -14,8 +14,9 @@
 
 #include "Ez.h"
 
-template<>
-InputParameters validParams<Ez>()
+template <>
+InputParameters
+validParams<Ez>()
 {
   InputParameters params = validParams<AuxKernel>();
 
@@ -26,8 +27,8 @@ InputParameters validParams<Ez>()
   return params;
 }
 
-Ez::Ez(const InputParameters & parameters) :
-    AuxKernel(parameters),
+Ez::Ez(const InputParameters & parameters)
+  : AuxKernel(parameters),
 
     _r_units(1. / getParam<Real>("position_units")),
     _potential_units(getParam<std::string>("potential_units")),
@@ -42,5 +43,5 @@ Ez::Ez(const InputParameters & parameters) :
 Real
 Ez::computeValue()
 {
-  return  -_grad_potential[_qp](2) * _r_units * _voltage_scaling;
+  return -_grad_potential[_qp](2) * _r_units * _voltage_scaling;
 }

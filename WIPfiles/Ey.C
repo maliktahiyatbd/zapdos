@@ -14,8 +14,9 @@
 
 #include "Ey.h"
 
-template<>
-InputParameters validParams<Ey>()
+template <>
+InputParameters
+validParams<Ey>()
 {
   InputParameters params = validParams<AuxKernel>();
 
@@ -26,8 +27,8 @@ InputParameters validParams<Ey>()
   return params;
 }
 
-Ey::Ey(const InputParameters & parameters) :
-    AuxKernel(parameters),
+Ey::Ey(const InputParameters & parameters)
+  : AuxKernel(parameters),
 
     _r_units(1. / getParam<Real>("position_units")),
     _potential_units(getParam<std::string>("potential_units")),
@@ -42,5 +43,5 @@ Ey::Ey(const InputParameters & parameters) :
 Real
 Ey::computeValue()
 {
-  return  -_grad_potential[_qp](1) * _r_units * _voltage_scaling;
+  return -_grad_potential[_qp](1) * _r_units * _voltage_scaling;
 }

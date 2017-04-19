@@ -14,25 +14,22 @@
 
 #include "LogStabilizationMoles.h"
 
-
-template<>
-InputParameters validParams<LogStabilizationMoles>()
+template <>
+InputParameters
+validParams<LogStabilizationMoles>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addRequiredParam<Real>("offset","The offset parameter that goes into the exponential function");
+  params.addRequiredParam<Real>("offset",
+                                "The offset parameter that goes into the exponential function");
   return params;
 }
 
-
-LogStabilizationMoles::LogStabilizationMoles(const InputParameters & parameters) :
-    Kernel(parameters),
-    _offset(getParam<Real>("offset"))
+LogStabilizationMoles::LogStabilizationMoles(const InputParameters & parameters)
+  : Kernel(parameters), _offset(getParam<Real>("offset"))
 {
 }
 
-LogStabilizationMoles::~LogStabilizationMoles()
-{
-}
+LogStabilizationMoles::~LogStabilizationMoles() {}
 
 Real
 LogStabilizationMoles::computeQpResidual()
