@@ -17,8 +17,8 @@ dom0Size = ${/ ${gap} ${position_units}}
 onTime = ${/ ${tOn} ${time_units}} #s
 offTime  = ${/ ${tOff} ${time_units}} #s
 
-#completedCycles = 0
-#desiredCycles = 10
+completedCycles = 0
+desiredCycles = 1
 nCycles = ${+ ${completedCycles} ${desiredCycles} }
 
 cyclePeriod = ${+ ${onTime} ${offTime}}
