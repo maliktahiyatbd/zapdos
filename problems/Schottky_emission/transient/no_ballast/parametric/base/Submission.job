@@ -1,25 +1,28 @@
 #!/bin/bash
-#$ -pe smp 12
+#$ -pe smp 8
 #$ -N base
 #$ -M jhaase1@nd.edu
 #$ -m ae
 #$ -r y
-#$ -q *@@dgo
+#$ -q long   ###*@@dgo
 
+# Initialize variables
 cCycles=0
-transientCycles=50
+transientCycles=25
 
 limit="5E-6"
 limit=`echo ${limit} | sed -e 's/[eE]+*/\*10\^/'`
 
 norm2=1000
+echo "${norm2}" > sum.csv
 
-cmd="mpirun -np 12 ~/zapdos/zapdos-opt -i"
+cmd="mpirun -np 8 ~/zapdos/zapdos-opt -i"
 SmallOutput="Outputs/out/execute_on='final'"
 options=""
 ####options="gap=2E-6 Materials/gas_block/user_work_function=4.00"
 post=""
 
+# Specific instructions if running as submitted job
 if [[ ! -z "$SGE_STDOUT_PATH" ]]
 then
 	module purge
@@ -28,16 +31,17 @@ then
 	fsync -d 120 `pwd`/CurrentCycle.log &
 	post="--no-color > CurrentCycle.log"
 
-	killall -u jhaase1 -w -s SIGKILL zapdos-opt
+#	killall -u jhaase1 -w -s SIGKILL zapdos-opt
 fi
 
+# Loop until converged
 while [ `echo $norm2'<'$limit | bc -l` -eq 0 ]; do
 	#Run initial cycle
 	dCycles=${transientCycles}
 	
 	if [ ${cCycles} -eq 0 ]
 	then
-		eval "${cmd} Initial.i completedCycles=${cCycles} desiredCycles=${dCycles} ${options} ${post}"
+		eval "${cmd} Initial.i completedCycles=${cCycles} desiredCycles=${dCycles} ${options} ${post}" || { exit 56 ; }
 		cCycles=$((cCycles+dCycles))
 
 		ls PreviousCycle* -d | grep -v '\.i' | xargs rm -rf
@@ -56,7 +60,7 @@ while [ `echo $norm2'<'$limit | bc -l` -eq 0 ]; do
 			mv $f $(echo "$f" | sed 's/SteadyState/PreviousCycle/g')
 		done
 		
-		eval "${cmd} SteadyState.i completedCycles=${cCycles} desiredCycles=${dCycles} ${SmallOutput} ${options} ${post}"
+		eval "${cmd} SteadyState.i completedCycles=${cCycles} desiredCycles=${dCycles} ${SmallOutput} ${options} ${post}" || { exit 56 ; }
 		cCycles=$((cCycles+dCycles))
 
 		ls PreviousCycle* -d | grep -v '\.i' | xargs rm -rf
@@ -70,7 +74,7 @@ while [ `echo $norm2'<'$limit | bc -l` -eq 0 ]; do
 
 	#Run first steady state cycle
 		dCycles=1
-		eval "${cmd} SteadyState.i completedCycles=${cCycles} desiredCycles=${dCycles} ${options} ${post}"
+		eval "${cmd} SteadyState.i completedCycles=${cCycles} desiredCycles=${dCycles} ${options} ${post}" || { exit 56 ; }
 		cCycles=$((cCycles+dCycles))
 
 		ls PreviousCycle* -d | grep -v '\.i' | xargs rm -rf
@@ -83,15 +87,59 @@ while [ `echo $norm2'<'$limit | bc -l` -eq 0 ]; do
 		
 	#Run second steady state cycle
 		dCycles=1
-		eval "${cmd} SteadyState.i completedCycles=${cCycles} desiredCycles=${dCycles} ${options} ${post}"
+		eval "${cmd} SteadyState.i completedCycles=${cCycles} desiredCycles=${dCycles} ${options} ${post}" || { exit 56 ; }
 		cCycles=$((cCycles+dCycles))
 
 	# Check error
 		pvpython GetR2Error.py
 		dos2unix sum.csv
 		norm2=`cat sum.csv | sed -e 's/[eE]+*/\*10\^/'`
-		rm sum.csv
 done
 
-pvpython ParaviewCycleData.py
-rm -rf PreviousCycle
+if [[ -f sum.csv ]]
+then
+
+	# What directory is this?
+	cwd=$(basename `pwd`)
+
+	# Create backup folder if it does not exist
+	if [ ! -d ../backup ]; then
+		mkdir -p ../backup ;
+	fi
+
+	# Create results folder if it does not exist
+	if [ ! -d ../results ]; then
+		mkdir -p ../results ;
+	fi
+
+	# Create summary and move summarized data to results folder
+	pvpython cycleAnalysis.py
+	cp PowerAndEfficiency0.csv "../results/${cwd}.csv"
+
+	# Remove extraneous files
+	rm sum.csv
+
+	# Create small backup file
+	ls PreviousCycle* -d | grep -v '\.i' | xargs rm -rf
+
+	mv CurrentCycle.log PreviousCycle.log
+
+	for f in `ls SteadyState* -d | grep -v '\.i'` ; do 
+		mv $f $(echo "$f" | sed 's/SteadyState/PreviousCycle/g') ;
+	done
+
+	dCycles=0
+	eval "${cmd} SteadyState.i completedCycles=${cCycles} desiredCycles=${dCycles} ${options} ${post}"
+	cCycles=$((cCycles+dCycles))
+
+	# Move backup file to backup directory
+	for f in `ls SteadyState* -d` ; do
+		cp -rf $f $(echo "../backup/$f" | sed "s/SteadyState/${cwd}/g") ;
+	done
+
+	# Rename state
+	for f in `ls PreviousCycle* -d | grep -v '\.i'` ; do 
+		mv $f $(echo "$f" | sed 's/PreviousCycle/SteadyState/g') ;
+	done
+
+fi

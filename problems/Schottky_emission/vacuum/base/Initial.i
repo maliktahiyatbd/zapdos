@@ -1,5 +1,5 @@
 gap = 2E-6 #m
-vhigh = 50E-3 #kV
+vhigh = 100E-3 #kV
 
 position_units = 1E-6 #m
 time_units = 1E-9 #s
@@ -65,11 +65,11 @@ steadyStateTime = ${/ 1E-6 ${time_units}} # (time units)
 #	petsc_options_value = 'asm lu'
 
 	nl_rel_tol = 1E-8
-	nl_abs_tol = 1e-8
+	nl_abs_tol = 1E-6
 
-	dtmin = ${/ 1e-18 ${time_units}}
+	dtmin = ${/ 1e-20 ${time_units}}
 
-	nl_max_its = 40
+	nl_max_its = 120
 	[./TimeStepper]
 		type = IterationAdaptiveDT
 		dt = ${/ 1e-15 ${time_units}}
@@ -81,7 +81,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}} # (time units)
 
 [Outputs]
 	print_perf_log = true
-	print_linear_residuals = true
+	print_linear_residuals = false
 	console = true
 	
 	[./out]
@@ -124,15 +124,15 @@ steadyStateTime = ${/ 1E-6 ${time_units}} # (time units)
 	[../]
 	[./em]
 		block = 0
-		initial_condition = -15
+		initial_condition = -20
 	[../]
 	[./Arp]
 		block = 0
-		initial_condition = -15
+		initial_condition = -30
 	[../]
 	[./mean_en]
 		block = 0
-		initial_condition = -14
+		initial_condition = -16
 	[../]
 []
 
@@ -784,7 +784,7 @@ steadyStateTime = ${/ 1E-6 ${time_units}} # (time units)
 		user_Richardson_coefficient = 80E4
 		user_cathode_temperature = 1273
 		
-		user_p_gas = 1E2 #Pa
+##		user_p_gas = 1E1 #Pa
 		
 		property_tables_file = td_argon_mean_en.tsv
 		block = 0

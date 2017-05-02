@@ -1,17 +1,20 @@
-gap = 2E-6 #m
+gap = 4E-6 #m
 vhigh = 200E-3 #kV
+work_function = 4.00 # eV
+cathode_temperature = 1273 # K
+
+tOn = 0.5E-9 #s
+tOff = 21E-9 #s
 
 position_units = 1E-6 #m
 time_units = 1E-9 #s
 
-dom0Size = ${/ ${gap} ${position_units}}
-
-vhigh = 200E-3 #kV
 resistance = 1 #Ohms
 area = 1E-4 # Formerly 3.14e-6
 
-offTime  = ${/ 21E-9 ${time_units}} #s
-onTime = ${/ 0.5E-9E-9 ${time_units}} #s
+dom0Size = ${/ ${gap} ${position_units}}
+onTime = ${/ ${tOn} ${time_units}} #s
+offTime  = ${/ ${tOff} ${time_units}} #s
 
 #completedCycles = 0
 #desiredCycles = 10
@@ -76,7 +79,7 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	nl_rel_tol = 1E-8
 	nl_abs_tol = 1e-8
 
-	dtmin = ${/ 1e-18 ${time_units}}
+	dtmin = ${/ 1e-14 ${time_units}}
 	dtmax = ${/ ${onTime} 50 }
 	nl_max_its = 40
 	[./TimeStepper]
@@ -217,7 +220,6 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 	[../]
 	[./em_ionization]
 		type = ElectronsFromIonization
-		em = em
 		variable = em
 		potential = potential
 		mean_en = mean_en
@@ -425,6 +427,11 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		family = MONOMIAL
 		block = 0
 	[../]
+	[./Emission_energy_flux]
+		order = CONSTANT
+		family = MONOMIAL
+		block = 0
+	[../]
 []
 
 [AuxKernels]
@@ -586,6 +593,15 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		variable = DiffusiveFlux_em
 		block = 0
 	[../]
+
+	[./Emission_energy_flux]
+		type = ParsedAux
+		variable = Emission_energy_flux
+		args = 'Current_em'
+		function = '-Current_em * (${work_function} + 2*8.6173303E-5*${cathode_temperature})'
+		execute_on = 'timestep_end'
+		block = 0
+	[../]	
 []
 
 [BCs]
@@ -790,10 +806,10 @@ EndTime = ${* ${nCycles} ${cyclePeriod}}
 		ip = Arp
 		mean_en = mean_en
 		user_se_coeff = 0.02
-		user_work_function = 4.00 # eV
+		user_work_function = ${work_function} # eV
 		user_field_enhancement = 55
 		user_Richardson_coefficient = 80E4
-		user_cathode_temperature = 1273
+		user_cathode_temperature = ${cathode_temperature} # K
 		property_tables_file = td_argon_mean_en.tsv
 		block = 0
 	[../]

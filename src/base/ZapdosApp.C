@@ -35,7 +35,6 @@
 #include "SetRHS.h"
 
 // AuxKernels
-
 #include "DensityMoles.h"
 #include "TM0CylindricalErAux.h"
 #include "TM0CylindricalEzAux.h"
@@ -116,6 +115,7 @@
 
 // Postprocessors
 #include "SideTotFluxIntegral.h"
+#include "SchottkyEmissionPostProcessor.h"
 
 // Functions
 #include "SmoothedStepFunction.h"
@@ -240,6 +240,7 @@ ZapdosApp::registerObjects(Factory & factory)
 	registerConstraint(ArbitrarilyTiedValueConstraint);
 
 	registerPostprocessor(SideTotFluxIntegral);
+	registerPostprocessor(SchottkyEmissionPostProcessor);
 
 	registerFunction(SmoothedStepFunction);
 }
